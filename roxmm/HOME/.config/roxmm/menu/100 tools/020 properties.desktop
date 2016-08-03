@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=_Properties
+Comment=Show Item Properties
+Exec=sh -c "{ for x in file 'du -sbH' stat;do $x \"$0\";done;}|yad --text-info --mouse --width=500 --height=200 &"
+Icon=gtk-properties
+Terminal=false
+Categories=SendTo;ROXMM;
+StartupNotify=false
