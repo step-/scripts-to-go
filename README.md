@@ -1,12 +1,12 @@
-# rox-filer-trove
+# Scripts To Go
 
-A collection of my Linux scripts.
+_Are you sated?_
 
 I develop my scripts mostly for _Fatdog64 Linux_, a _Puppy Linux_ derivative.[1]
 
-These scripts are written to be compatible with the POSIX-compliant ash shell that comes with busybox. The she-bang line is generically set as `#!/bin/sh` to simplify packaging across Linux variants. For scripts that require features of a specific shell, the she-bang is set to reflect which shell, i.e. `#!/bin/bash`.
+They are written to be compatible with the POSIX-compliant _ash_ shell, which comes with busybox. The she-bang line is generically set as `#!/bin/sh` to simplify packaging across Linux variants. For scripts that require features of a specific shell, the she-bang is set to reflect which shell, i.e. `#!/bin/bash`.
 
-These scripts assume that the GNU versions of various commands are installed, and that GTK2+ is the GUI toolkit.
+These scripts assume the GNU version of various shell commands, and GTK2+ as the GUI toolkit.
 
 [1] Since version 700, Fatdog64 is built from _Linux From Scratch (LFS)_, and maintains excellent compatibility with Puppy Linux.
 
