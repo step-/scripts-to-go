@@ -17,4 +17,5 @@ A ROX-Filer SendTo menu look-alike.
  * Installing: `install/install-roxmm.sh`
  * Dependencies: [my gtkmenuplus fork](https://github.com/step-/gtkmenuplus)
  * Help: `roxmm --help`
+ * Screenshot: Right - rox SendTo menu. Left - corresponding roxmm menu. Note tooltip and Tools menu.
  * ![Screenshot](img/roxmm.png)
