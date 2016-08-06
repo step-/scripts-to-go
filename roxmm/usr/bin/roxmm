@@ -25,7 +25,8 @@ Options:    default value in braces
   --keyaccel=0  don't underline underscored letters in menu labels {1}
   --mimedb=1  (advanced) use mimedb in addition to xdg-mime {0}
   --position='x y'  menu position coordinates {under mouse}
-  --sections=LETTER-ITEMS ordered menu sections to display {'@A B C D Z'}
+  --sections=LETTER-ITEMS ordered menu sections to display {'@A @B @C @D Z'}
+      Prefix letter with @ to hide section when it contains no items.
       Reorder list as needed. See examples below for meaning of letters.
 Environment Variables:
   Each option corresponds to and overrides the value of an environment
@@ -99,7 +100,7 @@ in_sections() # $*-section-letters {{{1
 {
   local a
   for a; do
-    case $o_sections in *$a*) set +x; return 0 ;; esac
+    case $o_sections in *$a*) return 0 ;; esac
   done
   return 1
 }
@@ -276,10 +277,19 @@ format ="
  return $count
 }
 
+PREVIOUS_SECTION=init #{{{1}}}
 fmt_separator() # {{{1
 {
-  [ $ITEM_COUNT_OLD -lt $ITEM_COUNT ] && echo separator
+  if
+    # show sep if section added some items
+    [ $ITEM_COUNT -gt 0 -a $ITEM_COUNT_OLD -lt $ITEM_COUNT ] ||
+    # show sep if no ignore empty section
+    case $CURRENT_SECTION in @*) false ;; *) true ;; esac
+  then
+    [ $PREVIOUS_SECTION != init ] && echo separator
+  fi
   ITEM_COUNT_OLD=$ITEM_COUNT
+  PREVIOUS_SECTION=$CURRENT_SECTION
 }
 
 get_rox_sendto_handlers() # [ $1-rox-part-path ] {{{1
@@ -330,9 +340,9 @@ YAD_OPTIONS="$YAD_OPTIONS"\
 " --title \"$(gettext "roxmm tool")\""\
 " --window-icon=roxmm"\
 ""
-
 export YAD_OPTIONS
-{
+
+{ #{{{2}}}
   # Initialize Menu. {{{2
   echo "
 handler_arguments = \"'"$ITEM_PATH"'\"
@@ -345,23 +355,25 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
   getv_rox_mime_handler "$ITEM_PATH"
   getv_sys_mime_handler "$ITEM_PATH"
 
-  for section in $o_sections; do case $section in # {{{2}}}
-    A) # Mime-type handlers that rox and mimedb define (may differ) {{{2
+  for CURRENT_SECTION in $o_sections; do case $CURRENT_SECTION in # {{{2}}}
+    *A*) # Mime-type handlers that rox and mimedb define (may differ) {{{2
     if in_sections A; then
       fmt_separator
       if [ -z "$ROX_HANDLER" -a -z "$SYS_HANDLER" ]; then
         # format mimetype(s) for error entry
-        mt=$ROX_MIMETYPE
-        [ -z "$mt" ] && mt=$SYS_MIMETYPE
-        [ $mt != $ROX_MIMETYPE ] && label="$ROX_MIMETYPE $mt"
-        [ -n "$mt" ] && mt="($mt)"
-        # print: command \n label \n icon \n highlight
-        printf "%s\n" \
-          false \
-          "$(printf "$(gettext "mime type handler not found %s")" "$mt")" \
-          "gtk-stop" \
-          "!color='red'" |
-        fmt_menu_items; ITEM_COUNT=$((ITEM_COUNT+$?))
+        if ! in_sections '@A'; then
+          mt=$ROX_MIMETYPE
+          [ -z "$mt" ] && mt=$SYS_MIMETYPE
+          [ $mt != $ROX_MIMETYPE ] && label="$ROX_MIMETYPE $mt"
+          [ -n "$mt" ] && mt="($mt)"
+          # print: command \n label \n icon \n highlight
+          printf "%s\n" \
+            false \
+            "$(printf "$(gettext "mime type handler not found %s")" "$mt")" \
+            "gtk-stop" \
+            "!color='red'" |
+          fmt_menu_items; ITEM_COUNT=$((ITEM_COUNT+$?))
+        fi
       else
         if [ -n "$ROX_HANDLER" ]; then
           printf "%s\n" \
@@ -383,7 +395,7 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
     fi
     ;;
 
-    B) # Rox SendTo handlers for rox mime-type, i.e. 'image/jpeg'. #{{{2
+    *B*) # Rox SendTo handlers for rox mime-type, i.e. 'image/jpeg'. #{{{2
     if in_sections B && [ -n "$ROX_MIMETYPE_2" ]; then
       fmt_separator
       get_rox_sendto_handlers ${ROX_MIMETYPE_1}_$ROX_MIMETYPE_2 |
@@ -391,7 +403,7 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
     fi
     ;;
 
-    C) # Rox SendTo handlers for rox mime-type part 1, i.e. 'image' of 'image/jpeg'. #{{{2
+    *C*) # Rox SendTo handlers for rox mime-type part 1, i.e. 'image' of 'image/jpeg'. #{{{2
     if in_sections C && [ -n "$ROX_MIMETYPE_1" ]; then
       fmt_separator
       get_rox_sendto_handlers $ROX_MIMETYPE_1 |
@@ -399,7 +411,7 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
     fi
     ;;
 
-    D) # Rox SendTo handlers for all items. #{{{2
+    *D*) # Rox SendTo handlers for all items. #{{{2
     if in_sections D; then
       fmt_separator
       get_rox_sendto_handlers |
@@ -407,7 +419,7 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
     fi
     ;;
 
-    Z) # Entries in and under ~/.config/roxmm/menu/. #{{{2
+    *Z*) # Entries in and under ~/.config/roxmm/menu/. #{{{2
     if in_sections Z; then
       fmt_separator
       echo "launcher=$HOME/.config/roxmm/menu/" && ITEM_COUNT=$((++ITEM_COUNT))
