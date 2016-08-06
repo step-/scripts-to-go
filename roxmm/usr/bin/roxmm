@@ -62,7 +62,7 @@ o_iconsize=${ROXMM_ICONSIZE:-16}
 o_keyaccel=${ROXMM_KEYACCEL:-1}
 o_mimedb=${ROXMM_MIMEDB:-0}
 o_position="${ROXMM_POSITION:+menuposition }${ROXMM_POSITION}"
-o_sections=${ROXMM_SECTIONS:-A B C D Z}
+o_sections=${ROXMM_SECTIONS:-@A @B @C @D Z}
 
 ARGS=$(getopt -o h -l \
   help,sections:,highlight:,iconsize:,iconfast:,mimedb:,formats:,position:,keyaccel: \
