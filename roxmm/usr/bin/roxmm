@@ -25,21 +25,22 @@ Options:    default value in braces
   --keyaccel=0  don't underline underscored letters in menu labels {1}
   --mimedb=1  (advanced) use mimedb in addition to xdg-mime {0}
   --position='x y'  menu position coordinates {under mouse}
-  --sections=LIST-OF-N N=0..4  ordered menu sections to display {'0 1 2 3 4'}
+  --sections=LETTER-ITEMS ordered menu sections to display {'@A B C D Z'}
+      Reorder list as needed. See examples below for meaning of letters.
 Environment Variables:
   Each option corresponds to and overrides the value of an environment
   variable, which you set in your shell profile to change roxmm default
   values. Name the environment variable 'ROXMM_' followed by the
   uppercase long option name, for instance:
-    env ROXMM_ICONSIZE=24 ROXMM_SECTIONS='0 2' roxmm /tmp
+    env ROXMM_ICONSIZE=24 ROXMM_SECTIONS='A C' roxmm /tmp
 Themes: Set GTK2_RC_FILES to alter the default theme for all menus.
 Examples:
   env GTK2_RC_FILES=/usr/share/themes/Clearlooks/gtk-2.0/gtkrc roxmm /tmp
-  env ROXMM_SECTIONS='0' roxmm a.jpeg ;: Just the MIME handlers
-  env ROXMM_SECTIONS='0 1' roxmm a.jpeg ;: MIME handler and 'image/jpeg' SendTo
-  env ROXMM_SECTIONS='1 2' roxmm a.jpeg ;: 'image/jpeg' and 'image' SendTos
-  env ROXMM_SECTIONS='3'   roxmm a.jpeg ;: SendTos for all rox items
-  env ROXMM_SECTIONS='4'   roxmm a.jpeg ;: ~/.config/roxmm/menu/*.desktop
+  env ROXMM_SECTIONS='A' roxmm a.jpeg ;: Just the MIME handlers.
+  env ROXMM_SECTIONS='A B' roxmm a.jpeg ;: MIME handler and 'image/jpeg' SendTo
+  env ROXMM_SECTIONS='B C' roxmm a.jpeg ;: 'image/jpeg' and 'image' SendTos
+  env ROXMM_SECTIONS='D'   roxmm a.jpeg ;: SendTos for all rox items
+  env ROXMM_SECTIONS='Z'   roxmm a.jpeg ;: ~/.config/roxmm/menu/*.desktop
   env ROXMM_HIGHLIGHT=1 ROXMM_ICONSIZE=24 roxmm a.sh
   env ROXMM_ICONFAST=1 roxmm a.sh
   env ROXMM_HIGHLIGHT=1 ROXMM_FORMATS=\"weight='bold' size='12800'\" roxmm a.jpeg
@@ -60,7 +61,7 @@ o_iconsize=${ROXMM_ICONSIZE:-16}
 o_keyaccel=${ROXMM_KEYACCEL:-1}
 o_mimedb=${ROXMM_MIMEDB:-0}
 o_position="${ROXMM_POSITION:+menuposition }${ROXMM_POSITION}"
-o_sections=${ROXMM_SECTIONS:-0 1 2 3 4}
+o_sections=${ROXMM_SECTIONS:-A B C D Z}
 
 ARGS=$(getopt -o h -l \
   help,sections:,highlight:,iconsize:,iconfast:,mimedb:,formats:,position:,keyaccel: \
@@ -94,9 +95,13 @@ fi
 
 ITEM_PATH=$1
 
-in_sections() # $1-N {{{1
+in_sections() # $*-section-letters {{{1
 {
-  case $o_sections in *$1*) return 0 ;; *) return 1 ;; esac
+  local a
+  for a; do
+    case $o_sections in *$a*) set +x; return 0 ;; esac
+  done
+  return 1
 }
 
 getv_rox_mime_handler() # $1-path {{{1
@@ -341,9 +346,8 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
   getv_sys_mime_handler "$ITEM_PATH"
 
   for section in $o_sections; do case $section in # {{{2}}}
-    0) # Menu section 0. {{{2
-    # Mime-type handlers that rox and mimedb define (may differ)
-    if in_sections 0; then
+    A) # Mime-type handlers that rox and mimedb define (may differ) {{{2
+    if in_sections A; then
       fmt_separator
       if [ -z "$ROX_HANDLER" -a -z "$SYS_HANDLER" ]; then
         # format mimetype(s) for error entry
@@ -379,36 +383,32 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
     fi
     ;;
 
-    2) # Menu section 1. {{{2
-    # Rox SendTo handlers for rox mime-type, i.e. 'image/jpeg'.
-    if in_sections 1 && [ -n "$ROX_MIMETYPE_2" ]; then
+    B) # Rox SendTo handlers for rox mime-type, i.e. 'image/jpeg'. #{{{2
+    if in_sections B && [ -n "$ROX_MIMETYPE_2" ]; then
       fmt_separator
       get_rox_sendto_handlers ${ROX_MIMETYPE_1}_$ROX_MIMETYPE_2 |
       fmt_menu_items; ITEM_COUNT=$((ITEM_COUNT+$?))
     fi
     ;;
 
-    1) # Menu section 2. {{{2
-    # Rox SendTo handlers for rox mime-type part 1, i.e. 'image' of 'image/jpeg'.
-    if in_sections 2 && [ -n "$ROX_MIMETYPE_1" ]; then
+    C) # Rox SendTo handlers for rox mime-type part 1, i.e. 'image' of 'image/jpeg'. #{{{2
+    if in_sections C && [ -n "$ROX_MIMETYPE_1" ]; then
       fmt_separator
       get_rox_sendto_handlers $ROX_MIMETYPE_1 |
       fmt_menu_items; ITEM_COUNT=$((ITEM_COUNT+$?))
     fi
     ;;
 
-    3) # Menu section 3. {{{2
-    # Rox SendTo handlers for all items
-    if in_sections 3; then
+    D) # Rox SendTo handlers for all items. #{{{2
+    if in_sections D; then
       fmt_separator
       get_rox_sendto_handlers |
       fmt_menu_items; ITEM_COUNT=$((ITEM_COUNT+$?))
     fi
     ;;
 
-    4) # Menu section 4. {{{2
-    # Entries in and under ~/.config/roxmm/menu/.
-    if in_sections 4; then
+    Z) # Entries in and under ~/.config/roxmm/menu/. #{{{2
+    if in_sections Z; then
       fmt_separator
       echo "launcher=$HOME/.config/roxmm/menu/" && ITEM_COUNT=$((++ITEM_COUNT))
     fi
