@@ -426,7 +426,7 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
       "$md/bookmarks.awk" -v WRAP=1 \
         "$HOME/.config/rox.sourceforge.net/ROX-Filer/Bookmarks.xml"
       echo endsubmenu  && ITEM_COUNT=$((++ITEM_COUNT))
-      echo "launcher=$md" && ITEM_COUNT=$((++ITEM_COUNT))
+      echo "launchersub=$md" && ITEM_COUNT=$((++ITEM_COUNT))
     fi
     ;;
 
