@@ -25,7 +25,7 @@ Options:    default value in braces
   --keyaccel=0  don't underline underscored letters in menu labels {1}
   --mimedb=1  (advanced) use mimedb in addition to xdg-mime {0}
   --position='x y'  menu position coordinates {under mouse}
-  --sections=LETTER-ITEMS ordered menu sections to display {'@A @B @C @D Z'}
+  --sections=LETTER-ITEMS ordered menu sections to display {'@A @Y @B @C @D Z'}
       Prefix letter with @ to hide section when it contains no items.
       Reorder list as needed. See examples below for meaning of letters.
 Environment Variables:
@@ -41,6 +41,8 @@ Examples:
   env ROXMM_SECTIONS='A B' roxmm a.jpeg ;: MIME handler and 'image/jpeg' SendTo
   env ROXMM_SECTIONS='B C' roxmm a.jpeg ;: 'image/jpeg' and 'image' SendTos
   env ROXMM_SECTIONS='D'   roxmm a.jpeg ;: SendTos for all rox items
+  Rox right-click menus don't have equivalents of sections Y and Z:
+  env ROXMM_SECTIONS='Y'   roxmm a.jpeg ;: 'image/jpeg' SendTo from xdg-mime
   env ROXMM_SECTIONS='Z'   roxmm a.jpeg ;: ~/.config/roxmm/menu/*.desktop
   env ROXMM_HIGHLIGHT=1 ROXMM_ICONSIZE=24 roxmm a.sh
   env ROXMM_ICONFAST=1 roxmm a.sh
@@ -62,7 +64,7 @@ o_iconsize=${ROXMM_ICONSIZE:-16}
 o_keyaccel=${ROXMM_KEYACCEL:-1}
 o_mimedb=${ROXMM_MIMEDB:-0}
 o_position="${ROXMM_POSITION:+menuposition }${ROXMM_POSITION}"
-o_sections=${ROXMM_SECTIONS:-@A @B @C @D Z}
+o_sections=${ROXMM_SECTIONS:-@A @Y @B @C @D Z}
 
 ARGS=$(getopt -o h -l \
   help,sections:,highlight:,iconsize:,iconfast:,mimedb:,formats:,position:,keyaccel: \
@@ -133,6 +135,33 @@ getv_rox_mime_handler() # $1-path {{{1
   # mime-type handler as a .desktop file.
 }
 
+getv_rox_mime_handler_from_mimetype() # $1-mimetype {{{1
+# set ROX_HANDLER_FROM_MIMETYPE
+#
+# Rationale: look for a user-defined rox handler for a mime-type for
+# which rox -m returns null. For instance, xdg-mime, which resorts
+# to file -i, can return a non-null mime-type when rox -m returns
+# null. Users could mistakingly define a rox handler for that mime-type,
+# without realizing that rox will not display it because it considers
+# the mime-type to be null.  This function and roxmm menu section Y
+# provide users with a work-around for this situation.
+{
+  unset ROX_HANDLER_FROM_MIMETYPE
+  local t1 t1
+  t1=${1%/*} t2=${1#*/}
+  ROX_HANDLER_FROM_MIMETYPE=$HOME/.config/rox.sourceforge.net/MIME-types/${t1}_$t2
+  ! [ -e "$ROX_HANDLER_FROM_MIMETYPE" ] &&
+    ROX_HANDLER_FROM_MIMETYPE=/etc/xdg/rox.sourceforge.net/MIME-types/${t1}_$t2
+  [ -L "$ROX_HANDLER_FROM_MIMETYPE" ] &&
+    ROX_HANDLER_FROM_MIMETYPE=$(readlink "$ROX_HANDLER_FROM_MIMETYPE") # deref once only
+  ! [ -e "$ROX_HANDLER_FROM_MIMETYPE" ] && unset ROX_HANDLER_FROM_MIMETYPE
+
+  # Most likely the rox mime-type handler is a (link to a) script,
+  # which has no associated icon. So we will get an icon from the
+  # mime-type. To override this choice the user may re-define the rox
+  # mime-type handler as a .desktop file.
+}
+
 get_rox_mimetype_icon() # $1-mimetype [$2-handler-path] {{{1
 {
   local p1 p2 e ip handler
@@ -191,20 +220,24 @@ getv_sys_mime_handler() # $1-path {{{1
 }
 
 getv_sys_mime_handler_with_xdg_mime() # $1-path {{{1
-# set SYS_HANDLER SYS_MIMETYPE
+# Set SYS_HANDLER SYS_MIMETYPE SYS_MIMETYPE_1 SYS_MIMETYPE_2
 {
-  unset SYS_HANDLER SYS_MIMETYPE
+  unset SYS_HANDLER SYS_MIMETYPE SYS_MIMETYPE_1 SYS_MIMETYPE_2
   SYS_MIMETYPE=$(xdg-mime query filetype "$1" 2>/dev/null)
   SYS_MIMETYPE=${SYS_MIMETYPE%%;*}
+  SYS_MIMETYPE_1=${SYS_MIMETYPE%/*}
+  SYS_MIMETYPE_2=${SYS_MIMETYPE#*/}
   SYS_HANDLER=$(find_desktop_file_with_xdg_mime "$SYS_MIMETYPE")
   ! [ -e "$SYS_HANDLER" ] && unset SYS_HANDLER
 }
 
 getv_sys_mime_handler_with_mimedb() # $1-path {{{1
-# Set SYS_HANDLER SYS_MIMETYPE
+# Set SYS_HANDLER SYS_MIMETYPE SYS_MIMETYPE_1 SYS_MIMETYPE_2
 {
-  unset SYS_HANDLER SYS_MIMETYPE
+  unset SYS_HANDLER SYS_MIMETYPE SYS_MIMETYPE_1 SYS_MIMETYPE_2
   SYS_MIMETYPE=$(mimedb "$1" 2>/dev/null)
+  SYS_MIMETYPE_1=${SYS_MIMETYPE%/*}
+  SYS_MIMETYPE_2=${SYS_MIMETYPE#*/}
   SYS_HANDLER=$(mimedb -ai "$SYS_MIMETYPE")
   # Try to find a .desktop file that handles this mime-type.
   local handler
@@ -416,6 +449,21 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
       fmt_separator
       get_rox_sendto_handlers |
       fmt_menu_items; ITEM_COUNT=$((ITEM_COUNT+$?))
+    fi
+    ;;
+
+    *Y*) # Rox mime-type handler for xdg mime-type, i.e. 'image/jpeg'. #{{{2
+    if in_sections Y && [ -n "$SYS_MIMETYPE" ]; then
+      getv_rox_mime_handler_from_mimetype $SYS_MIMETYPE
+      if [ -n "$ROX_HANDLER_FROM_MIMETYPE" ]; then
+        fmt_separator
+        printf "%s\n" \
+          "$ROX_HANDLER_FROM_MIMETYPE" \
+          "${ROX_HANDLER_FROM_MIMETYPE##*/} ($SYS_MIMETYPE)" \
+          "$(get_rox_mimetype_icon $SYS_MIMETYPE "$ROX_HANDLER_FROM_MIMETYPE")" \
+          "" |
+        fmt_menu_items; ITEM_COUNT=$((ITEM_COUNT+$?))
+      fi
     fi
     ;;
 
