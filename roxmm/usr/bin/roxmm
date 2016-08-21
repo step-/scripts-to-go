@@ -5,7 +5,7 @@ Version=1.0.0
 # License: GNU GPLv3 - (C)2016, step
 # Dependencies: rox, gtkmenuplus >= 1.10, at least one of xdg-mime or mimedb,
 #   yad for some tool menu entries.
-# Homepage: https://github.com/step-/rox-filer-trove/
+# Homepage: https://github.com/step-/scripts-to-go
 
 TEXTDOMAIN=roxmm OUTPUT_CHARSET=UTF-8
 export TEXTDOMAIN OUTPUT_CHARSET
