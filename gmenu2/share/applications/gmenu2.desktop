@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=_Gmenu2
+GenericName=gmenu2
+Comment=Application menu
+Exec=gmenu2
+Icon=gmenu2
+Terminal=false
+Categories=Desktop;GTK;

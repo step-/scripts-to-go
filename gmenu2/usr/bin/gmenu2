@@ -1,0 +1,540 @@
+#!/bin/ash
+
+# gmenu2 - A simple application menu for GtkMenuPlus
+Version=1.0.0
+# License: GNU GPLv3 - (C)2016, step
+# Dependencies: gtkmenuplus >= 1.10
+# Homepage: https://github.com/step-/scripts-to-go
+# Ideas borrowed from Gmenu script, GNU GPLv2 - (C)2016, SFR
+
+# i18n [[[1
+export TEXTDOMAIN=gmenu2
+export OUTPUT_CHARSET=UTF-8
+{
+  read IT_concealed_1; read TT_concealed_1
+  read IT_concealed_0; read TT_concealed_0
+  read IT_new_app_1;   read TT_new_app_1
+  read IT_new_app_0;   read TT_new_app_0
+  read IT_uncat_app_1; read TT_uncat_app_1
+  read IT_uncat_app_0; read TT_uncat_app_0
+  read IT_uncategorized_apps; read TT_uncategorized_apps
+} << EOF
+$(gettext -es \
+"Show _concealed applications\n" \
+  "Mostly consisting of system scripts\n" \
+"Hide _concealed applications\n" \
+  "Hiding is recommended for normal use\n" \
+"_Look for new applications\n" \
+  "Enable this after installing new applications, then disable it. This rebuilds the cache on each Gmenu2 invocation.\n" \
+"Stop _looking for new applications\n" \
+  "Stopping reduces start-up/disk overhead; recommended if no new applications were installed\n" \
+"Enable _uncategorized application sub-menu\n" \
+  "Enable this if you still can't find some (newly-installed) applications.\n" \
+"Disable _uncategorized application sub-menu\n" \
+  "\n" \
+"_Uncategorized\n" \
+  "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'GMenu2>Look for new applications'.\n" \
+)
+EOF
+
+# Initialize/read configuration [[[1
+IGNORENODISPLAY=0
+INLINE=1 # INLINE=0 for sub-categorized menus (mostly educational)
+LOOK_FOR_APPLICATION_CHANGES=0 # rebuild data dirs on each run
+SUBMENU_UNCATEGORIZED_APPS=1 # TODO default 0
+# $CONFIG data wins over above data
+CONFIG="$HOME/.gmenu2rc"
+[ -e "$CONFIG" ] || > "$CONFIG"; . "$CONFIG"
+# Add missing/hidden defaults.
+awk '
+  /^IGNORENODISPLAY=/{f1=1}
+  /^INLINE=/{f2=1}
+  /^LOOK_FOR_APPLICATION_CHANGES=/{f3=1}
+  /^SUBMENU_UNCATEGORIZED_APPS=/{f4=1}
+  END{
+    if(!f1) print "IGNORENODISPLAY=\"'"$IGNORENODISPLAY"'\"">>ARGV[1]
+    if(!f2) print "INLINE=\"'"$INLINE"'\"">>ARGV[1]
+    if(!f3) print "LOOK_FOR_APPLICATION_CHANGES=\"'"$LOOK_FOR_APPLICATION_CHANGES"'\"">>ARGV[1]
+    if(!f4) print "SUBMENU_UNCATEGORIZED_APPS=\"'"$SUBMENU_UNCATEGORIZED_APPS"'\"">>ARGV[1]
+  }
+  ' "${CONFIG}"
+
+# LOOK_FOR_APPLICATION_CHANGES data dirs [[[1
+# To start a fresh menu rm -r "$TMPMENUDIR" and restart gmenu2.
+# Be wary that multiple runs without 'rm -r' will duplicate files,
+# therefore run longer, due to 'cp' backup control - see {N1} below.
+TMPMENUDIR="/tmp/gmenu2_$USER"
+TMPMENU="$TMPMENUDIR/gmenu2"
+if [ -f "$TMPMENU" -a 1 != "$LOOK_FOR_APPLICATION_CHANGES" ]; then
+  gtkmenuplus "$TMPMENU"
+  exit $?
+elif [ -d "$TMPMENUDIR" -a 1 = "$LOOK_FOR_APPLICATION_CHANGES" ]; then
+  rm -r "$TMPMENUDIR"
+fi
+
+# Initialize variables. [[[1
+MENU_ROOT="/etc/xdg/menus"
+MAIN_LAYOUT="$MENU_ROOT/applications.menu"
+
+XDG_DATA_DIRS=${XDG_DATA_DIRS:-/usr/share:/usr/local/share}
+XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local}
+
+{ read DESKTOP_FILE_DIRS; read ICON_DIRS; } << EOF
+$(
+  IFS=:
+  set -- ${XDG_DATA_HOME} ${XDG_DATA_DIRS}
+  for i; do echo -n ":$i/applications"; done; echo
+  for i; do echo -n ":$i/icons"; done; echo
+)
+EOF
+DESKTOP_FILE_DIRS=${DESKTOP_FILE_DIRS#:} ICON_DIRS=${ICON_DIRS#:}
+# http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html#directory_layout
+# Additional Fatdog64-specific locations start at .../midi-icons.
+ICON_DIRS="$HOME/.icons:${ICON_DIRS}:/usr/share/pixmaps:/usr/share/midi-icons:/usr/share/mini-icons"
+
+DESKTOP_FILE_DIRS_1=/usr/share/applications # kludge for Fatdog64 system menu
+XDG_DIRFILE_DIR=/usr/share/desktop-directories
+MAIN_LAUNCHER="$TMPMENUDIR/M"
+mkdir -p "$MAIN_LAUNCHER" || exit 1
+
+# List combined .desktop files in directory tree. [[[1
+tree_file="$TMPMENUDIR/desktop-tree"
+ifs=$IFS; IFS=:; set -- $DESKTOP_FILE_DIRS
+# -L validates symlinks.
+# Recursive search will find wine applications, too, which we exclude
+# here because they will be found and grouped elsewhere.
+2>/dev/null > "$tree_file" find -L "$@" \
+  \( -type d -name wine -prune \) \
+  -o \( -type f -name '*.desktop' -print0 \)
+IFS=$ifs
+
+# Flatten tree to symlinks. [[[1
+mkdir -p "$MAIN_LAUNCHER/I" &&
+# Same-named file control:
+# {N1} Adding --backup=numbered allows 'cp' to copy all same-named
+# files.  Otherwise 'cp' doesn't overwrite same-named target files; it
+# creates the first destination named, say, xyz then if another source
+# named xyz is found, it warns that it will not copy it.
+xargs -0 cp --backup=numbered -fst "$MAIN_LAUNCHER/I" < "$tree_file"
+
+# Build menu [[[1
+# {N2} This script builds a functioning but unoptimized menu
+# configuration file. While so doing, the script collects enough
+# (category) data to enable post-processing the configuration file to
+# optimize it iff INLINE=1.
+LANG=C gawk \
+  -v INLINE=$INLINE \
+  -v IGNORENODISPLAY=$IGNORENODISPLAY \
+  -v LOOK_FOR_APPLICATION_CHANGES=$LOOK_FOR_APPLICATION_CHANGES \
+  -v SUBMENU_UNCATEGORIZED_APPS=$SUBMENU_UNCATEGORIZED_APPS \
+  -v CONFIG=$CONFIG \
+  '
+BEGIN { #[[[2
+  DBG = "/dev/stderr"; _step__state = "init"
+  DESKTOP_FILE_DIRS_1 = "'"$DESKTOP_FILE_DIRS_1"'"
+  DIRFILE_DIR = "'"$XDG_DIRFILE_DIR"'"
+  ERRM = "#(error) "
+  MENU_ROOT = "'"$MENU_ROOT"'"
+  MENUDIR = "'"$TMPMENUDIR"'"
+  MAIN_LAUNCHER = "'"$MAIN_LAUNCHER"'"
+  STATE = "Undefined"
+
+  print "#!/usr/bin/gtkmenuplus"
+  print
+  if(INLINE)
+    print "# Flat menu groups (INLINE=1)."
+  else
+    print "# Sub-categorized menu groups (INLINE=0)."
+  print "THISFILE=$0"
+  print "WINEDIR='"$XDG_DATA_HOME"'/applications/wine"
+  print "IGNORENODISPLAY="(0<match(IGNORENODISPLAY, /(true|yes|1)/))
+  print "LOOK_FOR_APPLICATION_CHANGES="(0<match(LOOK_FOR_APPLICATION_CHANGES, /(true|yes|1)/))
+  print "SUBMENU_UNCATEGORIZED_APPS="SUBMENU_UNCATEGORIZED_APPS
+  print
+  print "# --------------------------------------------------------------------"
+  printf "Top=%s%s\n", "'"$MAIN_LAUNCHER"'", INLINE ? "/I" : ""
+  print "configure = endsubmenu noicons"
+  print "configure = launchernodisplay nolaunchernullcategory"
+  print "if= $IGNORENODISPLAY"
+  print "  configure=nolaunchernodisplay"
+  print "endif"
+  print "icondirectory = /usr/share/pixmaps\niconsize=16"
+  print
+  printf "# BEGIN \x27%s\x27\n", ARGV[1]
+}
+
+# Extract hierarchy and layout of menu groups. #[[[2
+# Each group is described by its MergeFile.
+/^[[:space:]]*$/ {next}
+/<Menu>/ { STATE="Hierarchy" }
+/<Layout>/ { STATE="Layout" }
+{
+  delete a
+}
+#: { step() }
+"Hierarchy" == STATE && parse_tag("Name", $0, a) {
+  curName = a[2]
+}
+"Hierarchy" == STATE && parse_tag("MergeFile", $0, a) {
+  mergeFile[curName] = a[2]
+}
+"Layout" == STATE && parse_tag("Menuname", $0, a) {
+  order[++n] = a[2] # indexing mergeFile[]
+  # TODO nested <Menuname>s such as in /etc/xdg/menus/puppy-desktop.menu
+}
+/<Separator\/[[:space:]]*>/ {
+  order[++n] = "_layout_separator"
+}
+
+END { # Lay out each menu group. [[[2
+  not_INLINE_separator = sep = "" # just a visual convenience
+    if(!INLINE) sep = "separator"
+  for(i = 1; i <= n; i++) {
+    print not_INLINE_separator
+    if("_layout_separator" == order[i]) {
+      print "separator" # this one instead mandated by menu layout
+      continue
+    }
+    filename = mergeFile[order[i]]
+    if(filename) {
+      if(filename == "fatdog-system-logout.menu") {
+        # Mark stop of optimization post-processing
+        print "\n#OPTIMIZE_END"
+        # Prepend additional menus before fatdog`s logout menu
+        add_uncategorized_apps_submenu()
+        add_wine_submenu()
+        add_gmenu2_submenu()
+        print "\nseparator\n"
+      }
+      group_file = MENU_ROOT"/"filename
+      layout(group_file, i)
+    } else {
+      printf "warning: No <MergeFile> for <Menu> <Name> \"%s\" in \"%s\"\n",
+        order[i], FILENAME >"/dev/stderr"
+    }
+    not_INLINE_separator = sep
+  }
+  printf "# END \x27%s\x27\n", FILENAME
+}
+
+function layout(group_file, id, #[[[2
+    rs, s, open, a,ai,an, dirfile, mkdir, x, z, categories, filenames) {
+  # Return: none, but
+  # comment out gtkmenuplus commands on error.
+
+  printf "# Group %d \x27%s\x27\n", i, group_file
+
+  if(index(group_file, "fatdog-system-logout.menu")) { #[[[
+    # We need a kludge because fatdog-system-logout.menu group_file is broken!
+    print "launcherdirfile="
+    print "launcher="DESKTOP_FILE_DIRS_1"/system/"
+    return
+    # Why is it broken? (in Fatdog64-710 alpha 2)
+    # /etc/xdg/menus/fatdog-system-logout.menu includes <Filename> tags,
+    # which this function can handle normally.  However, all referenced
+    # files are non-existent; they were renamed and moved into their own
+    # sub-directory ".../system".
+  }
+  #]]]
+  # This code can parse the following tag patterns: #[[[
+  # 1. <Menu> holds <Directory> && <Layout><Menuname>s
+  #    Top level menu group container; assumed one per group_file
+  #    Top <Directory> implies opening a submenu entry if INLINE==1
+  #    Implementation: launchersubmenu=.
+  #    Normally a group starts with pattern 1.
+  #    Sample file for patterns 1+2: puppy-desktop.menu
+  # 2. <Menu> holds <Directory> && !<Layout> && <Include><Category>s
+  #    Menu contained in 1; filters XDG_DATA_DIRS by categories; many per group_file
+  #    <Directory> implies submenu entry unless INLINE==1.
+  #    Implementation: launchersub=$Top level.
+  #    Sample file for patterns 1+2: puppy-desktop.menu
+  #    Special case: if group _starts_ with pattern 2 we open a submenu entry anyway.
+  #    Sample file for special case: Puppy-Development.directory
+  # 3. <Menu> holds !<Directory> && <Layout><Filename>s && <Include><Categories>
+  #    Single menu entries; filters XDG_DATA_DIRS by categories
+  #    <Filename> implies inline entry regardless of INLINE
+  #    Sample file for pattern 3: fatdog-system-logout.menu
+  #]]]
+  ops["mkdir"] = 1
+  ops["mksubmenu"] = INLINE ? "REQUEST" : ""
+  rs = RS; RS = "</?Menu>"
+  while(0 < (getline s < group_file)) {
+    open = 1
+   if(is_pattern(1, s)) { #[[[
+      if(parse_tag("Directory", s, a)) { # TODO parse <inline> tag but for now INLINE is good enough
+        dirfile = DIRFILE_DIR"/"a[2]
+        x = create_dirfile(dirfile, id, 1, group_file, "", ops)
+        if("REQUEST" == ops["mksubmenu"]) {
+          printf "%slaunchersubmenu=%s\n",
+            x ? "" : ERRM, x ? x : dirfile
+          ops["mksubmenu"] = "SUCCESS"
+        }
+        dirfile = ""
+      }
+      continue
+    }
+    #]]]
+    if(is_pattern(2, s)) { #[[[
+      if(parse_tag("Directory", s, a)) {
+        dirfile = DIRFILE_DIR"/"a[2]
+      }
+      if(parse_tag("Category", s, a)) {
+        categories = implode_tag("Category", ";", a[2])
+      }
+      if(dirfile) {
+        x = create_dirfile(dirfile, id, 2, menufile, categories, ops)
+        z = (x ? "" : ERRM)
+        printf "%slauncherdirfile=%s\n", z, x
+        printf "%slaunchersub=$Top\n", z
+        dirfile = ""
+      }
+      else {
+        printf "%s creating %s\n", ERRM, dirfile
+      }
+      continue
+    }
+    #]]]
+    if(is_pattern(3, s)) { #[[[
+      if(parse_tag("Filename", s, a)) {
+        filenames = a[2]
+        an = split(filenames, a, "[[:space:]]*<Filename>|</Filename>[[:space:]]*")
+        for(ai = 1; ai <= an; ai++) {
+          if(a[ai]) print "launchersub="MAIN_LAUNCHER"/I/"a[ai]
+        }
+      }
+      continue
+    }
+    #]]]
+  }
+  if(open) {
+    close(menufile)
+    if("SUCCESS" == ops["mksubmenu"]) {
+      print "endsubmenu"
+    }
+  }
+  else {
+    printf "cat\x27t open \x27%s\x27\n", menufile >"/dev/stderr"
+  }
+}
+
+function create_dirfile(dirfile, id, pat_tag, menufile, categories, byValue, #[[[2
+    na, a, newdir, newfile, rs, s) {
+  # Return: created-dirfile-fullpath or "" on error.
+
+  #: print "#: create_dirfile("dirfile"," id"," pat_tag"," menufile"," categories")"
+  #: printf "#:"; for(s in byValue) printf " %s=%s", s, byValue[s]; print ""
+  rs = RS; RS = "\x1\x2\x3"
+  if(0 < (getline s < dirfile)) {
+    close(dirfile)
+    newdir = MENUDIR"/"id
+    if(byValue["mkdir"] && 0 == system("mkdir -p \""newdir"\"") \
+      || !mkdir) {
+      byValue["mkdir"] = 0 # made it, so do not make it again.
+      na = split(dirfile, a, "/")
+      newfile = newdir"/"pat_tag"_"a[na]
+      print s > newfile
+    }
+  }
+  RS = rs
+  if(newfile) {
+    if("REQUEST" == byValue["mksubmenu"]) {
+      printf "launchersubmenu=%s\n",
+        byValue["launchersubmenu"] = newfile
+      byValue["mksubmenu"] = "SUCCESS"
+    }
+    if(categories) {
+      # Save cats to pattern 2`s dirfile
+      print "Categories=" categories > newfile
+
+      # And also accumulate cats in launchersubmenu= file, a.k.a
+      # (pattern 1`s dirfile) to enable optimization {N2}
+      if(newfile != byValue["launchersubmenu"]) {
+        printf ";" categories >> byValue["launchersubmenu"]
+        close(byValue["launchersubmenu"])
+      }
+    } else {
+      # Init accumulating cats in launchersubmenu= file {N2}
+      printf "Categories=" >> byValue["launchersubmenu"]
+      close(byValue["launchersubmenu"])
+    }
+    close(newfile)
+    return newfile
+  }
+}
+
+function parse_tag(tag, buf, byRef, #[[[2 TODO tag cannot span multiple lines
+    a, rx, attr, val, k, ret) {
+
+  rx = "[[:space:]]*<"tag"([^>]*)>(.*)</"tag">[[:space:]]*"
+  ret = match(buf, rx, a)
+  if(ret) {
+    delete byRef
+    byRef["_tag"] = tag
+    byRef["_rx"] = rx
+    byRef[0] = a[0]
+    byRef[1] = attr = a[1]
+    byRef[2] = val = a[2]
+  }
+  #: print "  "ret" <- tag("tag")\n" >DBG
+  #: if(ret) for(i in a) print "    a["i"]("a[i]")" >DBG
+  #: if(ret) for(i in byRef) print "    byRef["i"]("byRef[i]")" >DBG
+  return ret
+}
+
+function is_pattern(n, s) { #[[[2
+if(1 == n)
+  return index(s, "</Directory>") && index(s, "</Layout>") && index(s,"</Menuname>")
+else if (2 == n)
+  return index(s, "</Directory>") && !index(s, "</Layout>") && index(s,"</Category>")
+else if (3 == n)
+  return !index(s, "</Directory>") && index(s, "</Layout>") && index(s,"</Category>")
+else return 0
+}
+
+function implode_tag(tag, sep, xml, #[[[2
+    rx) {
+  rx = "[[:space:]]*<"tag">|</"tag">[[:space:]]*"
+  categories = a[2]
+  gsub(rx, sep, xml)
+  gsub(sep"+", sep, xml)
+  return xml
+}
+
+function step(msg, # [[[2
+    s, tty, appname) {
+  appname = ARGV[0]
+  if(""==msg) msg="Press ENTER to run to next, Ctrl+D to run to end, Ctrl+C to kill"
+  if("init" == _step__state) {
+    printf "Press ENTER to start " >DBG
+    fflush()
+    getline s < "/dev/stdin"
+    _step_state = "open"
+  }
+  printf "%s[% 4d](%s)\n", appname, NR, $0 >DBG
+  if("closed" != _step__state) {
+    _step__state = "closed"
+    printf "%s[% 4d] %s", appname, NR, msg >DBG
+  }
+  fflush()
+  getline s < "/dev/stdin"
+  step__state = "open"
+}
+
+function add_wine_submenu() # [[[2
+{
+  # Create suitable dirfile
+  dirfile = MENUDIR "/folder.directory"
+  print "[Desktop Entry]\nIcon=folder" > dirfile
+  close(dirfile)
+
+  print "# Wine sub-menu\nlauncherdirfile="
+  print "if= [ -d \"$WINEDIR\" ] && echo 1 || echo 0"
+  print "configure = launchernullcategory"
+  print "submenu = _Wine\nicon = 1CD8_rundll32.0"
+  print "launcherdirfile = "dirfile
+  print "launchersub=$WINEDIR"
+  print "endsubmenu\n\nseparator\n"
+  print "configure = nolaunchernullcategory"
+  print "\nendif"
+}
+
+function add_uncategorized_apps_submenu(   dirfile) # [[[2
+{
+  # Create suitable dirfile
+  dirfile = MENUDIR "/uncategorized.directory"
+  print "[Desktop Entry]\nIcon=folder"\
+    "\nName='"$IT_uncategorized_apps"'"\
+    "\nComment='"$TT_uncategorized_apps"'"\
+    "\nCategories=NULL" > dirfile
+  close(dirfile)
+
+  print "# Uncategorized apps sub-menu\nlauncherdirfile="
+  print "if= $SUBMENU_UNCATEGORIZED_APPS"
+  print "configure = nolaunchernodisplay launchernullcategory"
+  print "launchersubmenu = "dirfile
+  print "launcherdirfile = "dirfile
+  print "launchersub=$Top"
+  print "endsubmenu\n\nseparator\n"
+  print "configure = launchernodisplay nolaunchernullcategory"
+  print "\nendif"
+}
+
+function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
+{
+  print "# GMenu2 sub-menu\nlauncherdirfile="
+  print "submenu = _Gmenu2\nicon = gtk-preferences"
+  # Toggle IGNORENODISPLAY [[[3
+  it1 = "'"$IT_concealed_1"'"
+  tt1 = "'"$TT_concealed_1"'"
+  it0 = "'"$IT_concealed_0"'"
+  tt0 = "'"$TT_concealed_0"'"
+  print "if= $IGNORENODISPLAY\nelse"
+  print "item = "it1"\nicon = gtk-yes\ntooltip = "tt1
+  print "cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
+
+  print "if= $IGNORENODISPLAY\n"
+  print "item = "it0"\nicon = gtk-no\ntooltip = "tt0
+  print "cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
+  # Toggle LOOK_FOR_APPLICATION_CHANGES [[[3
+  it1 = "'"$IT_new_app_1"'"
+  tt1 = "'"$TT_new_app_1"'"
+  it0 = "'"$IT_new_app_0"'"
+  tt0 = "'"$TT_new_app_0"'"
+  print "if= $LOOK_FOR_APPLICATION_CHANGES\nelse"
+  print "item = "it1"\nicon = gtk-yes\ntooltip = "tt1
+  print "cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
+
+  print "if= $LOOK_FOR_APPLICATION_CHANGES"
+  print "item = "it0"\nicon = gtk-no\ntooltip = "tt0
+  print "cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
+
+  # Toggle SUBMENU_UNCATEGORIZED_APPS [[[3
+  it1 = "'"$IT_uncat_app_1"'"
+  tt1 = "'"$TT_uncat_app_1"'"
+  it0 = "'"$IT_uncat_app_0"'"
+  tt0 = "'"$TT_uncat_app_0"'"
+  print "if= $SUBMENU_UNCATEGORIZED_APPS\nelse\n"
+  print "item = "it1"\nicon = gtk-yes\ntooltip = "tt1
+  print "cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
+
+  print "if= $SUBMENU_UNCATEGORIZED_APPS\n"
+  print "item = "it0"\nicon = gtk-no\ntooltip = "tt0
+  print "cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
+
+  print "endsubmenu"
+}
+
+#[[[2]]] ' "$MAIN_LAYOUT" > "$TMPMENU" &&
+
+# Optimize menu {N2} [[[1
+if [ 1 = $INLINE ]; then
+  LANG=C gawk '
+/#OPTIMIZE_END/ {bOptimizeStop=1}
+/^launchersubmenu=/,/^endsubmenu/ {
+  if(bOptimizeStop) {
+    print
+  } else if(match($0, /^launchersubmenu ?=/)) {
+    print # launchersubmenu=...
+    print "launcherdirfile =" substr($0, RSTART+RLENGTH)
+    print "launchersub=$Top"
+    print "endsubmenu"
+  }
+  # All other lines in this range can be discarded.
+  next
+}
+{print}
+  #[[[2]]] ' "$TMPMENU" > "$TMPMENU.opt" &&
+  mv "$TMPMENU.opt" "$TMPMENU"
+fi &&
+
+# Display menu [[[1
+gtkmenuplus "$TMPMENU"
+chmod +x "$TMPMENU"
+
+# vim: foldmarker=[[[,]]]:

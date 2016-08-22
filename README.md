@@ -8,7 +8,22 @@ They are written to be compatible with the POSIX-compliant _ash_ shell, which co
 
 These scripts assume the GNU version of various shell commands, and GTK2+ as the GUI toolkit.
 
+Unless otherwise noted, they are licensed under the GNU GPLv3 license.
+
 [1] Since version 700, Fatdog64 is built from _Linux From Scratch (LFS)_, and maintains excellent compatibility with Puppy Linux.
+
+### gmenu2
+
+An application menu.
+ 
+ * Installing: `install/install-gmenu2.sh`
+ * Dependencies: [my gtkmenuplus fork](https://github.com/step-/gtkmenuplus)
+ * Help: Hover over menu entries for tooltip help.
+ * Thanks: Gmenu2 was inspired by SFR's GMenu script.
+ * Screenshot: Note the typical Puppy Linux application sub-menus, and
+   the additional 'Uncategorized', 'Wine', and 'Gmenu2' sub-menus.
+ * ![Screenshot](img/gmenu2.png)
+
 
 ### roxmm
 
