@@ -437,15 +437,17 @@ function add_wine_submenu() # [[[2
   print "[Desktop Entry]\nIcon=folder" > dirfile
   close(dirfile)
 
-  print "# Wine sub-menu\nlauncherdirfile="
+  print "\n# Wine sub-menu\nlauncherdirfile="
   print "if= [ -d \"$WINEDIR\" ] && echo 1 || echo 0"
-  print "configure = launchernullcategory"
-  print "submenu = _Wine\nicon = 1CD8_rundll32.0"
-  print "launcherdirfile = "dirfile
-  print "launchersub=$WINEDIR"
-  print "endsubmenu\n\nseparator\n"
-  print "configure = nolaunchernullcategory"
-  print "\nendif"
+  print "  configure = launchernullcategory"
+  print "  submenu = _Wine"
+  print "  icon = 1CD8_rundll32.0"
+  print "  launcherdirfile = "dirfile
+  print "  launchersub=$WINEDIR"
+  print "  endsubmenu"
+  print "  configure = nolaunchernullcategory"
+  print "  separator"
+  print "endif"
 }
 
 function add_uncategorized_apps_submenu(   dirfile) # [[[2
@@ -458,20 +460,21 @@ function add_uncategorized_apps_submenu(   dirfile) # [[[2
     "\nCategories=NULL" > dirfile
   close(dirfile)
 
-  print "# Uncategorized apps sub-menu\nlauncherdirfile="
+  print "\n# Uncategorized apps sub-menu\nlauncherdirfile="
   print "if= $SUBMENU_UNCATEGORIZED_APPS"
-  print "configure = nolaunchernodisplay launchernullcategory"
-  print "launchersubmenu = "dirfile
-  print "launcherdirfile = "dirfile
-  print "launchersub=$Top"
-  print "endsubmenu\n\nseparator\n"
-  print "configure = launchernodisplay nolaunchernullcategory"
-  print "\nendif"
+  print "  configure = nolaunchernodisplay launchernullcategory"
+  print "  launchersubmenu = "dirfile
+  print "  launcherdirfile = "dirfile
+  print "  launchersub=$Top"
+  print "  endsubmenu"
+  print "  configure = launchernodisplay nolaunchernullcategory"
+  print "  separator"
+  print "endif"
 }
 
 function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
 {
-  print "# GMenu2 sub-menu\nlauncherdirfile="
+  print "\n# GMenu2 sub-menu\nlauncherdirfile="
   print "submenu = _Gmenu2\nicon = gtk-preferences"
   # Toggle IGNORENODISPLAY [[[3
   it1 = "'"$IT_concealed_1"'"
@@ -479,13 +482,13 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   it0 = "'"$IT_concealed_0"'"
   tt0 = "'"$TT_concealed_0"'"
   print "if= $IGNORENODISPLAY\nelse"
-  print "item = "it1"\nicon = gtk-yes\ntooltip = "tt1
-  print "cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
+  print "  cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
-  print "if= $IGNORENODISPLAY\n"
-  print "item = "it0"\nicon = gtk-no\ntooltip = "tt0
-  print "cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "if= $IGNORENODISPLAY"
+  print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
+  print "  cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
   # Toggle LOOK_FOR_APPLICATION_CHANGES [[[3
   it1 = "'"$IT_new_app_1"'"
@@ -493,13 +496,13 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   it0 = "'"$IT_new_app_0"'"
   tt0 = "'"$TT_new_app_0"'"
   print "if= $LOOK_FOR_APPLICATION_CHANGES\nelse"
-  print "item = "it1"\nicon = gtk-yes\ntooltip = "tt1
-  print "cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
+  print "  cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
   print "if= $LOOK_FOR_APPLICATION_CHANGES"
-  print "item = "it0"\nicon = gtk-no\ntooltip = "tt0
-  print "cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
+  print "  cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
   # Toggle SUBMENU_UNCATEGORIZED_APPS [[[3
@@ -507,14 +510,14 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   tt1 = "'"$TT_uncat_app_1"'"
   it0 = "'"$IT_uncat_app_0"'"
   tt0 = "'"$TT_uncat_app_0"'"
-  print "if= $SUBMENU_UNCATEGORIZED_APPS\nelse\n"
-  print "item = "it1"\nicon = gtk-yes\ntooltip = "tt1
-  print "cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "if= $SUBMENU_UNCATEGORIZED_APPS\nelse"
+  print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
+  print "  cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
-  print "if= $SUBMENU_UNCATEGORIZED_APPS\n"
-  print "item = "it0"\nicon = gtk-no\ntooltip = "tt0
-  print "cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "if= $SUBMENU_UNCATEGORIZED_APPS"
+  print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
+  print "  cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
   print "endsubmenu"
