@@ -546,7 +546,7 @@ BEGIN {
   } else if(match($0, /^launchersubmenu ?=/)) {
     print # launchersubmenu=...
     print "launcherdirfile =" substr($0, RSTART+RLENGTH)
-    print "launchersub=$Top"
+    print "launcher=$Top # launchersub= would go deeper"
   } else if(!match($0, /^launchersub ?=|^launcherdirfile ?=/)) {
     print # whatever except the above two lines
   }
