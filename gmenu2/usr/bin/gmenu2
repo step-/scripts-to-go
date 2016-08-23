@@ -1,5 +1,10 @@
 #!/bin/ash
 
+cat << EOF
+FIX OPTIMIZE_END FOR SUBMENU UNCATEGORIZED
+******************************************
+EOF
+
 # gmenu2 - A simple application menu for GtkMenuPlus
 Version=1.0.0
 # License: GNU GPLv3 - (C)2016, step
@@ -38,11 +43,11 @@ $(gettext -es \
 EOF
 
 # Initialize/read configuration [[[1
-IGNORENODISPLAY=0
-INLINE=1 # INLINE=0 for sub-categorized menus (mostly educational)
-LOOK_FOR_APPLICATION_CHANGES=0 # rebuild data dirs on each run
-SUBMENU_UNCATEGORIZED_APPS=1 # TODO default 0
-# $CONFIG data wins over above data
+# Note: Settings in $CONFIG file win over the first-install settings below:
+IGNORENODISPLAY=0 # 1=show concealed apps
+INLINE=1 # 0=build sub-categorized menus (mostly educational)
+LOOK_FOR_APPLICATION_CHANGES=0 # 1=rebuild data dirs on each run
+SUBMENU_UNCATEGORIZED_APPS=0 # 1=show sub-menu 'Uncategorized'
 CONFIG="$HOME/.gmenu2rc"
 [ -e "$CONFIG" ] || > "$CONFIG"; . "$CONFIG"
 # Add missing/hidden defaults.
@@ -97,27 +102,30 @@ XDG_DIRFILE_DIR=/usr/share/desktop-directories
 MAIN_LAUNCHER="$TMPMENUDIR/M"
 mkdir -p "$MAIN_LAUNCHER" || exit 1
 
-# List combined .desktop files in directory tree. [[[1
-tree_file="$TMPMENUDIR/desktop-tree"
-ifs=$IFS; IFS=:; set -- $DESKTOP_FILE_DIRS
-# -L validates symlinks.
-# Recursive search will find wine applications, too, which we exclude
-# here because they will be found and grouped elsewhere.
-2>/dev/null > "$tree_file" find -L "$@" \
-  \( -type d -name wine -prune \) \
-  -o \( -type f -name '*.desktop' -print0 \)
-IFS=$ifs
+# Make lots of file links iff no optimization option, cf. {N2} [[[1
+if [ 1 != $INLINE ]; then
+  # List combined .desktop files in directory tree. [[[2
+  tree_file="$TMPMENUDIR/desktop-tree"
+  ifs=$IFS; IFS=:; set -- $DESKTOP_FILE_DIRS
+  # -L validates symlinks.
+  # Recursive search will find wine applications, too, which we exclude
+  # here because they will be found and grouped elsewhere.
+  2>/dev/null > "$tree_file" find -L "$@" \
+    \( -type d -name wine -prune \) \
+    -o \( -type f -name '*.desktop' -print0 \)
+  IFS=$ifs
 
-# Flatten tree to symlinks. [[[1
-mkdir -p "$MAIN_LAUNCHER/I" &&
-# Same-named file control:
-# {N1} Adding --backup=numbered allows 'cp' to copy all same-named
-# files.  Otherwise 'cp' doesn't overwrite same-named target files; it
-# creates the first destination named, say, xyz then if another source
-# named xyz is found, it warns that it will not copy it.
-xargs -0 cp --backup=numbered -fst "$MAIN_LAUNCHER/I" < "$tree_file"
+  # Flatten tree to symlinks. [[[2
+  mkdir -p "$MAIN_LAUNCHER/I" &&
+  # Same-named file control:
+  # {N1} Adding --backup=numbered allows 'cp' to copy all same-named
+  # files.  Otherwise 'cp' doesn't overwrite same-named target files; it
+  # creates the first destination named, say, xyz then if another source
+  # named xyz is found, it warns that it will not copy it.
+  xargs -0 cp --backup=numbered -fst "$MAIN_LAUNCHER/I" < "$tree_file"
+fi
 
-# Build menu [[[1
+# Build unoptimized menu [[[1
 # {N2} This script builds a functioning but unoptimized menu
 # configuration file. While so doing, the script collects enough
 # (category) data to enable post-processing the configuration file to
@@ -127,7 +135,7 @@ LANG=C gawk \
   -v IGNORENODISPLAY=$IGNORENODISPLAY \
   -v LOOK_FOR_APPLICATION_CHANGES=$LOOK_FOR_APPLICATION_CHANGES \
   -v SUBMENU_UNCATEGORIZED_APPS=$SUBMENU_UNCATEGORIZED_APPS \
-  -v CONFIG=$CONFIG \
+  -v CONFIG="$CONFIG" \
   '
 BEGIN { #[[[2
   DBG = "/dev/stderr"; _step__state = "init"
@@ -198,10 +206,10 @@ END { # Lay out each menu group. [[[2
     filename = mergeFile[order[i]]
     if(filename) {
       if(filename == "fatdog-system-logout.menu") {
-        # Mark stop of optimization post-processing
-        print "\n#OPTIMIZE_END"
         # Prepend additional menus before fatdog`s logout menu
         add_uncategorized_apps_submenu()
+        # Mark stop of optimization post-processing (where /=$Top/ ends)
+        print "\n#OPTIMIZE_END"
         add_wine_submenu()
         add_gmenu2_submenu()
         print "\nseparator\n"
@@ -513,8 +521,16 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
 #[[[2]]] ' "$MAIN_LAYOUT" > "$TMPMENU" &&
 
 # Optimize menu {N2} [[[1
-if [ 1 = $INLINE ]; then
-  LANG=C gawk '
+LANG=C gawk \
+'
+BEGIN {
+  DESKTOP_FILE_DIRS = "'"$DESKTOP_FILE_DIRS"'"
+  MENUDIR = "'"$TMPMENUDIR"'"
+  INLINE = "'"$INLINE"'"
+}
+{gsub(MENUDIR"/", "")} # gtkmenuplus supports relative paths
+!INLINE {next} # the rest is specific to the in-lined menu
+
 /#OPTIMIZE_END/ {bOptimizeStop=1}
 /^launchersubmenu=/,/^endsubmenu/ {
   if(bOptimizeStop) {
@@ -522,16 +538,19 @@ if [ 1 = $INLINE ]; then
   } else if(match($0, /^launchersubmenu ?=/)) {
     print # launchersubmenu=...
     print "launcherdirfile =" substr($0, RSTART+RLENGTH)
-    print "launchersub=$Top"
+    #print "launchersub=$Top" # replaced by next 3 lines,
+      # which make all symlinked files unnecessary
+    na = split(DESKTOP_FILE_DIRS, a, /:/)
+    for(i = 1; i <= na; i++)
+      print "launchersub="a[i]
     print "endsubmenu"
   }
   # All other lines in this range can be discarded.
   next
 }
 {print}
-  #[[[2]]] ' "$TMPMENU" > "$TMPMENU.opt" &&
-  mv "$TMPMENU.opt" "$TMPMENU"
-fi &&
+#[[[2]]] ' "$TMPMENU" > "$TMPMENU.opt" &&
+mv "$TMPMENU.opt" "$TMPMENU" &&
 
 # Display menu [[[1
 gtkmenuplus "$TMPMENU"
