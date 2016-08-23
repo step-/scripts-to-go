@@ -356,14 +356,16 @@ function create_dirfile(dirfile, id, pat_tag, menufile, categories, byValue, #[[
 
       # And also accumulate cats in launchersubmenu= file, a.k.a
       # (pattern 1`s dirfile) to enable optimization {N2}
-      if(newfile != byValue["launchersubmenu"]) {
+      if(INLINE && newfile != byValue["launchersubmenu"]) {
         printf ";" categories >> byValue["launchersubmenu"]
         close(byValue["launchersubmenu"])
       }
     } else {
       # Init accumulating cats in launchersubmenu= file {N2}
-      printf "Categories=" >> byValue["launchersubmenu"]
-      close(byValue["launchersubmenu"])
+      if(INLINE) {
+        printf "Categories=" >> byValue["launchersubmenu"]
+        close(byValue["launchersubmenu"])
+      }
     }
     close(newfile)
     return newfile
