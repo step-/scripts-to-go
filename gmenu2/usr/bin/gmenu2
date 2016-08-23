@@ -1,10 +1,5 @@
 #!/bin/ash
 
-cat << EOF
-FIX OPTIMIZE_END FOR SUBMENU UNCATEGORIZED
-******************************************
-EOF
-
 # gmenu2 - A simple application menu for GtkMenuPlus
 Version=1.0.0
 # License: GNU GPLv3 - (C)2016, step
@@ -139,6 +134,7 @@ LANG=C gawk \
   '
 BEGIN { #[[[2
   DBG = "/dev/stderr"; _step__state = "init"
+  DESKTOP_FILE_DIRS = "'"$DESKTOP_FILE_DIRS"'"
   DESKTOP_FILE_DIRS_1 = "'"$DESKTOP_FILE_DIRS_1"'"
   DIRFILE_DIR = "'"$XDG_DIRFILE_DIR"'"
   ERRM = "#(error) "
@@ -160,7 +156,7 @@ BEGIN { #[[[2
   print "SUBMENU_UNCATEGORIZED_APPS="SUBMENU_UNCATEGORIZED_APPS
   print
   print "# --------------------------------------------------------------------"
-  printf "Top=%s%s\n", "'"$MAIN_LAUNCHER"'", INLINE ? "/I" : ""
+  printf "Top=%s\n", INLINE ? DESKTOP_FILE_DIRS : MAIN_LAUNCHER"/I"
   print "configure = endsubmenu noicons"
   print "configure = launchernodisplay nolaunchernullcategory"
   print "if= $IGNORENODISPLAY"
@@ -206,10 +202,10 @@ END { # Lay out each menu group. [[[2
     filename = mergeFile[order[i]]
     if(filename) {
       if(filename == "fatdog-system-logout.menu") {
+        # Mark stop of optimization post-processing
+        print "#OPTIMIZE_END"
         # Prepend additional menus before fatdog`s logout menu
         add_uncategorized_apps_submenu()
-        # Mark stop of optimization post-processing (where /=$Top/ ends)
-        print "\n#OPTIMIZE_END"
         add_wine_submenu()
         add_gmenu2_submenu()
         print "\nseparator\n"
@@ -534,7 +530,7 @@ BEGIN {
   INLINE = "'"$INLINE"'"
 }
 {gsub(MENUDIR"/", "")} # gtkmenuplus supports relative paths
-!INLINE {next} # the rest is specific to the in-lined menu
+!INLINE {print; next} # the rest is specific to the in-lined menu
 
 /#OPTIMIZE_END/ {bOptimizeStop=1}
 /^launchersubmenu=/,/^endsubmenu/ {
@@ -543,12 +539,9 @@ BEGIN {
   } else if(match($0, /^launchersubmenu ?=/)) {
     print # launchersubmenu=...
     print "launcherdirfile =" substr($0, RSTART+RLENGTH)
-    #print "launchersub=$Top" # replaced by next 3 lines,
-      # which make all symlinked files unnecessary
-    na = split(DESKTOP_FILE_DIRS, a, /:/)
-    for(i = 1; i <= na; i++)
-      print "launchersub="a[i]
-    print "endsubmenu"
+    print "launchersub=$Top"
+  } else if(!match($0, /^launchersub ?=|^launcherdirfile ?=/)) {
+    print # whatever except the above two lines
   }
   # All other lines in this range can be discarded.
   next
