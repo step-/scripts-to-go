@@ -20,20 +20,20 @@ export OUTPUT_CHARSET=UTF-8
   read IT_uncategorized_apps; read TT_uncategorized_apps
 } << EOF
 $(gettext -es \
-"Show _concealed applications\n" \
-  "Mostly consisting of system scripts\n" \
-"Hide _concealed applications\n" \
-  "Hiding is recommended for normal use\n" \
-"_Look for new applications\n" \
-  "Enable this after installing new applications, then disable it. This rebuilds the cache on each Gmenu2 invocation.\n" \
-"Stop _looking for new applications\n" \
-  "Stopping reduces start-up/disk overhead; recommended if no new applications were installed\n" \
-"Enable _uncategorized application sub-menu\n" \
-  "Enable this if you still can't find some (newly-installed) applications.\n" \
-"Disable _uncategorized application sub-menu\n" \
+"Show _concealed applications.\n" \
+  "Mostly consisting of system scripts.\n" \
+"Hide _concealed applications.\n" \
+  "Hiding is recommended for normal use.\n" \
+"_Refresh cache.\n" \
+  "This rebuilds the cache on each Gmenu2 invocation. It might help finding newly-installed applications.\n" \
+"Stop _refreshing cache.\n" \
+  "Stopping reduces start-up/disk overhead. It is generally unnecessary to keep refreshing the cache.\n" \
+"Enable _uncategorized application sub-menu.\n" \
+  "Try enabling this if you can't find some applications.\n" \
+"Disable _uncategorized application sub-menu.\n" \
   "\n" \
 "_Uncategorized\n" \
-  "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'GMenu2>Look for new applications'.\n" \
+  "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'GMenu2>Refresh cache'.\n" \
 )
 EOF
 
