@@ -79,15 +79,20 @@ MAIN_LAYOUT="$MENU_ROOT/applications.menu"
 XDG_DATA_DIRS=${XDG_DATA_DIRS:-/usr/share:/usr/local/share}
 XDG_DATA_HOME=${XDG_DATA_HOME:-$HOME/.local}
 
-{ read DESKTOP_FILE_DIRS; read ICON_DIRS; } << EOF
+{ read DESKTOP_FILE_DIRS
+  read DESKTOP_FILE_DIRS_EXIST
+  read ICON_DIRS; } << EOF
 $(
   IFS=:
   set -- ${XDG_DATA_HOME} ${XDG_DATA_DIRS}
   for i; do echo -n ":$i/applications"; done; echo
+  for i; do [ -d "$i/applications" ] && echo -n ":$i/applications"; done; echo
   for i; do echo -n ":$i/icons"; done; echo
 )
 EOF
-DESKTOP_FILE_DIRS=${DESKTOP_FILE_DIRS#:} ICON_DIRS=${ICON_DIRS#:}
+DESKTOP_FILE_DIRS=${DESKTOP_FILE_DIRS#:}
+DESKTOP_FILE_DIRS_EXIST=${DESKTOP_FILE_DIRS_EXIST#:}
+ICON_DIRS=${ICON_DIRS#:}
 # http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html#directory_layout
 # Additional Fatdog64-specific locations start at .../midi-icons.
 ICON_DIRS="$HOME/.icons:${ICON_DIRS}:/usr/share/pixmaps:/usr/share/midi-icons:/usr/share/mini-icons"
@@ -136,6 +141,7 @@ BEGIN { #[[[2
   DBG = "/dev/stderr"; _step__state = "init"
   DESKTOP_FILE_DIRS = "'"$DESKTOP_FILE_DIRS"'"
   DESKTOP_FILE_DIRS_1 = "'"$DESKTOP_FILE_DIRS_1"'"
+  DESKTOP_FILE_DIRS_EXIST = "'"$DESKTOP_FILE_DIRS_EXIST"'"
   DIRFILE_DIR = "'"$XDG_DIRFILE_DIR"'"
   ERRM = "#(error) "
   MENU_ROOT = "'"$MENU_ROOT"'"
@@ -156,7 +162,9 @@ BEGIN { #[[[2
   print "SUBMENU_UNCATEGORIZED_APPS="SUBMENU_UNCATEGORIZED_APPS
   print
   print "# --------------------------------------------------------------------"
-  printf "Top=%s\n", INLINE ? DESKTOP_FILE_DIRS : MAIN_LAUNCHER"/I"
+  printf "# Generic paths for any system vs existing local paths"
+  printf "#Top=%s\n", INLINE ? DESKTOP_FILE_DIRS : MAIN_LAUNCHER"/I"
+  printf "Top=%s\n", INLINE ? DESKTOP_FILE_DIRS_EXIST : MAIN_LAUNCHER"/I"
   print "configure = endsubmenu noicons"
   print "configure = launchernodisplay nolaunchernullcategory"
   print "if= $IGNORENODISPLAY"
@@ -525,7 +533,6 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
 LANG=C gawk \
 '
 BEGIN {
-  DESKTOP_FILE_DIRS = "'"$DESKTOP_FILE_DIRS"'"
   MENUDIR = "'"$TMPMENUDIR"'"
   INLINE = "'"$INLINE"'"
 }
