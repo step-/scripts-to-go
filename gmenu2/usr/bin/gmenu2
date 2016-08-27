@@ -163,7 +163,7 @@ BEGIN { #[[[2
   print "# Generic paths for any system vs existing local paths"
   printf "#Top=%s\n", INLINE ? DESKTOP_FILE_DIRS : MAIN_LAUNCHER"/I"
   printf "Top=%s\n", INLINE ? DESKTOP_FILE_DIRS_EXIST : MAIN_LAUNCHER"/I"
-  print "configure = endsubmenu noicons"
+  print "configure = errorconsoleonly endsubmenu noicons"
   print "configure = launchernodisplay nolaunchernullcategory"
   print "if= $IGNORENODISPLAY"
   print "  configure=nolaunchernodisplay"
