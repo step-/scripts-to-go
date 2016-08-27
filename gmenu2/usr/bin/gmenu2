@@ -97,7 +97,6 @@ ICON_DIRS=${ICON_DIRS#:}
 # Additional Fatdog64-specific locations start at .../midi-icons.
 ICON_DIRS="$HOME/.icons:${ICON_DIRS}:/usr/share/pixmaps:/usr/share/midi-icons:/usr/share/mini-icons"
 
-DESKTOP_FILE_DIRS_1=/usr/share/applications # kludge for Fatdog64 system menu
 XDG_DIRFILE_DIR=/usr/share/desktop-directories
 MAIN_LAUNCHER="$TMPMENUDIR/M"
 mkdir -p "$MAIN_LAUNCHER" || exit 1
@@ -140,7 +139,6 @@ LANG=C gawk \
 BEGIN { #[[[2
   DBG = "/dev/stderr"; _step__state = "init"
   DESKTOP_FILE_DIRS = "'"$DESKTOP_FILE_DIRS"'"
-  DESKTOP_FILE_DIRS_1 = "'"$DESKTOP_FILE_DIRS_1"'"
   DESKTOP_FILE_DIRS_EXIST = "'"$DESKTOP_FILE_DIRS_EXIST"'"
   DIRFILE_DIR = "'"$XDG_DIRFILE_DIR"'"
   ERRM = "#(error) "
@@ -209,6 +207,7 @@ END { # Lay out each menu group. [[[2
     }
     filename = mergeFile[order[i]]
     if(filename) {
+      func_convert_path = "find_first_filename"
       if(filename == "fatdog-system-logout.menu") {
         # Mark stop of optimization post-processing
         print "#OPTIMIZE_END"
@@ -217,9 +216,11 @@ END { # Lay out each menu group. [[[2
         add_wine_submenu()
         add_gmenu2_submenu()
         print "\nseparator\n"
+        # Fix broken filepaths.
+        func_convert_path = "convert_logout_submenu"
       }
       group_file = MENU_ROOT"/"filename
-      layout(group_file, i)
+      layout(group_file, i, func_convert_path)
     } else {
       printf "warning: No <MergeFile> for <Menu> <Name> \"%s\" in \"%s\"\n",
         order[i], FILENAME >"/dev/stderr"
@@ -229,25 +230,13 @@ END { # Lay out each menu group. [[[2
   printf "# END \x27%s\x27\n", FILENAME
 }
 
-function layout(group_file, id, #[[[2
+function layout(group_file, id, func_convert_path, #[[[2
     rs, s, open, a,ai,an, dirfile, mkdir, x, z, categories, filenames) {
   # Return: none, but
   # comment out gtkmenuplus commands on error.
 
   printf "# Group %d \x27%s\x27\n", i, group_file
 
-  if(index(group_file, "fatdog-system-logout.menu")) { #[[[
-    # We need a kludge because fatdog-system-logout.menu group_file is broken!
-    print "launcherdirfile="
-    print "launcher="DESKTOP_FILE_DIRS_1"/system/"
-    return
-    # Why is it broken? (in Fatdog64-710 alpha 2)
-    # /etc/xdg/menus/fatdog-system-logout.menu includes <Filename> tags,
-    # which this function can handle normally.  However, all referenced
-    # files are non-existent; they were renamed and moved into their own
-    # sub-directory ".../system".
-  }
-  #]]]
   # This code can parse the following tag patterns: #[[[
   # 1. <Menu> holds <Directory> && <Layout><Menuname>s
   #    Top level menu group container; assumed one per group_file
@@ -265,6 +254,7 @@ function layout(group_file, id, #[[[2
   # 3. <Menu> holds !<Directory> && <Layout><Filename>s && <Include><Categories>
   #    Single menu entries; filters XDG_DATA_DIRS by categories
   #    <Filename> implies inline entry regardless of INLINE
+  #    This is where @func_convert_path is used
   #    Sample file for pattern 3: fatdog-system-logout.menu
   #]]]
   ops["mkdir"] = 1
@@ -310,9 +300,17 @@ function layout(group_file, id, #[[[2
       if(parse_tag("Filename", s, a)) {
         filenames = a[2]
         an = split(filenames, a, "[[:space:]]*<Filename>|</Filename>[[:space:]]*")
+        if(INLINE)
+          print "configure=launcherlistfirst"
         for(ai = 1; ai <= an; ai++) {
-          if(a[ai]) print "launchersub="MAIN_LAUNCHER"/I/"a[ai]
+          if(a[ai]) {
+            print "launcher=" \
+              ( INLINE ? convert_filename_logout_submenu(a[ai]) : MAIN_LAUNCHER"/I/"a[ai] )
+              #INLINE ? @func_convert_path(a[ai]) : MAIN_LAUNCHER"/I/"a[ai]
+          }
         }
+        if(INLINE)
+          print "configure=nolauncherlistfirst"
       }
       continue
     }
@@ -525,6 +523,28 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   print "endif"
 
   print "endsubmenu"
+}
+
+function find_first_filename(filename, # [[[2
+  an, a, ai, buf) {
+  # <Filename>s in the menu layout file are relative to the
+  # $DESKTOP_FILE_DIRS_EXIST Here we return launcher= colon syntax to
+  # find the first file named filename in said directories. Note that
+  # caller sets configure=launcherlistfirst.
+  an = split(DESKTOP_FILE_DIRS_EXIST, a, ":")
+  for(ai = 1; ai <= an; ai++)
+    buf = buf ":" a[ai] "/" filename
+  return substr(buf, 2)
+}
+
+function convert_filename_logout_submenu(filename) { # [[[2
+  # The fatdog-system-logout.menu group_file is broken in Fatdog64-710
+  # beta. All referenced files are non-existent; they were renamed and
+  # moved into their own sub-directory ".../system".
+
+  # Convert: system-foo.desktop => fulldirpath/system/foo.desktop
+  sub(/-/, "/", filename)
+  return find_first_filename(filename)
 }
 
 #[[[2]]] ' "$MAIN_LAYOUT" > "$TMPMENU" &&
