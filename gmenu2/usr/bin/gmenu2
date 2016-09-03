@@ -13,8 +13,8 @@ export OUTPUT_CHARSET=UTF-8
 {
   read IT_concealed_1; read TT_concealed_1
   read IT_concealed_0; read TT_concealed_0
-  read IT_new_app_1;   read TT_new_app_1
-  read IT_new_app_0;   read TT_new_app_0
+  read IT_chache_1;   read TT_chache_1
+  read IT_chache_0;   read TT_chache_0
   read IT_uncat_app_1; read TT_uncat_app_1
   read IT_uncat_app_0; read TT_uncat_app_0
   read IT_activ_1; read TT_activ_1
@@ -47,40 +47,46 @@ $(gettext -es \
 EOF
 
 # Initialize/read configuration [[[1
-# Note: Settings in $CONFIG file win over the first-install settings below:
-IGNORENODISPLAY=0 # 1=show concealed apps
-INLINE=1 # 0=build sub-categorized menus (mostly educational)
-LOOK_FOR_APPLICATION_CHANGES=0 # 1=rebuild data dirs on each run
-SUBMENU_UNCATEGORIZED_APPS=0 # 1=show sub-menu 'Uncategorized'
-SUBMENU_ACTIVATIONS=1 # 1=show sub-menu 'Recent'
 CONFIG="$HOME/.gmenu2rc"
-[ -e "$CONFIG" ] || > "$CONFIG"; . "$CONFIG"
-# Add missing/hidden defaults.
+[ -e "$CONFIG" ] || : > "$CONFIG"; . "$CONFIG"
 awk '
   /^IGNORENODISPLAY=/{f1=1}
   /^INLINE=/{f2=1}
-  /^LOOK_FOR_APPLICATION_CHANGES=/{f3=1}
+  /^REFRESH_CACHE=/{f3=1}
   /^SUBMENU_UNCATEGORIZED_APPS=/{f4=1}
   /^SUBMENU_ACTIVATIONS=/{f5=1}
+  /^LOGFILE_ACTIVATIONS=/{f6=1}
   END{
-    if(!f1) print "IGNORENODISPLAY=\"'"$IGNORENODISPLAY"'\"">>ARGV[1]
-    if(!f2) print "INLINE=\"'"$INLINE"'\"">>ARGV[1]
-    if(!f3) print "LOOK_FOR_APPLICATION_CHANGES=\"'"$LOOK_FOR_APPLICATION_CHANGES"'\"">>ARGV[1]
-    if(!f4) print "SUBMENU_UNCATEGORIZED_APPS=\"'"$SUBMENU_UNCATEGORIZED_APPS"'\"">>ARGV[1]
-    if(!f5) print "SUBMENU_ACTIVATIONS=\"'"$SUBMENU_ACTIVATIONS"'\"">>ARGV[1]
+    # Note: Settings in the $CONFIG file win over the first-run settings below:
+    #
+    # 1=show concealed apps
+    if(!f1) print "IGNORENODISPLAY=\"0\"">>ARGV[1]
+    # 0=build sub-categorized menus (mostly educational)
+    if(!f2) print "INLINE=\"1\"">>ARGV[1]
+    # 1=rebuild data dirs on each run
+    if(!f3) print "REFRESH_CACHE=\"0\"">>ARGV[1]
+    # 1=show sub-menu Uncategorized
+    if(!f4) print "SUBMENU_UNCATEGORIZED_APPS=\"0\"">>ARGV[1]
+    # 1=show sub-menu Recent
+    if(!f5) print "SUBMENU_ACTIVATIONS=\"1\"">>ARGV[1]
+    # Log invoked items in this file.
+    if(!f6) print "LOGFILE_ACTIVATIONS=\"~/.gmenu2.log\"">>ARGV[1]
   }
-  ' "${CONFIG}"
+  ' "${CONFIG}" && . "$CONFIG" || {
+  echo >&2 "$0: fatal: can't initialize"
+  exit 1
+}
 
-# LOOK_FOR_APPLICATION_CHANGES data dirs [[[1
+# REFRESH_CACHE data dirs [[[1
 # To start a fresh menu rm -r "$TMPMENUDIR" and restart gmenu2.
 # Be wary that multiple runs without 'rm -r' will duplicate files,
 # therefore run longer, due to 'cp' backup control - see {N1} below.
 TMPMENUDIR="/tmp/gmenu2_$USER"
 TMPMENU="$TMPMENUDIR/gmenu2"
-if [ -f "$TMPMENU" -a 1 != "$LOOK_FOR_APPLICATION_CHANGES" ]; then
+if [ -f "$TMPMENU" -a 1 != "$REFRESH_CACHE" ]; then
   gtkmenuplus "$TMPMENU"
   exit $?
-elif [ -d "$TMPMENUDIR" -a 1 = "$LOOK_FOR_APPLICATION_CHANGES" ]; then
+elif [ -d "$TMPMENUDIR" -a 1 = "$REFRESH_CACHE" ]; then
   rm -r "$TMPMENUDIR"
 fi
 
@@ -144,7 +150,7 @@ fi
 LANG=C gawk \
   -v INLINE=$INLINE \
   -v IGNORENODISPLAY=$IGNORENODISPLAY \
-  -v LOOK_FOR_APPLICATION_CHANGES=$LOOK_FOR_APPLICATION_CHANGES \
+  -v REFRESH_CACHE=$REFRESH_CACHE \
   -v SUBMENU_ACTIVATIONS=$SUBMENU_ACTIVATIONS \
   -v SUBMENU_UNCATEGORIZED_APPS=$SUBMENU_UNCATEGORIZED_APPS \
   -v CONFIG="$CONFIG" \
@@ -169,13 +175,13 @@ BEGIN { #[[[2
   print "THISFILE=$0"
   print "WINEDIR='"$XDG_DATA_HOME"'/applications/wine"
   print "IGNORENODISPLAY="(0<match(IGNORENODISPLAY, /(true|yes|1)/))
-  print "LOOK_FOR_APPLICATION_CHANGES="(0<match(LOOK_FOR_APPLICATION_CHANGES, /(true|yes|1)/))
+  print "REFRESH_CACHE="(0<match(REFRESH_CACHE, /(true|yes|1)/))
   print "SUBMENU_ACTIVATIONS="SUBMENU_ACTIVATIONS
   print "SUBMENU_UNCATEGORIZED_APPS="SUBMENU_UNCATEGORIZED_APPS
   print
   print "# Activate the log file to build loggable entries."
   print "if= $SUBMENU_ACTIVATIONS"
-  print "  LOGFILE=activation_log.gtkmenuplus"
+  print "  LOGFILE='"$LOGFILE_ACTIVATIONS"'"
   print "  activationlogfile = $LOGFILE"
   print "endif"
   print
@@ -467,7 +473,7 @@ function add_wine_submenu() # [[[2
   print "  icon = 1CD8_rundll32.0"
   print "  launcherdirfile = "dirfile
   print "  launchersub=$WINEDIR"
-  print "  endsubmenu"
+  print "  endsubmenu # _Wine"
   print "  configure = nolaunchernullcategory"
   print "  separator"
   print "endif"
@@ -490,7 +496,7 @@ function add_activation_submenu(   dirfile) # [[[2
   print "  launchersubmenu = "dirfile
   print "  launcherdirfile = "dirfile
   print "  include = $LOGFILE"
-  print "  endsubmenu"
+  print "  endsubmenu # "dirfile
   print "  #separator"
   print "else"
   print "  activationlogfile = # important"
@@ -513,7 +519,7 @@ function add_uncategorized_apps_submenu(   dirfile) # [[[2
   print "  launchersubmenu = "dirfile
   print "  launcherdirfile = "dirfile
   print "  launchersub=$Top"
-  print "  endsubmenu"
+  print "  endsubmenu # "dirfile
   print "  configure = launchernodisplay nolaunchernullcategory"
   print "  #separator"
   print "endif"
@@ -537,19 +543,19 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
   print "  cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
-  # Toggle LOOK_FOR_APPLICATION_CHANGES [[[3
-  it1 = "'"$IT_new_app_1"'"
-  tt1 = "'"$TT_new_app_1"'"
-  it0 = "'"$IT_new_app_0"'"
-  tt0 = "'"$TT_new_app_0"'"
-  print "if= $LOOK_FOR_APPLICATION_CHANGES\nelse"
+  # Toggle REFRESH_CACHE [[[3
+  it1 = "'"$IT_chache_1"'"
+  tt1 = "'"$TT_chache_1"'"
+  it0 = "'"$IT_chache_0"'"
+  tt0 = "'"$TT_chache_0"'"
+  print "if= $REFRESH_CACHE\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
-  print "  cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "  cmd = sed -i -e \"/^REFRESH_CACHE=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
-  print "if= $LOOK_FOR_APPLICATION_CHANGES"
+  print "if= $REFRESH_CACHE"
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
-  print "  cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "  cmd = sed -i -e \"/^REFRESH_CACHE=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
   # Toggle SUBMENU_ACTIVATIONS [[[3
   it1 = "'"$IT_activ_1"'"
@@ -580,7 +586,7 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   print "  cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
-  print "endsubmenu" # [[[3]]]
+  print "endsubmenu # _Gmenu2" # [[[3]]]
 }
 
 function find_first_filename(filename, # [[[2
