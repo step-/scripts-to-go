@@ -31,18 +31,18 @@ $(gettext -es \
   "This rebuilds the cache on each Gmenu2 invocation. It might help finding newly-installed applications.\n" \
 "Stop _refreshing cache\n" \
   "Stopping reduces start-up/disk overhead. It is generally unnecessary to keep refreshing the cache.\n" \
-"Enable _uncategorized application sub-menu\n" \
-  "Try enabling this if you can't find some applications.\n" \
-"Disable _uncategorized application sub-menu\n" \
-  "\n" \
-"Enable _Logged sub-menu\n" \
+"Enable '_Uncategorized' sub-menu\n" \
+  "Try enabling this sub-menu if you can't find some applications.\n" \
+"Disable '_Uncategorized' sub-menu\n" \
+  "Stip showing category-less applications, and hide the sub-menu.\n" \
+"Enable '_Logged' sub-menu\n" \
   "Log menu activations and display them in a sub-menu for quick re-use.\n" \
-"Disable _Logged sub-menu\n" \
+"Disable '_Logged' sub-menu\n" \
   "Stop logging menu activations, and hide the sub-menu.\n" \
 "_Uncategorized\n" \
   "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'GMenu2>Refresh cache'.\n" \
 "_Logged\n" \
-  "Menu entry log. Quickly repeat a previous invocation.\n" \
+  "Menu entry activation log. Quickly repeat a previous invocation.\n" \
 )
 EOF
 
