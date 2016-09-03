@@ -173,6 +173,12 @@ BEGIN { #[[[2
   print "SUBMENU_ACTIVATIONS="SUBMENU_ACTIVATIONS
   print "SUBMENU_UNCATEGORIZED_APPS="SUBMENU_UNCATEGORIZED_APPS
   print
+  print "# Activate the log file to build loggable entries."
+  print "if= $SUBMENU_ACTIVATIONS"
+  print "  LOGFILE=activation_log.gtkmenuplus"
+  print "  activationlogfile = $LOGFILE"
+  print "endif"
+  print
   print "# --------------------------------------------------------------------"
   print "# Generic paths for any system vs existing local paths"
   printf "#Top=%s\n", INLINE ? DESKTOP_FILE_DIRS : MAIN_LAUNCHER"/I"
@@ -478,14 +484,16 @@ function add_activation_submenu(   dirfile) # [[[2
   close(dirfile)
 
   print "\n#Logged sub-menu\nlauncherdirfile="
+  print "# No activationlogfile= lines shall follow this block."
   print "if= $SUBMENU_ACTIVATIONS"
-  print "  logfile = activation_log.gtkmenuplus"
-  print "  activationlogfile = $logfile"
+  print "  #activationlogfile = $LOGFILE # redundant"
   print "  launchersubmenu = "dirfile
   print "  launcherdirfile = "dirfile
-  print "  include = $logfile"
+  print "  include = $LOGFILE"
   print "  endsubmenu"
-  #print "  separator"
+  print "  #separator"
+  print "else"
+  print "  activationlogfile = # important"
   print "endif"
 }
 
@@ -507,7 +515,7 @@ function add_uncategorized_apps_submenu(   dirfile) # [[[2
   print "  launchersub=$Top"
   print "  endsubmenu"
   print "  configure = launchernodisplay nolaunchernullcategory"
-  #print " separator"
+  print "  #separator"
   print "endif"
 }
 
@@ -549,13 +557,11 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   it0 = "'"$IT_activ_0"'"
   tt0 = "'"$TT_activ_0"'"
   print "if= $SUBMENU_ACTIVATIONS\nelse"
-  print "  activationlogfile ="
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
   print "  cmd = sed -i -e \"/^SUBMENU_ACTIVATIONS=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
   print "if= $SUBMENU_ACTIVATIONS"
-  print "  activationlogfile = $logfile"
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
   print "  cmd = sed -i -e \"/^SUBMENU_ACTIVATIONS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
