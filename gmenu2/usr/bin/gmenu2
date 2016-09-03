@@ -17,7 +17,10 @@ export OUTPUT_CHARSET=UTF-8
   read IT_new_app_0;   read TT_new_app_0
   read IT_uncat_app_1; read TT_uncat_app_1
   read IT_uncat_app_0; read TT_uncat_app_0
+  read IT_activ_1; read TT_activ_1
+  read IT_activ_0; read TT_activ_0
   read IT_uncategorized_apps; read TT_uncategorized_apps
+  read IT_activations; read TT_activations
 } << EOF
 $(gettext -es \
 "Show _concealed applications\n" \
@@ -32,8 +35,14 @@ $(gettext -es \
   "Try enabling this if you can't find some applications.\n" \
 "Disable _uncategorized application sub-menu\n" \
   "\n" \
+"Enable _Logged sub-menu\n" \
+  "Log menu activations and display them in a sub-menu for quick re-use.\n" \
+"Disable _Logged sub-menu\n" \
+  "Stop logging menu activations, and hide the sub-menu.\n" \
 "_Uncategorized\n" \
   "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'GMenu2>Refresh cache'.\n" \
+"_Logged\n" \
+  "Menu entry log. Quickly repeat a previous invocation.\n" \
 )
 EOF
 
@@ -43,6 +52,7 @@ IGNORENODISPLAY=0 # 1=show concealed apps
 INLINE=1 # 0=build sub-categorized menus (mostly educational)
 LOOK_FOR_APPLICATION_CHANGES=0 # 1=rebuild data dirs on each run
 SUBMENU_UNCATEGORIZED_APPS=0 # 1=show sub-menu 'Uncategorized'
+SUBMENU_ACTIVATIONS=1 # 1=show sub-menu 'Recent'
 CONFIG="$HOME/.gmenu2rc"
 [ -e "$CONFIG" ] || > "$CONFIG"; . "$CONFIG"
 # Add missing/hidden defaults.
@@ -51,11 +61,13 @@ awk '
   /^INLINE=/{f2=1}
   /^LOOK_FOR_APPLICATION_CHANGES=/{f3=1}
   /^SUBMENU_UNCATEGORIZED_APPS=/{f4=1}
+  /^SUBMENU_ACTIVATIONS=/{f5=1}
   END{
     if(!f1) print "IGNORENODISPLAY=\"'"$IGNORENODISPLAY"'\"">>ARGV[1]
     if(!f2) print "INLINE=\"'"$INLINE"'\"">>ARGV[1]
     if(!f3) print "LOOK_FOR_APPLICATION_CHANGES=\"'"$LOOK_FOR_APPLICATION_CHANGES"'\"">>ARGV[1]
     if(!f4) print "SUBMENU_UNCATEGORIZED_APPS=\"'"$SUBMENU_UNCATEGORIZED_APPS"'\"">>ARGV[1]
+    if(!f5) print "SUBMENU_ACTIVATIONS=\"'"$SUBMENU_ACTIVATIONS"'\"">>ARGV[1]
   }
   ' "${CONFIG}"
 
@@ -133,6 +145,7 @@ LANG=C gawk \
   -v INLINE=$INLINE \
   -v IGNORENODISPLAY=$IGNORENODISPLAY \
   -v LOOK_FOR_APPLICATION_CHANGES=$LOOK_FOR_APPLICATION_CHANGES \
+  -v SUBMENU_ACTIVATIONS=$SUBMENU_ACTIVATIONS \
   -v SUBMENU_UNCATEGORIZED_APPS=$SUBMENU_UNCATEGORIZED_APPS \
   -v CONFIG="$CONFIG" \
   '
@@ -157,6 +170,7 @@ BEGIN { #[[[2
   print "WINEDIR='"$XDG_DATA_HOME"'/applications/wine"
   print "IGNORENODISPLAY="(0<match(IGNORENODISPLAY, /(true|yes|1)/))
   print "LOOK_FOR_APPLICATION_CHANGES="(0<match(LOOK_FOR_APPLICATION_CHANGES, /(true|yes|1)/))
+  print "SUBMENU_ACTIVATIONS="SUBMENU_ACTIVATIONS
   print "SUBMENU_UNCATEGORIZED_APPS="SUBMENU_UNCATEGORIZED_APPS
   print
   print "# --------------------------------------------------------------------"
@@ -212,6 +226,7 @@ END { # Lay out each menu group. [[[2
         # Mark stop of optimization post-processing
         print "#OPTIMIZE_END"
         # Prepend additional menus before fatdog`s logout menu
+        add_activation_submenu()
         add_uncategorized_apps_submenu()
         add_wine_submenu()
         add_gmenu2_submenu()
@@ -452,6 +467,28 @@ function add_wine_submenu() # [[[2
   print "endif"
 }
 
+function add_activation_submenu(   dirfile) # [[[2
+{
+  # Create suitable dirfile
+  dirfile = MENUDIR "/activation.directory"
+  print "[Desktop Entry]\nIcon=gtk-media-previous"\
+    "\nName='"$IT_activations"'"\
+    "\nComment='"$TT_activations"'"\
+    "\nCategories=NULL" > dirfile
+  close(dirfile)
+
+  print "\n#Logged sub-menu\nlauncherdirfile="
+  print "if= $SUBMENU_ACTIVATIONS"
+  print "  logfile = activation_log.gtkmenuplus"
+  print "  activationlogfile = $logfile"
+  print "  launchersubmenu = "dirfile
+  print "  launcherdirfile = "dirfile
+  print "  include = $logfile"
+  print "  endsubmenu"
+  #print "  separator"
+  print "endif"
+}
+
 function add_uncategorized_apps_submenu(   dirfile) # [[[2
 {
   # Create suitable dirfile
@@ -470,14 +507,14 @@ function add_uncategorized_apps_submenu(   dirfile) # [[[2
   print "  launchersub=$Top"
   print "  endsubmenu"
   print "  configure = launchernodisplay nolaunchernullcategory"
-  print "  separator"
+  #print " separator"
   print "endif"
 }
 
 function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
 {
   print "\n# GMenu2 sub-menu\nlauncherdirfile="
-  print "submenu = _Gmenu2\nicon = gtk-preferences"
+  print "submenu = _Gmenu2\nicon = gtk-preferences" #[[[3]]]
   # Toggle IGNORENODISPLAY [[[3
   it1 = "'"$IT_concealed_1"'"
   tt1 = "'"$TT_concealed_1"'"
@@ -506,7 +543,22 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
   print "  cmd = sed -i -e \"/^LOOK_FOR_APPLICATION_CHANGES=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
+  # Toggle SUBMENU_ACTIVATIONS [[[3
+  it1 = "'"$IT_activ_1"'"
+  tt1 = "'"$TT_activ_1"'"
+  it0 = "'"$IT_activ_0"'"
+  tt0 = "'"$TT_activ_0"'"
+  print "if= $SUBMENU_ACTIVATIONS\nelse"
+  print "  activationlogfile ="
+  print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
+  print "  cmd = sed -i -e \"/^SUBMENU_ACTIVATIONS=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
 
+  print "if= $SUBMENU_ACTIVATIONS"
+  print "  activationlogfile = $logfile"
+  print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
+  print "  cmd = sed -i -e \"/^SUBMENU_ACTIVATIONS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  print "endif"
   # Toggle SUBMENU_UNCATEGORIZED_APPS [[[3
   it1 = "'"$IT_uncat_app_1"'"
   tt1 = "'"$TT_uncat_app_1"'"
@@ -522,7 +574,7 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   print "  cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
   print "endif"
 
-  print "endsubmenu"
+  print "endsubmenu" # [[[3]]]
 }
 
 function find_first_filename(filename, # [[[2
