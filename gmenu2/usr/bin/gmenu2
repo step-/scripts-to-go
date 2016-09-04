@@ -238,9 +238,9 @@ END { # Lay out each menu group. [[[2
         # Mark stop of optimization post-processing
         print "#OPTIMIZE_END"
         # Prepend additional menus before fatdog`s logout menu
-        add_activation_submenu()
         add_uncategorized_apps_submenu()
         add_wine_submenu()
+        add_activation_submenu()
         add_gmenu2_submenu()
         print "\nseparator\n"
         # Fix broken filepaths.
@@ -490,16 +490,12 @@ function add_activation_submenu(   dirfile) # [[[2
   close(dirfile)
 
   print "\n#Logged sub-menu\nlauncherdirfile="
-  print "# No activationlogfile= lines shall follow this block."
   print "if= $SUBMENU_ACTIVATIONS"
-  print "  #activationlogfile = $LOGFILE # redundant"
   print "  launchersubmenu = "dirfile
   print "  launcherdirfile = "dirfile
   print "  include = $LOGFILE"
   print "  endsubmenu # "dirfile
   print "  #separator"
-  print "else"
-  print "  activationlogfile = # important"
   print "endif"
 }
 
