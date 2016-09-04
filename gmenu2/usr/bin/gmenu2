@@ -97,8 +97,11 @@ filter_activation_submenu() # [[[1
     # All exclusion cases go here:
       # _Gmenu2 $THISFILE commands
       # Items not activated in the last 10 days
+      # system reboot, etc. (Fatdog64)
     if ($0 ~ /@exclude@/ || \
-       NOW - meta[4] > 864000) {
+       NOW - meta[4] > 864000 ||\
+       $0 ~ /Cmd=(wmexit |Suspend$)/ \
+       ) {
       exclude = 1
       a[n, "stop"] = -1
     }
