@@ -21,7 +21,8 @@ An application menu.
  * Help: Hover over menu entries for tooltip help.
  * Thanks: Gmenu2 was inspired by SFR's GMenu script.
  * Screenshot: Note the typical Puppy Linux application sub-menus, and
-   the additional 'Uncategorized', 'Wine', and 'Gmenu2' sub-menus.
+   the additional 'Wine', 'Uncategorized', 'Recent', and 'Gmenu2' sub-menus.
+   'Recent' tracks item and launcher activations for quick re-use.
  * ![Screenshot](img/gmenu2.png)
 
 
