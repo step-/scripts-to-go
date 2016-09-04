@@ -80,17 +80,28 @@ awk '
 filter_activation_submenu() # [[[1
 {
   if [ 0 != "$SUBMENU_ACTIVATIONS" -a -s "$LOGFILE_ACTIVATIONS" ]; then
-    LANG=C gawk '  
+    LANG=C gawk -v NOW=`date +%s` '  
 /^#{[0-9:]+}/ {
   start = NR
   exclude = 0
   ++n
+  split(substr($0, 3, index($0, "}") - 3), meta, /:/)
+  # meta[1] internal
+  # meta[2] invocation count
+  # meta[3] creation date
+  # meta[4] activation date
 }
 /^#{[0-9:]+}/,/^#\{}/ {
-  a[n, NR - start] = $0
-  if ($0 ~ /@exclude@/) { # _Gmenu2 $THISFILE
-    exclude = 1
-    a[n, "stop"] = -1
+  if (!exclude) {
+    a[n, NR - start] = $0
+    # All exclusion cases go here:
+      # _Gmenu2 $THISFILE commands
+      # Items not activated in the last 10 days
+    if ($0 ~ /@exclude@/ || \
+       NOW - meta[4] > 864000) {
+      exclude = 1
+      a[n, "stop"] = -1
+    }
   }
 }
 /^#\{}/ && !exclude {
