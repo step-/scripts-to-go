@@ -35,13 +35,13 @@ $(gettext -es \
   "Try enabling this sub-menu if you can't find some applications.\n" \
 "Disable '_Uncategorized' sub-menu\n" \
   "Stop showing category-less applications, and hide the sub-menu.\n" \
-"Enable '_Logged' sub-menu\n" \
+"Enable '_Recent' sub-menu\n" \
   "Log menu activations and display them in a sub-menu for quick re-use.\n" \
-"Disable '_Logged' sub-menu\n" \
+"Disable '_Recent' sub-menu\n" \
   "Stop logging menu activations, and hide the sub-menu.\n" \
 "_Uncategorized\n" \
   "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'GMenu2>Refresh cache'.\n" \
-"_Logged\n" \
+"_Recent\n" \
   "Menu entry activation log. Quickly repeat a previous invocation.\n" \
 )
 EOF
@@ -533,7 +533,7 @@ function add_activation_submenu(   dirfile) # [[[2
     "\nCategories=NULL" > dirfile
   close(dirfile)
 
-  print "\n#Logged sub-menu\nlauncherdirfile="
+  print "\n#Recent sub-menu\nlauncherdirfile="
   print "if= $SUBMENU_ACTIVATIONS"
   print "  launchersubmenu = "dirfile
   print "  launcherdirfile = "dirfile
