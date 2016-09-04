@@ -285,8 +285,8 @@ END { # Lay out each menu group. [[[2
         # Mark stop of optimization post-processing
         print "#OPTIMIZE_END"
         # Prepend additional menus before fatdog`s logout menu
-        add_uncategorized_apps_submenu()
         add_wine_submenu()
+        add_uncategorized_apps_submenu()
         add_activation_submenu()
         add_gmenu2_submenu()
         print "\nseparator\n"
