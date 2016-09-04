@@ -34,7 +34,7 @@ $(gettext -es \
 "Enable '_Uncategorized' sub-menu\n" \
   "Try enabling this sub-menu if you can't find some applications.\n" \
 "Disable '_Uncategorized' sub-menu\n" \
-  "Stip showing category-less applications, and hide the sub-menu.\n" \
+  "Stop showing category-less applications, and hide the sub-menu.\n" \
 "Enable '_Logged' sub-menu\n" \
   "Log menu activations and display them in a sub-menu for quick re-use.\n" \
 "Disable '_Logged' sub-menu\n" \
@@ -70,11 +70,42 @@ awk '
     # 1=show sub-menu Recent
     if(!f5) print "SUBMENU_ACTIVATIONS=\"1\"">>ARGV[1]
     # Log invoked items in this file.
-    if(!f6) print "LOGFILE_ACTIVATIONS=\"~/.gmenu2.log\"">>ARGV[1]
+    if(!f6) print "LOGFILE_ACTIVATIONS=\"'"$HOME"'/.gmenu2.log\"">>ARGV[1]
   }
   ' "${CONFIG}" && . "$CONFIG" || {
   echo >&2 "$0: fatal: can't initialize"
   exit 1
+}
+
+filter_activation_submenu() # [[[1
+{
+  if [ 0 != "$SUBMENU_ACTIVATIONS" -a -s "$LOGFILE_ACTIVATIONS" ]; then
+    LANG=C gawk '  
+/^#{[0-9:]+}/ {
+  start = NR
+  exclude = 0
+  ++n
+}
+/^#{[0-9:]+}/,/^#\{}/ {
+  a[n, NR - start] = $0
+  if ($0 ~ /@exclude@/) { # _Gmenu2 $THISFILE
+    exclude = 1
+    a[n, "stop"] = -1
+  }
+}
+/^#\{}/ && !exclude {
+  a[n, "stop"] = NR - start
+}
+END {
+  printf "" > ARGV[1]
+  for(i = 1; i <= n; i++) {
+    stop = a[i, "stop"]
+    for(j = 0; j <= stop; j++)
+      print a[i, j] > ARGV[1]
+  }
+}
+  ' "$LOGFILE_ACTIVATIONS"
+  fi
 }
 
 # REFRESH_CACHE data dirs [[[1
@@ -84,6 +115,7 @@ awk '
 TMPMENUDIR="/tmp/gmenu2_$USER"
 TMPMENU="$TMPMENUDIR/gmenu2"
 if [ -f "$TMPMENU" -a 1 != "$REFRESH_CACHE" ]; then
+  filter_activation_submenu #&&
   gtkmenuplus "$TMPMENU"
   exit $?
 elif [ -d "$TMPMENUDIR" -a 1 = "$REFRESH_CACHE" ]; then
@@ -118,6 +150,7 @@ ICON_DIRS="$HOME/.icons:${ICON_DIRS}:/usr/share/pixmaps:/usr/share/midi-icons:/u
 XDG_DIRFILE_DIR=/usr/share/desktop-directories
 MAIN_LAUNCHER="$TMPMENUDIR/M"
 mkdir -p "$MAIN_LAUNCHER" || exit 1
+filter_activation_submenu
 
 # Make lots of file links iff no optimization option, cf. {N2} [[[1
 if [ 1 != $INLINE ]; then
@@ -532,12 +565,12 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   tt0 = "'"$TT_concealed_0"'"
   print "if= $IGNORENODISPLAY\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
-  print "  cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("IGNORENODISPLAY", 1)
   print "endif"
 
   print "if= $IGNORENODISPLAY"
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
-  print "  cmd = sed -i -e \"/^IGNORENODISPLAY=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("IGNORENODISPLAY", 0)
   print "endif"
   # Toggle REFRESH_CACHE [[[3
   it1 = "'"$IT_chache_1"'"
@@ -546,12 +579,12 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   tt0 = "'"$TT_chache_0"'"
   print "if= $REFRESH_CACHE\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
-  print "  cmd = sed -i -e \"/^REFRESH_CACHE=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("REFRESH_CACHE", 1)
   print "endif"
 
   print "if= $REFRESH_CACHE"
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
-  print "  cmd = sed -i -e \"/^REFRESH_CACHE=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("REFRESH_CACHE", 0)
   print "endif"
   # Toggle SUBMENU_ACTIVATIONS [[[3
   it1 = "'"$IT_activ_1"'"
@@ -560,12 +593,12 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   tt0 = "'"$TT_activ_0"'"
   print "if= $SUBMENU_ACTIVATIONS\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
-  print "  cmd = sed -i -e \"/^SUBMENU_ACTIVATIONS=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("SUBMENU_ACTIVATIONS", 1)
   print "endif"
 
   print "if= $SUBMENU_ACTIVATIONS"
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
-  print "  cmd = sed -i -e \"/^SUBMENU_ACTIVATIONS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("SUBMENU_ACTIVATIONS", 0)
   print "endif"
   # Toggle SUBMENU_UNCATEGORIZED_APPS [[[3
   it1 = "'"$IT_uncat_app_1"'"
@@ -574,15 +607,23 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   tt0 = "'"$TT_uncat_app_0"'"
   print "if= $SUBMENU_UNCATEGORIZED_APPS\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
-  print "  cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=1/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("SUBMENU_UNCATEGORIZED_APPS", 1)
   print "endif"
 
   print "if= $SUBMENU_UNCATEGORIZED_APPS"
   print "  item = "it0"\n  icon = gtk-no\n  tooltip = "tt0
-  print "  cmd = sed -i -e \"/^SUBMENU_UNCATEGORIZED_APPS=/{s/=.*/=0/}\" \"$THISFILE\" \""CONFIG"\""
+  toggle("SUBMENU_UNCATEGORIZED_APPS", 0)
   print "endif"
 
   print "endsubmenu # _Gmenu2" # [[[3]]]
+}
+
+function toggle(name, value) # [[[2
+{
+  print "  cmd = sed -i" \
+    " -e \"#@exclude@\"" \
+    " -e \"/^" name "=/{s/=.*/=" value "/}\"" \
+    " \"$THISFILE\" \""CONFIG"\""
 }
 
 function find_first_filename(filename, # [[[2
