@@ -3,7 +3,7 @@
 # gmenu2 - A simple application menu for GtkMenuPlus
 Version=1.0.0
 # License: GNU GPLv3 - (C)2016, step
-# Dependencies: gtkmenuplus >= 1.10
+# Dependencies: gtkmenuplus >= 1.1.0
 # Homepage: https://github.com/step-/scripts-to-go
 # Ideas borrowed from Gmenu script, GNU GPLv2 - (C)2016, SFR
 
