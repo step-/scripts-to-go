@@ -167,7 +167,7 @@ mkdir -p "$MAIN_LAUNCHER" || exit 1
 filter_activation_submenu
 
 # Make lots of file links iff no optimization option, cf. {N2} [[[1
-if [ 1 != $INLINE ]; then
+if true || [ 1 != $INLINE ]; then # need M/I for total sort order
   # List combined .desktop files in directory tree. [[[2
   tree_file="$TMPMENUDIR/desktop-tree"
   ifs=$IFS; IFS=:; set -- $DESKTOP_FILE_DIRS
@@ -214,7 +214,7 @@ BEGIN { #[[[2
   STATE = "Undefined"
 
   print "#!/usr/bin/gtkmenuplus"
-  print
+  print ""
   if(INLINE)
     print "# Flat menu groups (INLINE=1)."
   else
@@ -225,13 +225,13 @@ BEGIN { #[[[2
   print "REFRESH_CACHE="(0<match(REFRESH_CACHE, /(true|yes|1)/))
   print "SUBMENU_ACTIVATIONS="SUBMENU_ACTIVATIONS
   print "SUBMENU_UNCATEGORIZED_APPS="SUBMENU_UNCATEGORIZED_APPS
-  print
+  print ""
   print "# Activate the log file to build loggable entries."
   print "if= $SUBMENU_ACTIVATIONS"
   print "  LOGFILE='"$LOGFILE_ACTIVATIONS"'"
   print "  activationlogfile = $LOGFILE"
   print "endif"
-  print
+  print ""
   print "# --------------------------------------------------------------------"
   print "# Generic paths for any system vs existing local paths"
   printf "#Top=%s\n", INLINE ? DESKTOP_FILE_DIRS : MAIN_LAUNCHER"/I"
@@ -242,7 +242,7 @@ BEGIN { #[[[2
   print "  configure=nolaunchernodisplay"
   print "endif"
   print "icondirectory = /usr/share/pixmaps\niconsize=16"
-  print
+  print ""
   printf "# BEGIN \x27%s\x27\n", ARGV[1]
 }
 
@@ -673,6 +673,13 @@ BEGIN {
 }
 {gsub(MENUDIR"/", "")} # gtkmenuplus supports relative paths
 !INLINE {print; next} # the rest is specific to the in-lined menu
+
+# Set Top to combined launcher directories to support total alphasort order.
+/^Top=.*:/ {
+  print # default Top=
+  print "Top=" MENUDIR "/M/I"
+  next
+}
 
 /#OPTIMIZE_END/ {bOptimizeStop=1}
 /^launchersubmenu=/,/^endsubmenu/ {
