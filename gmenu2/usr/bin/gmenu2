@@ -675,13 +675,18 @@ BEGIN {
 !INLINE {print; next} # the rest is specific to the in-lined menu
 
 # Set Top to combined launcher directories to support total alphasort order.
+# https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/filesystems/overlayfs.txt
+# The specified lower directories will be stacked beginning from the
+# rightmost one and going left. So $XDG_DATA_HOME/applications will be
+# the top layer.
 /^Top=.*:/ {
   print # default Top=
   mnt = "\x27" MENUDIR "/merged_mnt" "\x27"
   print "if= sh -xc \""\
+    "if ! modprobe overlay; then echo 0; exit; fi;"\
     "mkdir -p " mnt " &&"\
     "if mountpoint " mnt " >/dev/null; then umount " mnt "; fi &&"\
-    "mount -t aufs -o ro,br=\x27$Top\x27 none " mnt " &&"\
+    "mount -t overlay overlay -olowerdir=\x27$Top\x27 " mnt " &&"\
     "echo 1\""
   print "  Top=" mnt
   print "endif"
