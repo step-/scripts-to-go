@@ -681,7 +681,7 @@ BEGIN {
   print "if= sh -xc \""\
     "mkdir -p " mnt " &&"\
     "if mountpoint " mnt " >/dev/null; then umount " mnt "; fi &&"\
-    "mount -t aufs -o ro,br=\x27$Top\x27 none \x27" mnt "\x27 &&"\
+    "mount -t aufs -o ro,br=\x27$Top\x27 none " mnt " &&"\
     "echo 1\""
   print "  Top=" mnt
   print "endif"
