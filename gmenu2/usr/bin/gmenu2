@@ -167,7 +167,7 @@ mkdir -p "$MAIN_LAUNCHER" || exit 1
 filter_activation_submenu
 
 # Make lots of file links iff no optimization option, cf. {N2} [[[1
-if true || [ 1 != $INLINE ]; then # need M/I for total sort order
+if [ 1 != $INLINE ]; then
   # List combined .desktop files in directory tree. [[[2
   tree_file="$TMPMENUDIR/desktop-tree"
   ifs=$IFS; IFS=:; set -- $DESKTOP_FILE_DIRS
@@ -677,7 +677,14 @@ BEGIN {
 # Set Top to combined launcher directories to support total alphasort order.
 /^Top=.*:/ {
   print # default Top=
-  print "Top=" MENUDIR "/M/I"
+  mnt = "\x27" MENUDIR "/merged_mnt" "\x27"
+  print "if= sh -xc \""\
+    "mkdir -p " mnt " &&"\
+    "if mountpoint " mnt " >/dev/null; then umount " mnt "; fi &&"\
+    "mount -t aufs -o ro,br=\x27$Top\x27 none \x27" mnt "\x27 &&"\
+    "echo 1\""
+  print "  Top=" mnt
+  print "endif"
   next
 }
 
