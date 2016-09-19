@@ -3,7 +3,7 @@
 # gmenu2 - A simple application menu for GtkMenuPlus
 Version=1.0.0
 # License: GNU GPLv3 - (C)2016, step
-# Dependencies: gtkmenuplus >= 1.1.0
+# Dependencies: gtkmenuplus >= 1.1.1
 # Homepage: https://github.com/step-/scripts-to-go
 # Ideas borrowed from Gmenu script, GNU GPLv2 - (C)2016, SFR
 
@@ -680,8 +680,9 @@ BEGIN {
 /^Top=.*:/ {
   print # default Top=
   mnt = "\x27" MENUMNT "\x27"
-  printf "#\n# Reminder: before removing \x27%s\x27: umount %s.\n#\n",
-    MENUDIR, mnt
+  printf "#\n# Note: %s is mounted and unmounted automatically.\n", mnt
+  print  "# If it got stuck mounted it could prevent unloading SFS files and"
+  printf "# removing \x27%s\x27.\n#\n", MENUDIR
   print "if= sh -c \""\
     "mkdir -p " mnt " &&"\
     "if mountpoint -q " mnt "; then umount " mnt "; fi &&"\
@@ -691,6 +692,9 @@ BEGIN {
   # Directories will be stacked beginning from the rightmost one
   # and going left. So $XDG_DATA_HOME/applications will be the top layer.
   print "  Top=" mnt
+  # Unmount mmediately on menu exit otherwise SFS-loaded .desktop files
+  # may prevent unloading the SFS
+  print "  onexit = umount " mnt
   print "endif"
   next
 }
