@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=Fatdog64 Control Menu
+GenericName=Fatdog64 Control Menu
+Comment=Collection of system setup utilities
+Exec=gmenu2-fdcp
+Icon=/usr/share/pixmaps/midi-icons/controlpanel48.png
+Terminal=false
+Categories=Setup;PackageManager;Desktop;GTK;
