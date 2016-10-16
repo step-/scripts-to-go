@@ -16,7 +16,9 @@ Unless otherwise noted, they are licensed under the GNU GPLv3 license.
 
 An application menu.
  
- * Installing: `install/install-gmenu2.sh`
+ * Installing: `install/install-gmenu2.sh`. See also _gmenu2-fdcp_.
+ * Extension: If gmenu2 finds script `gmenu2-fdcp` somewhere in the `PATH`
+   it automatically adds menu entries for all Fatdog64 control panel items.
  * Dependencies: [my gtkmenuplus fork](https://github.com/step-/gtkmenuplus)
  * Help: Hover over menu entries for tooltip help.
  * Thanks: Gmenu2 was inspired by SFR's GMenu script.
@@ -25,6 +27,17 @@ An application menu.
    'Recent' tracks item and launcher activations for quick re-use.
  * ![Screenshot](img/gmenu2.png)
 
+### gmenu2-fdcp
+
+Fatdog64 Control Panel as a menu
+
+ * Installing: `install/install-gmenu2-fdcp.sh`
+ * Dependencies: [my gtkmenuplus fork](https://github.com/step-/gtkmenuplus)
+ * Help: `gmenu2-fdcp --help`
+ * This script works stand-alone or as an embeddable module. See also gmenu2.
+ * Screenshot: Fatdog64 control menu with default large font and 32
+   pixel icons.  Smaller font and icons can be set by editing the script.
+ * ![Screenshot](img/gmenu2-fdcp.png)
 
 ### roxmm
 
