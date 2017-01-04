@@ -5,6 +5,14 @@ if [ -z "$HOME" ]; then
   exit 1
 fi
 
+case $1 in
+  -h|--help)
+    echo >&2 "Usage: [DEST_DIR='/path/to/destination/dir'] ${0##*/}
+Default destination: '/' (needs root access rights)."
+    exit
+    ;;
+esac
+
 source_dir=$(realpath -m "${0%/*}/../roxmm")
 dest_dir=${DEST_DIR:-/}
 COLUMNS=`stty -a | awk -v RS=\; '/columns/{print $(NF)}'`
