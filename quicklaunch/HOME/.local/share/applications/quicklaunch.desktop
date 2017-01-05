@@ -1,0 +1,23 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Quicklaunch
+Icon=gtkmenuplus
+Comment=Desktop Panel and Quicklaunch Menu
+##Exec=/root/quicklaunch.gtkmenuplus
+# TO make menu colors match the colors of your LXQt panel theme,
+# install a GKT2 theme that matches your Openbox theme, then replace
+# the above Exec= line with one that applies the GTK2 theme
+# to gtkmenuplus. For instance, if you use the out-of-the-box Fatdog64
+# 'Onyx' theme for Openbox, you can use the matching GTK2 theme, which
+# was installed by this package:
+#   Exec=env GTK2_RC_FILES=/usr/share/themes/Onyx/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus
+# (also Onyx-Citrus).  If '23oz' is your Openbox _and_ GTK2 theme:
+#   Exec=env GTK2_RC_FILES=/usr/share/themes/23oz/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus
+# Note that the GTK2_RC_FILES value isn't exported to applications
+# that are started by quicklaunch.gtkmenuplus.
+Exec=env GTK2_RC_FILES=/usr/share/themes/Onyx/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus
+Terminal=false
+Type=Application
+Categories=Utility;
+NoDisplay=true
+GenericName=Menu
