@@ -21,7 +21,7 @@ if=awk -v V="`gtkmenuplus -v`" 'END{split(V,a,/[., ]/);print(a[1]>1||a[2]>1||a[2
   item=Cancel
   cmd=true
   icon=gtk-cancel
-else # build and show the Panel menu
+else # build and show Quicklaunch menu
 
 # ---- Help ----
 # Don't change this section.
@@ -37,7 +37,7 @@ else # build and show the Panel menu
 #
 # CUSTOMIZING THE MENU
 # You can change some sections further down in this file:
-# "LXQt Panel Menu" - Add/edit menu items
+# "Panel Menu" - Add/edit menu items
 # "User Can Change" - Read about blacklisting items from menu "Recent"
 # When you change this file follow the rules.
 #
@@ -91,10 +91,11 @@ configure=endsubmenu # pair submenu/endsubmenu keywords
 configure=nolaunchernodisplay # ignore NoDisplay= in .desktop files
 configure=noicons # reserve empty space for missing icons
 
-# ---- LXQt Panel Menu ----
-# This section is translated from the Fatdog64 default
-# $HOME/.config/lxqt/panel.conf configuration file.
-# Adapt it for your own panel.conf and your needs.
+# ---- Panel Menu ----
+# This section is translated from the Fatdog64-71x LXQt Panel default
+# configuration file $HOME/.config/lxqt/panel.conf.
+# Adapt it to your own panel.conf file for your needs.
+# For Fatdog64-70x use $HOME/.config/razor/razor-panel/panel.conf.
 launcher=/usr/share/applications/default-browser.desktop
 launcher=/usr/share/applications/urxvt.desktop
 launcher=/usr/share/applications/rox.desktop
@@ -176,7 +177,7 @@ endif
 # Don't change this section.
 submenu = _Tools
 icon = gtk-preferences
-item=Edit _Panel Menu
+item=Edit _Menu Items
 icon=gtk-edit
 cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""exec defaulttexteditor \"${SHOM%/*}$ARG0\""
 ENABLE_RECENTFILE_EDIT=$OPT_ENABLE_ADVANCED_FEATURES
