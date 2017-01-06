@@ -3,8 +3,8 @@
 _Are you sated?_
 
 I develop my scripts mostly for _[Fatdog64
-Linux](http://distro.ibiblio.org/fatdog/web/latest.html)_,
-a _[Puppy Linux](http://puppylinux.org/)_ derivative.[1]
+Linux](http://distro.ibiblio.org/fatdog/web/)_,
+a _[Puppy Linux](http://puppylinux.com/)_ derivative.[1]
 
 They are written to be compatible with the POSIX-compliant _ash_ shell,
 which comes with busybox. The she-bang line is generically set as
@@ -35,14 +35,14 @@ Fatdog64 System and Application Menu
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](TODO).
+ * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
  * Run `install/install-gmenu2.sh` from the unpacked folder.
    `--help` is a command-line option.
  * Optionally set a global hotkey to activate the menu.
    For the _Sven_ keyboard manager: open the Preferences dialog, select
    **Keyboard**, **New** **Description** _System Menu_ **Key code**
    _Win+s_ **Runs** Program _gmenu2_.
-* See also script _gmenu2-fdcp_ in this repository.
+ * See also script _gmenu2-fdcp_ in this repository.
 
 **Extensions**
 
@@ -79,7 +79,7 @@ Fatdog64 Control Panel As a Menu
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](TODO).
+ * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
  * Run `install/install-gmenu2-fdcp.sh` from the unpacked folder.
    `--help` is a command-line option.
  * Optionally set a global hotkey to activate the menu.
@@ -116,7 +116,7 @@ Customizable Desktop Panel and User Menu
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](TODO).
+ * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
  * Run `install/install-quicklaunch.sh` from the unpacked folder.
    `--help` is a command-line option.
  * Optionally set a global hotkey to activate the menu.
@@ -129,7 +129,7 @@ starts the quicklauch menu. Instructions for LXQt Panel users:
 Edit file _~/.config/lxqt/panel.conf_.  If you don't have this
 file, copy the system default file _/etc/xdg/lxqt/panel.conf_ to
 _~/.config/lxqt/panel.conf_ then edit the latter.  Look for section
-`[quicklaunch]`. By default on Fatdog64-710 it looks like this:
+`[quicklaunch]`. By default in Fatdog64-710 it looks like this:
 
 ```
 [quicklaunch]
@@ -141,8 +141,8 @@ apps\3\desktop=/usr/share/applications/rox.desktop
 apps\4\desktop=/usr/share/applications/fatdog-control-panel.desktop
 ```
 
-It may look differently on your system if you had customized your LXQt panel.
-Change the above to:
+It may look differently on your system if you have customized your LXQt
+panel.  Change the above to:
 
 ```
 [quicklaunch]
@@ -168,10 +168,17 @@ theme edit _quicklaunch.desktop_.  Instructions are given in the file.
 
 **Screenshot**
 
-Fatdog64 control menu with default large font and 32 pixel icons.
-Smaller font and icons can be set by editing the script.
+The Quicklaunch Menu icon is installed in LXQt Panel, the vertical bar
+on the left side), and replaces the default set of application icons;
+Default Web Browser, Rxvt-Unicode, ROX Filer and Fatdog64 Control
+Panel. The Panel bar is unincumbered while the default applications
+can still be accessed as menu items. Moreover, there is a sub-menu of
+ROX Filer bookmarks, and an automatically-updated sub-menu of "Recent"
+command invocations. Those are the commands that the user invokes
+frequently through Quicklaunch.  In this picture, Quicklaunch sports the
+Onyx theme.
 
-![Screenshot](img/quicklaunch.png) TODO
+![Screenshot](img/quicklaunch.png)
 
 ----
 
@@ -181,7 +188,7 @@ ROX-Filer SendTo Menu Look-Alike
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](TODO).
+ * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
  * Run `install/install-roxmm.sh` from the unpacked folder.
    `--help` is a command-line option.
 
