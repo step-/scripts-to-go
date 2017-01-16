@@ -84,7 +84,7 @@ awk '
 filter_activation_submenu() # [[[1
 {
   if [ 0 != "$SUBMENU_ACTIVATIONS" -a -s "$LOGFILE_ACTIVATIONS" ]; then
-    LANG=C gawk -v NOW=`date +%s` '  
+    LANG=C gawk -v NOW=`date +%s` '
 /^#{[0-9:]+}/ {
   start = NR
   exclude = 0
@@ -710,7 +710,7 @@ BEGIN {
     "mkdir -p " mnt " &&"\
     "if mountpoint -q " mnt "; then umount " mnt "; fi &&"\
     "unionfs -oro \x27$Top\x27 " mnt " &&"\
-    "echo 1\""
+    "echo 1 || echo 0\""
   print "  # Point Top to merged directories to support total alphasort order."
   # Directories will be stacked beginning from the rightmost one
   # and going left. So $XDG_DATA_HOME/applications will be the top layer.
