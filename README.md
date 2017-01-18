@@ -15,8 +15,8 @@ reflect the required shell, i.e. `#!/bin/bash`.
 These scripts assume that the GNU versions of various shell commands are
 installed, and that GTK2+ is the GUI toolkit.
 
-Unless otherwise noted, these scripts are licensed under the GNU GPLv3
-license.
+Unless otherwise noted, the Software in this repository is licensed
+under the terms of the GNU GPL version 2 (GPLv2) license.
 
 [1] Fatdog64-7xx is built from _Linux From Scratch (LFS)_, and maintains
 excellent compatibility with Puppy Linux.
