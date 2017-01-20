@@ -1,9 +1,9 @@
 #!/bin/ash
 
-# gmenu2 - A simple application menu for GtkMenuPlus
-Version=1.1.0
-# License: GNU GPLv3 - (C)2016, step
-# Dependencies: gtkmenuplus >= 1.1.2 https://github.com/step-/gtkmenuplus
+# gmenu2 - System and application menu
+Version=1.1.1.DEV
+# License: GNU GPLv2 - (C)2016-2017, step
+# Dependencies: gtkmenuplus >= 1.1.5 https://github.com/step-/gtkmenuplus
 # Homepage: https://github.com/step-/scripts-to-go
 # Extensions: gmenu2-fdcp in $PATH directory
 # Ideas borrowed from Gmenu script, GNU GPLv2 - (C)2016, SFR
@@ -702,21 +702,26 @@ BEGIN {
 
 /^Top=.*:/ {
   print # default Top=
-  mnt = "\x27" MENUMNT "\x27"
-  printf "#\n# Note: %s is mounted and unmounted automatically.\n", mnt
-  print  "# If it got stuck mounted it could prevent unloading SFS files and"
-  printf "# removing \x27%s\x27.\n#\n", MENUDIR
-  print "if= sh -c \""\
-    "mkdir -p " mnt " &&"\
-    "if mountpoint -q " mnt "; then umount " mnt "; fi &&"\
-    "unionfs -oro \x27$Top\x27 " mnt " &&"\
-    "echo 1 || echo 0\""
-  print "  # Point Top to merged directories to support total alphasort order."
-  # Directories will be stacked beginning from the rightmost one
-  # and going left. So $XDG_DATA_HOME/applications will be the top layer.
+  mnt = "\"" MENUMNT "\""
+  print "#\n# Note: "mnt" is (un)mounted as needed. If it gets stuck mounted,"
+  print "# unloading some SFS files and removing \x27"MENUDIR"\x27 could fail.\n#"
+  # Quote sh variables in curly brackets, i.e., ${p}
+  print  "if= sh -c \x27"\
+    "M="mnt"; mkdir -p \"${M}\" &&"\
+    "if mountpoint -q \"${M}\"; then umount \"${M}\"; fi &&"\
+    "b= t=\"$Top\": && while :; do"\
+    " h=${t%%:*}; ! [ \"${h}\" ] && break; t=${t#*:};"\
+    " [ -e \"${h}\" ] && b=\"${b}:${h}\"; done &&"\
+    "[ -n \"${b}\" ] && unionfs -oro \"${b#:}\" \"${M}\" &&"\
+    "echo 1 || echo 0\x27"
+  # With the mount in place, each sub-menu is sorted as a whole. Without
+  # the mount, each sub-menu shows separate sorted segments, one segment
+  # for each 'applications' directory.  Directories are stacked - from
+  # the rightmost one and going left. So $XDG_DATA_HOME/applications is
+  # the top layer.
   print "  Top=" mnt
-  # Unmount mmediately on menu exit otherwise SFS-loaded .desktop files
-  # may prevent unloading the SFS
+  # If mnt is left mounted after the menu exits then .desktop files that
+  # are loaded from an SFS could block unloading the SFS.
   print "  onexit = umount " mnt
   print "endif"
   next
