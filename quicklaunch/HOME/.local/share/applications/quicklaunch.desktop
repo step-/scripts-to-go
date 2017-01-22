@@ -15,8 +15,10 @@ Comment=Desktop Panel and Quicklaunch Menu
 #   Exec=env GTK2_RC_FILES=/usr/share/themes/23oz/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus
 # Note that the GTK2_RC_FILES value isn't exported to applications
 # that are started by quicklaunch.gtkmenuplus.
-Exec=env GTK2_RC_FILES=/usr/share/themes/Onyx/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus
+##Exec=env GTK2_RC_FILES=/usr/share/themes/Onyx-Citrus/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus 0 1
+##Exec=env GTK2_RC_FILES=/usr/share/themes/Windows8OB/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus 0 1
 Terminal=false
+Exec=env GTK2_RC_FILES=/usr/share/themes/Windows10Light/gtk-2.0/gtkrc /root/quicklaunch.gtkmenuplus 0 1
 Type=Application
 Categories=Utility;
 NoDisplay=true

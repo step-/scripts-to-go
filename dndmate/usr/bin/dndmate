@@ -21,9 +21,8 @@ SUGGEST=''
 
 # TODO add TEXTDOMAIN
 
-lf="${SHOM:-$HOME}/itemize-refs.txt"
 lf="${TMPDIR:-/tmp}/$USER-itemize-refs.txt"
-  # or even .../...-itemize-refs-$$.txt for separate sessions.
+  # TODO: as option --id=ID .../...-itemize-refs-$option_id.txt for separate sessions.
 export lf # TODO rename if UI adds run/launch widget: ITEMIZE_REFS ?
 
 opt_append=

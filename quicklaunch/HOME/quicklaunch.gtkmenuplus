@@ -2,7 +2,7 @@
 
 # Customizable User Menu (for Fatdog64 Desktop Panel)
 # Copyright (C) step, 2017
-# License: GNU GPL Version 3 or later
+# License: GNU GPL Version 2
 # Homepage: https://github.com/step-/scripts-to-go
 # Version=1.0.0
 
@@ -100,6 +100,16 @@ launcher=/usr/share/applications/default-browser.desktop
 launcher=/usr/share/applications/urxvt.desktop
 launcher=/usr/share/applications/rox.desktop
 launcher=/usr/share/applications/fatdog-control-panel.desktop
+# ---- step's items
+item=Radio _3
+icon=gtk-media-play
+tooltip=Web radio player
+cmd=tray-radio tray /root/rai3.m3u
+item=Drop _Target
+tooltip=Collect files/URLs
+icon=gtk-goto-bottom
+cmd=s-itemizer -a
+# -- end of step's items --
 separator
 
 # ---- "Recent" Menu ----
