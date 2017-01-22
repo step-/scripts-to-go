@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# See the new script 'dnd-mate' https://github.com/step-/scripts-to-go
+# Drag-and-drop item collector and automator
+# Copyright (C) step, 2017
+# License: GNU GPL Version 2
+# Homepage: https://github.com/step-/scripts-to-go
+# Version=1.0.0
+
+REQUIRE='http://distro.ibiblio.org/fatdog/packages/710/yad-0.36.3-x86_64-1.txz'
+SUGGEST=''
+
+# See also:
+# http://www.murga-linux.com/puppy/viewtopic.php?p=908353#908353
+
+# Usage: $0 [-a] [ITEM...]
+
+# TODO [ITEM]
+# Accepted ITEMs: files, folders, URLs from browser. Folders won't be expanded.
+# Dropped icon GROUP output order may not match ROX-Filer's icon order.
+
+# TODO add TEXTDOMAIN
+
+lf="${SHOM:-$HOME}/itemize-refs.txt"
+lf="${TMPDIR:-/tmp}/$USER-itemize-refs.txt"
+  # or even .../...-itemize-refs-$$.txt for separate sessions.
+export lf # TODO rename if UI adds run/launch widget: ITEMIZE_REFS ?
+
+opt_append=
+case $1 in
+  -a ) opt_append=1; shift ;;
+esac
+
+if [ -n "$opt_append" ]; then
+  lflc=$(wc -l "$lf")
+  lflc=${lflc%% *}
+else
+  lflc=0
+  : > "$lf"
+fi
+
+itemize() { # no args
+  local buf
+  # input: $0, which is passed from bash -c
+  # yad adds protocol(http:// etc.) prefix; strip 'file://'
+  buf="${0//file:\/\//}"
+  printf %s\\n "$buf" >> "$lf" # to refs file
+  printf '"%s" \\\n' "$buf" # to text widget
+    # text widget is formatted for easy "select and paste to sh" re-use
+}; export -f itemize # TODO rename if UI adds run/launch widget
+
+# Paned dialog {{{
+msg=$(printf \
+  "$(gettext "Drag and drop items over the target to add them to\n'%s' from line %s")" "$lf" $((1+lflc)))
+# Encode U+21E9 Dec:8681 DOWNWARDS WHITE ARROW &#x21E9; /\%u21e9  (echo -n <char> | xxd)
+symbol=$'\xe2\x87\xa9' # font="80"
+# Encode U+25CE Dec:9678 BULLSEYE (0o) &#x25CE; /\%u25ce
+symbol=$'\xe2\x97\x8e' # font="66"
+yad --dnd       --plug=$$ --tabnum=1  --command "bash -c itemize" \
+    --text="<span font=\"66\">$symbol</span>" --text-align=center |
+yad --text-info --plug=$$ --tabnum=2  --tail &
+# TODO yad icon resembling $symbol
+yad --paned     --key=$$  --orient=hor --splitter=100 --no-buttons --width=300  --text="$msg" --tooltip
+#}}}
