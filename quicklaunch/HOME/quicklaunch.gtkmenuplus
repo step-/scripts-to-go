@@ -9,9 +9,9 @@
 # ---- Gtkmenuplus Version Check ----
 # Don't change this section.
 configure=endsubmenu
-# Require: gtkmenuplus >= 1.1.4 https://github.com/step-/gtkmenuplus
-if=awk -v V="`gtkmenuplus -v`" 'END{split(V,a,/[., ]/);print(a[1]>1||a[2]>1||a[2]=1&&a[3]>=4)?0:1}' /dev/null
-  item=<span color="red" size="x-large">Please upgrade gtkmenuplus to version >= 1.1.4</span>
+# Require: gtkmenuplus >= 1.1.5 https://github.com/step-/gtkmenuplus
+if=awk -v V="`gtkmenuplus -v`" 'END{split(V,a,/[., ]/);print(a[1]>1||a[2]>1||a[2]=1&&a[3]>=5)?0:1}' /dev/null
+  item=<span color="red" size="x-large">Please upgrade gtkmenuplus to version >= 1.1.5</span>
   cmd=false
   icon=gtk-dialog-error
   separator
@@ -182,6 +182,9 @@ icon = gtk-preferences
 item=Edit _Menu Items
 icon=gtk-edit
 cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""exec defaulttexteditor \"${SHOM%/*}$ARG0\""
+item=Edit _User Items
+icon=gtk-edit
+cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""x=\"$ARG0\";e=${x##*.};x=\"${x%.*}-user.$e\";exec defaulttexteditor \"${SHOM%/*}$x\""
 ENABLE_RECENTFILE_EDIT=$OPT_ENABLE_ADVANCED_FEATURES
 # You shouldn't edit RECENTFILE by hand, but if you do keeping intact
 # the structure of each record is vital.  A record begins with a line
