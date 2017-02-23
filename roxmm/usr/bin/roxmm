@@ -471,7 +471,7 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
     if in_sections Z; then
       fmt_separator
       md="$HOME/.config/roxmm/menu"
-      "$md/bookmarks.awk" -v WRAP=1 \
+      "$md/bin/bookmarks.awk" -v WRAP=1 \
         "$HOME/.config/rox.sourceforge.net/ROX-Filer/Bookmarks.xml"
       echo endsubmenu  && ITEM_COUNT=$((++ITEM_COUNT))
       echo "launchersub=$md" && ITEM_COUNT=$((++ITEM_COUNT))
