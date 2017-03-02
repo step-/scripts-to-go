@@ -60,6 +60,7 @@ awk '
   /^SUBMENU_UNCATEGORIZED_APPS=/{f4=1}
   /^SUBMENU_ACTIVATIONS=/{f5=1}
   /^LOGFILE_ACTIVATIONS=/{f6=1}
+  /^MNEMONIC=/{f7=1}
   END{
     # Note: Settings in the $CONFIG file win over the first-run settings below:
     #
@@ -75,6 +76,8 @@ awk '
     if(!f5) print "SUBMENU_ACTIVATIONS=\"1\"">>ARGV[1]
     # Log invoked items in this file.
     if(!f6) print "LOGFILE_ACTIVATIONS=\"'"$HOME"'/.gmenu2.log\"">>ARGV[1]
+    # 1=add mnemonic to item labels
+    if(!f7) print "MNEMONIC=\"1\"">>ARGV[1]
   }
   ' "${CONFIG}" && . "$CONFIG" || {
   echo >&2 "$0: fatal: can't initialize"
@@ -206,6 +209,7 @@ LANG=C gawk \
   -v REFRESH_CACHE=$REFRESH_CACHE \
   -v SUBMENU_ACTIVATIONS=$SUBMENU_ACTIVATIONS \
   -v SUBMENU_UNCATEGORIZED_APPS=$SUBMENU_UNCATEGORIZED_APPS \
+  -v MNEMONIC=$MNEMONIC \
   -v CONFIG="$CONFIG" \
   '
 BEGIN { #[[[2
@@ -248,6 +252,8 @@ BEGIN { #[[[2
   print "  configure=nolaunchernodisplay"
   print "endif"
   print "icondirectory = /usr/share/pixmaps\niconsize=16"
+  if(MNEMONIC)
+    print "format = mnemonic=\"1\""
   print ""
   printf "# BEGIN \x27%s\x27\n", ARGV[1]
 }
@@ -383,6 +389,8 @@ function layout(group_file, id, func_convert_path, #[[[2
         an = split(filenames, a, "[[:space:]]*<Filename>|</Filename>[[:space:]]*")
         if(INLINE)
           print "configure=launcherlistfirst"
+        if(MNEMONIC)
+          print "format = mnemonic=\"123456789\""
         for(ai = 1; ai <= an; ai++) {
           if(a[ai]) {
             print "launcher=" \
