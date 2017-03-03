@@ -1,7 +1,7 @@
 #!/bin/ash
 
 # gmenu2 - System and application menu
-Version=1.1.1.DEV
+Version=1.2.0
 # License: GNU GPLv2 - (C)2016-2017, step
 # Dependencies: gtkmenuplus >= 1.1.5 https://github.com/step-/gtkmenuplus
 # Homepage: https://github.com/step-/scripts-to-go
