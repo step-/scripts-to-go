@@ -218,7 +218,7 @@ _dndmate_itemize() # [args] {{{1
   for p; do
     _dndmate_urlencode "$p" for-pango # => $REPLY
     # Columns: checkbox,ref,urlencoded,@font@
-    printf "|%s|%s|%s|%s|\n" TRUE "$p" "$REPLY" ""
+    printf "%s|%s|%s|%s|\n" TRUE "$p" "$REPLY" ""
   done >> "$DNDMATE_LIST"
 #local ret=$?; { _dndmate_func_out _dndmate_itemize; _dndmate_list_refs; } >&2; return $ret
 }; export -f _dndmate_itemize
@@ -435,9 +435,8 @@ load_refs() # {{{1
   local checkbox ref urlencoded font
   if [ -s "$DNDMATE_LIST" ]; then
     while IFS='|' read -r checkbox ref urlencoded font; do
-printf "(%s)(%s)(%s)(%s)\n" "${checkbox,,}" "$ref" "$urlencoded" "$font" >&2
       case $checkbox in TRUE|FALSE ) # defensive
-        printf "%s\n%s\n%s\n%s\n" "${checkbox,,}" "$ref" "$urlencoded" light ;; # tolower(a[0])
+        printf "%s\n%s\n%s\n%s\n" "$checkbox" "$ref" "$urlencoded" light ;;
       esac
     done < "$DNDMATE_LIST"
   elif [ -s "$DNDMATE_REFS" ]; then
