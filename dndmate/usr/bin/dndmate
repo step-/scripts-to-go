@@ -203,8 +203,11 @@ _dndmate_itemize() # [args] {{{1
     : >> "$DNDMATE_LOCK"
     # yad adds protocol(http:// etc.) prefix; strip 'file://'
     p="${BASH_ARGV#file:\/\/}" # there's actually only one array element.
+    # Urlencode the tooltip column.
+    _dndmate_urlencode "$p" for-pango # => $REPLY
     # Add item to list widget.
-    printf "%s\n%s\n%s\n" true "$p" "" # columns: checkbox,ref,@font@
+    # Columns: checkbox,ref,urlencoded,@font@
+    printf "%s\n%s\n%s\n%s\n" true "$p" "$REPLY" ""
     # Release "exclusive" access to stdout.
     rm "$DNDMATE_LOCK"
     # Copy item to $1 for further output.
@@ -212,8 +215,11 @@ _dndmate_itemize() # [args] {{{1
   fi
   # Whence? bash -c and command-line invocation.
   for p; do echo "$p"; done >> "$DNDMATE_REFS"
-  # Columns: checkbox,ref,@font@
-  for p; do printf "%s|%s|%s|\n" TRUE "$p" ""; done >> "$DNDMATE_LIST"
+  for p; do
+    _dndmate_urlencode "$p" for-pango # => $REPLY
+    # Columns: checkbox,ref,urlencoded,@font@
+    printf "|%s|%s|%s|%s|\n" TRUE "$p" "$REPLY" ""
+  done >> "$DNDMATE_LIST"
 #local ret=$?; { _dndmate_func_out _dndmate_itemize; _dndmate_list_refs; } >&2; return $ret
 }; export -f _dndmate_itemize
 
@@ -348,8 +354,9 @@ sync_refs_lists() # {{{1
 }
 
 select_refs() # [$1-output-file-escaped-separator] [$2-list-file] [$3-TRUE|FALSE] {1
+# Format output for $DNDMATE_REFS
 {
-  # DNDMATE_LIST contains List widget columns checkbox,ref,@font@.
+  # DNDMATE_LIST contains List widget columns checkbox,ref,urlencoded,@font@.
   local ofs=${1:-\\n} fin=${2:-$DNDMATE_LIST} selector=${3:-TRUE} fmt='%s'
   local checkbox ref rest
   while IFS='|' read -r checkbox ref rest; do
@@ -385,19 +392,58 @@ flush_list_widget() # [$1-yad-paned-PID] {{{1
   return 0
 }
 
-load_refs() # {{{1
-# Output three columns to List widget: checkbox,ref,@font@
+_dndmate_urlencode() # $1-string $2-for-pango #{{{1
+# https://stackoverflow.com/a/10660730 https://gist.github.com/cdown/1163649
+# Non-null $2-for-pango requests less encoding of $1-string.
+# Less encoding is sufficient for Pango tooltips to keep Pango from complaining
+# about '&'.
 {
-  local checkbox ref rest
+  old_lc_collate="$LC_COLLATE"
+  LC_COLLATE=C
+  local string="$1"
+  local pango=$2
+  local strlen=${#string}
+  local encoded pos c o
+
+  if [ -z "$pango" ]; then
+    for (( pos=0 ; pos<strlen ; pos++ )); do
+      c=${string:$pos:1}
+      case "$c" in
+        [-_.~a-zA-Z0-9] ) o="$c" ;;
+        * ) printf -v o '%%%02x' "'$c" ;;
+       esac
+       encoded+="$o"
+    done
+  else
+    for (( pos=0 ; pos<strlen ; pos++ )); do
+      c=${string:$pos:1}
+      case "$c" in
+        [\&\|] ) printf -v o '%%%02x' "'$c" ;;
+        * ) o="$c" ;;
+       esac
+       encoded+="$o"
+    done
+  fi
+  REPLY="$encoded"
+  LC_COLLATE="$old_lc_collate"
+  unset old_lc_collate
+}; export -f _dndmate_urlencode
+
+load_refs() # {{{1
+# Output four columns to List widget: checkbox,ref,@font@,urlencoded
+{
+  local checkbox ref urlencoded font
   if [ -s "$DNDMATE_LIST" ]; then
-    while IFS='|' read -r checkbox ref rest; do
+    while IFS='|' read -r checkbox ref urlencoded font; do
+printf "(%s)(%s)(%s)(%s)\n" "${checkbox,,}" "$ref" "$urlencoded" "$font" >&2
       case $checkbox in TRUE|FALSE ) # defensive
-        printf "%s\n%s\n%s\n" "${checkbox,,}" "$ref" light ;; # tolower(a[0])
+        printf "%s\n%s\n%s\n%s\n" "${checkbox,,}" "$ref" "$urlencoded" light ;; # tolower(a[0])
       esac
     done < "$DNDMATE_LIST"
   elif [ -s "$DNDMATE_REFS" ]; then
     while read -r ref; do
-      printf "%s\n%s\n%s\n" true "$ref" light
+      _dndmate_urlencode "$ref" for-pango # => $REPLY
+      printf "%s\n%s\n%s\n%s\n" true "$ref" "$REPLY" light
     done < "$DNDMATE_REFS"
   fi
 }
@@ -512,16 +558,17 @@ show_main_dialog() # {{{1
   # Pluggable list widget shows and outputs checkboxed refs.
   [ -n "$opt_no_edit" ] && editable= || editable=--editable
   yad --list --plug=$$ --tabnum=2 \
-    $editable --regex-search --no-headers \
+    $editable --regex-search --no-headers --no-markup \
     --column=:CHK \
-    --column="$(gettext Reference)" --tooltip-column=2 --search-column=2 \
+    --column="$(gettext Reference)" --search-column=2 \
+    --column=urlencoded:HD --tooltip-column=3 \
     --column=@font@ \
     --print-all --ellipsize=START |
 
   # Awk buffers yad --list output because we need to clobber DNDMATE_LIST only
   # after yad --dnd has closed.
   awk -v OUTFILE="$DNDMATE_LIST" '
-    #{ print "AWK BUFFER seen("$0")" >"/dev/stderr" }
+    { print "AWK BUFFER seen("$0")" >"/dev/stderr" }
     {a[++n] = $0}
     END {for(i = 1; i <= n; i++) print a[i] >OUTFILE}
   '
