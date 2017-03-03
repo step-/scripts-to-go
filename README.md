@@ -2,15 +2,10 @@
 
 _Are you sated?_
 
-I develop my scripts mostly for _[Fatdog64
-Linux](http://distro.ibiblio.org/fatdog/web/)_,
-a _[Puppy Linux](http://puppylinux.com/)_ derivative.[1]
-
-They are written to be compatible with the POSIX-compliant _ash_ shell,
-which comes with busybox. The she-bang line is generically set as
-`#!/bin/sh` to simplify packaging across Linux variants. For scripts
-that require features of a specific shell, the she-bang is set to
-reflect the required shell, i.e. `#!/bin/bash`.
+I develop my scripts mostly for
+[Fatdog64 Linux](http://distro.ibiblio.org/fatdog/web/).[1]
+Fatdog64-7xx is built from _Linux From Scratch (LFS)_, and maintains
+excellent compatibility with [Puppy Linux](http://puppylinux.com/).
 
 These scripts assume that the GNU versions of various shell commands are
 installed, and that GTK2+ is the GUI toolkit.
@@ -18,8 +13,63 @@ installed, and that GTK2+ is the GUI toolkit.
 Unless otherwise noted, the Software in this repository is licensed
 under the terms of the GNU GPL version 2 (GPLv2) license.
 
-[1] Fatdog64-7xx is built from _Linux From Scratch (LFS)_, and maintains
-excellent compatibility with Puppy Linux.
+These scripts are written to be compatible with the POSIX-compliant _ash_
+shell, a [busybox](https://busybox.net/about.html) applet. The she-bang line is
+generically set as `#!/bin/sh` to simplify packaging across Linux variants. For
+scripts that require features of a specific shell, the she-bang is set to
+reflect the required shell, i.e. `#!/bin/bash`.
+
+----
+
+# dndmate
+
+Drag-and-drop Collector and Automator
+
+**Usage Scenarios**
+
+* You have multiple filer windows open in different folders, and you want to
+  perform an action (run a command) targeting some of the files in some of the
+  open filer windows.
+* You keep an ongoing list of file paths, and you want to add files to the list
+  with a mouse action from a filer window, and also with a simple shell command.
+* Some of the above scenarios, targeting web links in addition to files, i.e.,
+  keeping a list of web bookmarks.
+
+**Installing**
+
+* Download and unpack the repository snapshot
+  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Run `install/install-dndmate.sh` from the unpacked folder.
+  `--help` is a command-line option.
+* Optionally, if ROX-Filer is your file manager, drag-and-drop the ROX-App
+  `/usr/local/apps/dndmate` to your desktop, or create a link to it on your
+  desktop.
+
+**Dependencies**
+
+* Run `dndmate --help=all` to list script dependendices, which are shown near
+  the end of the output text.
+
+**Help** - Hover over the buttons for tooltip help. Press the Help button for
+full help text.
+
+**Tips**
+
+* To work on different lists at once, run separate instances with `--id`, i.e.
+
+```
+dndmate --id=music & dndmate --id=weblinks &
+```
+
+* Add your frequently-used commands to the command history file: Click \[R\]
+  or \[1\] in the main window, then \[Edit\].
+* Read the Help file! Click \[H\] in the main window.
+
+**See also** [YAD Tips thread](http://murga-linux.com/puppy/viewtopic.php?p=908353#908353)
+
+**Thanks** - stemsee, MochiMoppel.
+
+![Screenshot](img/dndmate-450x-1x32.gif)
 
 ----
 
@@ -29,20 +79,21 @@ Fatdog64 System and Application Menu
 
 **Usage Scenarios**
 
- * Replacing the out-of-the-box Fatdog64 System menu because you don't
-   use the Openbox and JWM window managers.
- * Displaying the system menu with a global hotkey.
+* Replacing the out-of-the-box Fatdog64 System menu because you don't
+  use the Openbox and JWM window managers.
+* Displaying the system menu with a global hotkey.
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
- * Run `install/install-gmenu2.sh` from the unpacked folder.
-   `--help` is a command-line option.
- * Optionally set a global hotkey to activate the menu.
-   For the _Sven_ keyboard manager: open the Preferences dialog, select
-   **Keyboard**, **New** **Description** _System Menu_ **Key code**
-   _Win+s_ **Runs** Program _gmenu2_.
- * See also script _gmenu2-fdcp_ in this repository.
+* Download and unpack the repository snapshot
+  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Run `install/install-gmenu2.sh` from the unpacked folder.
+  `--help` is a command-line option.
+* Optionally set a global hotkey to activate the menu.
+  For the _Sven_ keyboard manager: open the Preferences dialog, select
+  **Keyboard**, **New** **Description** _System Menu_ **Key code**
+  _Win+s_ **Runs** Program _gmenu2_.
+* See also script _gmenu2-fdcp_ in this repository.
 
 **Extensions**
 
@@ -73,21 +124,21 @@ Fatdog64 Control Panel As a Menu
 
 **Usage Scenarios**
 
- * Quickly viewing and running the many system functions that the
-   Fatdog64 Control Panel provides.
- * Displaying a Control Panel menu with a global hotkey.
+* Quickly viewing and running the many system functions that the
+  Fatdog64 Control Panel provides.
+* Displaying a Control Panel menu with a global hotkey.
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
- * Run `install/install-gmenu2-fdcp.sh` from the unpacked folder.
-   `--help` is a command-line option.
- * Optionally set a global hotkey to activate the menu.
-   For the _Sven_ keyboard manager: open the Preferences dialog, select
-   **Keyboard**, **New** **Description** _Control Panel Menu_ **Key code**
-   _Win+p_ **Runs** Program _gmenu2-fdcp_.
- * This script works stand-alone and also as an embeddable module in
-   another gtkmenuplus menu. See script _gmenu2_ in this repository.
+* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Run `install/install-gmenu1-fdcp.sh` from the unpacked folder.
+  `--help` is a command-line option.
+* Optionally set a global hotkey to activate the menu.
+  For the _Sven_ keyboard manager: open the Preferences dialog, select
+  **Keyboard**, **New** **Description** _Control Panel Menu_ **Key code**
+  _Win+p_ **Runs** Program _gmenu1-fdcp_.
+* This script works stand-alone and also as an embeddable module in
+  another gtkmenuplus menu. See script _gmenu1_ in this repository.
 
 **Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus) fork.
 
@@ -108,21 +159,21 @@ Customizable Desktop Panel and User Menu
 
 **Usage Scenarios**
 
- * Condensing Fatdog64 Desktop Panel icons into a single icon to free
-   some Panel real estate.
- * Displaying a quick-launch menu with a global hotkey.
- * Automatically tracking your command usage for quick re-use.
- * Keeping all customized commands in a single text file.
+* Condensing Fatdog64 Desktop Panel icons into a single icon to free
+  some Panel real estate.
+* Displaying a quick-launch menu with a global hotkey.
+* Automatically tracking your command usage for quick re-use.
+* Keeping all customized commands in a single text file.
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
- * Run `install/install-quicklaunch.sh` from the unpacked folder.
-   `--help` is a command-line option.
- * Optionally set a global hotkey to activate the menu.
-   For the _Sven_ keyboard manager: open the Preferences dialog, select
-   **Keyboard**, **New** **Description** _Quicklaunch Menu_ **Key code**
-   _Win+x_ **Runs** Program _/root/quicklaunch.gtkmenuplus_.
+* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Run `install/install-quicklaunch.sh` from the unpacked folder.
+  `--help` is a command-line option.
+* Optionally set a global hotkey to activate the menu.
+  For the _Sven_ keyboard manager: open the Preferences dialog, select
+  **Keyboard**, **New** **Description** _Quicklaunch Menu_ **Key code**
+  _Win+x_ **Runs** Program _/root/quicklaunch.gtkmenuplus_.
 
 Optionally, replace multiple Desktop Panel icons with a single icon that
 starts the quicklauch menu. Instructions for LXQt Panel users:
@@ -188,9 +239,9 @@ ROX-Filer SendTo Menu Look-Alike
 
 **Installing**
 
- * Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
- * Run `install/install-roxmm.sh` from the unpacked folder.
-   `--help` is a command-line option.
+* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Run `install/install-roxmm.sh` from the unpacked folder.
+  `--help` is a command-line option.
 
 **Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus) fork.
 
