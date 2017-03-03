@@ -6,6 +6,9 @@
 # Homepage: https://github.com/step-/scripts-to-go
 # Version=1.0.0
 
+# Enable label mnemonics throughout
+format = mnemonic="1"
+
 # ---- Gtkmenuplus Version Check ----
 # Don't change this section.
 configure=endsubmenu
@@ -106,7 +109,7 @@ separator
 
 # ---- "Recent" Menu ----
 # Don't change this section.
-submenu = _Recent
+submenu = _1 Recent
 icon=gtk-media-previous
 tooltip=Quickly repeat a previous invocation.
 include = $RECENTFILE
@@ -169,7 +172,7 @@ BLACKLISTED_ROX=cmd=sh -c \\\": @blacklist@;rox \\\\\\\"%s\\\\\\\"\\\"
 #WHITELISTED_ROX=cmd=rox \\\"%s\\\"
 CONVERT_BOOKMARKS=BEGIN{FS=\"[<>\\\"]\"}\$(2)~/^bookmark /{printf \"item=%s\ntooltip=%s\n$BLACKLISTED_ROX\nicon=gtk-directory\n\",\$(3),\$(5),\$(5)>H;++n}END{print H}
 BOOKMARKS_TMP==sh -c "gawk -v H=\"/tmp/$USER-$(basename '$ARG0')\" '$CONVERT_BOOKMARKS' '$BOOKMARKS'"
-  submenu=ROX _Bookmarks
+  submenu=_2 ROX Bookmarks
   icon=gtk-jump-to
   include=$BOOKMARKS_TMP
   endsubmenu
@@ -177,7 +180,7 @@ endif
 
 # ---- "Tools" Menu ----
 # Don't change this section.
-submenu = _Tools
+submenu = _3 Tools
 icon = gtk-preferences
 item=Edit _Menu Items
 icon=gtk-edit
