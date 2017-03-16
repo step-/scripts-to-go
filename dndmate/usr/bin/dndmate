@@ -109,7 +109,7 @@ KNOWN BUGS AND LIMITATIONS
 * The ENTER and ESC keys don't work. Use Alt+O (OK), Alt+C (Cancel).
 ----
 EOF
-awk '/META-begin$/{f=1;next}/META-end$/{f=0}f' "$0"
+awk '/META-begin$/{f=1;next}/META-end$/{f=0}f' "$BASH_SOURCE"
 printf "$(gettext '%s requires packages:\n ')" "$SN"
 for ((i = 0; i < ${#pkg_name[@]}; i++)); do
   echo -n " ${pkg_name[$i]}-${pkg_ver[$i]}"
