@@ -19,6 +19,15 @@ generically set as `#!/bin/sh` to simplify packaging across Linux variants. For
 scripts that require features of a specific shell, the she-bang is set to
 reflect the required shell, i.e. `#!/bin/bash`.
 
+Scripts in this page:
+
+* [dndmate](./README.md#dndmate)
+* [gmenu2](./README.md#gmenu2)
+* [gmenu2-fdcp](./README.md#gmenu2-fdcp)
+* [quicklaunch](./README.md#quicklaunch)
+* [roxmm](./README.md#roxmm)
+* [tray-radio](./README.md#tray-radio)
+
 ----
 
 <a href="dndmate"></a>
@@ -299,26 +308,26 @@ Internet Radio (and Media File) Tray Icon Menu
 
 **FAQ**
 
-* Can tray-radio use my preferred media player `xyz`?
+1. Can tray-radio use my preferred media player 'xyz'?
 
- * Yes. It can even use different media players in the same menu. See help
-   topic _DEFAULT PLAY COMMAND_.
+Yes. It can even use different media players in the same menu. See help topic
+_DEFAULT PLAY COMMAND_.
 
-* Can I format menu items with color, different fonts, etc. ?
+2. Can I format menu items with color, different fonts, etc. ?
 
- * Yes. You can apply all
-   [gtkmenuplus](https://github.com/step-/gtkmenuplus) formatting
-   [directives](https://github.com/step-/gtkmenuplus/blob/master/docs/menu_configuration_file_format.txt).
-   See help topic _GTKMENUPLUS-ENTRY_.
+Yes. You can apply all
+[gtkmenuplus](https://github.com/step-/gtkmenuplus) formatting
+[directives](https://github.com/step-/gtkmenuplus/blob/master/docs/menu_configuration_file_format.txt).
+See help topic _GTKMENUPLUS-ENTRY_.
 
-* Can I add icons to the menu?
+3. Can I add icons to the menu?
 
- * Yes. Use `#menu icon=`. An example is shown when you run `tray-radio --help=all`.
+Yes. Use `#menu icon=`. An example is shown when you run `tray-radio --help=all`.
 
-* Does tray-radio support theming?
+4. Does tray-radio support theming?
 
- * Yes. It supports GTK2 menu themes, so you can change the way the menu looks,
-   and the icon set associated with the theme. See help topic _THEMING_.
+Yes. It supports GTK2 menu themes, so you can change the way the menu looks,
+and the icon set associated with the theme. See help topic _THEMING_.
 
 **Screenshot**
 
