@@ -21,7 +21,8 @@ reflect the required shell, i.e. `#!/bin/bash`.
 
 ----
 
-# dndmate
+<a href="dndmate"></a>
+## dndmate
 
 Drag-and-drop Collector and Automator
 
@@ -44,10 +45,11 @@ Drag-and-drop Collector and Automator
 * Optionally, if ROX-Filer is your file manager, drag-and-drop the ROX-App
   `/usr/local/apps/dndmate` to your desktop, or create a link to it on your
   desktop.
+* Run `dndmate` in a terminal window to start the drag-and-drop target.
 
 **Dependencies**
 
-* Run `dndmate --help=all` to list script dependendices, which are shown near
+* Run `dndmate --help=all` to list script dependencies, which are shown near
   the end of the output text.
 
 **Help** - Hover over the buttons for tooltip help. Press the Help button for
@@ -73,7 +75,8 @@ dndmate --id=music & dndmate --id=weblinks &
 
 ----
 
-### gmenu2
+<a href="gmenu2"></a>
+## gmenu2
 
 Fatdog64 System and Application Menu
 
@@ -94,13 +97,14 @@ Fatdog64 System and Application Menu
   **Keyboard**, **New** **Description** _System Menu_ **Key code**
   _Win+s_ **Runs** Program _gmenu2_.
 * See also script _gmenu2-fdcp_ in this repository.
+* Run `gmenu2` from a terminal window to display the menu.
 
 **Extensions**
 
 If gmenu2 finds script `gmenu2-fdcp` somewhere in the `PATH` it
 automatically adds menu entries for all Fatdog64 control panel items.
 
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus) fork.
+**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
 
 **Help** - Hover over menu entries for tooltip help.
 
@@ -118,7 +122,8 @@ repository.
 
 ----
 
-### gmenu2-fdcp
+<a href="gmenu2-fdcp"></a>
+## gmenu2-fdcp
 
 Fatdog64 Control Panel As a Menu
 
@@ -139,8 +144,9 @@ Fatdog64 Control Panel As a Menu
   _Win+p_ **Runs** Program _gmenu1-fdcp_.
 * This script works stand-alone and also as an embeddable module in
   another gtkmenuplus menu. See script _gmenu1_ in this repository.
+* For stand-alone use, run `gmenu2-fdcp` from a terminal window.
 
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus) fork.
+**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
 
 **Help** - `gmenu2-fdcp --help`
 
@@ -153,7 +159,8 @@ Smaller font and icons can be set by editing the script.
 
 ----
 
-### quicklaunch
+<a href="quicklaunch"></a>
+## quicklaunch
 
 Customizable Desktop Panel and User Menu
 
@@ -213,7 +220,7 @@ is explained in _~/.local/usr/share/applications/quicklaunch.desktop_,
 which sets the Onyx theme by default. If your desktop uses a different
 theme edit _quicklaunch.desktop_.  Instructions are given in the file.
 
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus) fork.
+**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
 
 **Help** - Read section `---- Help ----` of file _~/quicklaunch.desktop_.
 
@@ -233,7 +240,8 @@ Onyx theme.
 
 ----
 
-### roxmm
+<a href="roxmm"></a>
+## roxmm
 
 ROX-Filer SendTo Menu Look-Alike
 
@@ -243,7 +251,7 @@ ROX-Filer SendTo Menu Look-Alike
 * Run `install/install-roxmm.sh` from the unpacked folder.
   `--help` is a command-line option.
 
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus) fork.
+**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
 
 **Help** - `roxmm --help`
 
@@ -253,5 +261,67 @@ Right - rox SendTo menu. Left - corresponding roxmm menu. Note tooltip
 and Tools menu.
 
 ![Screenshot](img/roxmm.png)
+
+----
+
+<a href="tray-radio"></a>
+## tray-radio
+
+Internet Radio (and Media File) Tray Icon Menu
+
+**Target User**
+
+* You want to select Internet radio stations, and other media files, from a
+  menu that uses your existing `.m3u` playlists and URL list files.
+* You don't need a flashy graphical window; you want a light-weight, quick,
+  simple-to-configure solution.
+* You like to configure your media lists using text files and nothing more.
+
+**Installing**
+
+* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Run `install/install-tray-radio.sh` from the unpacked folder.
+  `--help` is a command-line option.
+* Run `tray-radio --tray &` in a terminal window to start the tray icon.
+
+**Dependencies**
+
+* [gtkmenuplus](https://github.com/step-/gtkmenuplus).
+
+* Run `tray-radio --help=all` to list other script dependencies, which are shown
+  near the end of the output text.
+
+* Optionally install the _mpg123_ command-line MP3 player (recommended). For Fatdog64,
+  [mpg123](http://distro.ibiblio.org/fatdog/contrib/packages/710/mpg123-1.23.8-x86_64-1.txz)
+  can be installed using the gslapt package manager.
+
+**Help** - `tray-radio --help`, `tray-radio --help=all`, `tray-radio --help=all-gui`
+
+**FAQ**
+
+* Can tray-radio use my preferred media player `xyz`?
+
+ * Yes. It can even use different media players in the same menu. See help
+   topic _DEFAULT PLAY COMMAND_.
+
+* Can I format menu items with color, different fonts, etc. ?
+
+ * Yes. You can apply all
+   [gtkmenuplus](https://github.com/step-/gtkmenuplus) formatting
+   [directives](https://github.com/step-/gtkmenuplus/blob/master/docs/menu_configuration_file_format.txt).
+   See help topic _GTKMENUPLUS-ENTRY_.
+
+* Can I add icons to the menu?
+
+ * Yes. Use `#menu icon=`. An example is shown when you run `tray-radio --help=all`.
+
+* Does tray-radio support theming?
+
+ * Yes. It supports GTK2 menu themes, so you can change the way the menu looks,
+   and the icon set associated with the theme. See help topic _THEMING_.
+
+**Screenshot**
+
+![Screenshot](img/tray-radio.gif)
 
 ----

@@ -90,33 +90,49 @@ read
 
 umask 0022
 source_tmp="${TMPDIR:-/tmp}/$$.${source_dir##*/}"
+status=0
+
+# Source package-specific start script, if any. $status could change.
+[ -f "${0%.sh}-sub-start.sh" ] && . "${0%.sh}-sub-start.sh"
+
+! [ 0 = "$status" ] && exit $status
+
+# Install all except HOME.
 if [ yes = "$can_write_dest" ]; then
   echo "Installing to '$dest_dir'..."
   rm -rf "$source_tmp" &&
-  cp -r "$source_dir"/. "$source_tmp" &&
+  cp -a "$source_dir"/. "$source_tmp" &&
   rm -rf "$source_tmp/HOME" &&
   find "$source_tmp" -type f -a \( \
     -path '*/bin/*' -o -path '*/sbin/*' -o -path '*/AppRun' -o -path '*.sh' \
     \) -exec chmod 0755 '{}' \; &&
   cp $opt_verbose -a "$source_tmp"/. "$dest_dir"
   status=$?
-  rm -rf "$source_tmp"
-  [ 0 = $status ]
-fi &&
+fi
+
+# Source package-specific middle script, if any. $status could change.
+[ -f "${0%.sh}-sub-middle.sh" ] && . "${0%.sh}-sub-middle.sh"
+
+rm -rf "$source_tmp"
+! [ 0 = $status ] && exit $status
+
+# Install HOME.
 if [ yes-yes-yes = "$home_needed-$can_write_home-$can_change_home" ]; then
   echo "Installing to '$home_dir'..."
   rm -rf "$source_tmp" &&
-  cp -r "$source_dir"/HOME/. "$source_tmp" &&
+  cp -a "$source_dir"/HOME/. "$source_tmp" &&
   chown -R "$owner:$group" "$source_tmp" &&
   find "$source_tmp" -type f -a \( \
     -path '*/bin/*' -o -path '*.sh' -o -path '*.gtkmenuplus' \
     \) -exec chmod 0755 '{}' \; &&
   cp $opt_verbose -a "$source_tmp"/. "$home_dir"
   status=$?
-  rm -rf "$source_tmp"
-  [ 0 = $status ]
 fi
-status=$?
+
+# Source package-specific end script, if any. $status could change.
+[ -f "${0%.sh}-sub-end.sh" ] && . "${0%.sh}-sub-end.sh"
+
+rm -rf "$source_tmp"
 if [ 0 = $status ]; then
   echo "Finished."
 else
