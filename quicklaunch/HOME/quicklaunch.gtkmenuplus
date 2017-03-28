@@ -4,7 +4,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
 # Homepage: https://github.com/step-/scripts-to-go
-# Version=1.0.0
+# Version=1.0.1
 
 # Enable label mnemonics throughout
 format = mnemonic="1"
@@ -41,8 +41,8 @@ else # build and show Quicklaunch menu
 # CUSTOMIZING THE MENU
 # You can change some sections further down in this file:
 # "Panel Menu" - Add/edit menu items
-# "User Can Change" - Read about blacklisting items from menu "Recent"
-# When you change this file follow the rules.
+# "User Can Change" - Read about pruning the "Recent" menu.
+# When you change this file follow the formatting rules.
 #
 # FORMATTING RULES
 # See /usr/share/doc/gtkmenuplus/menu_configuration_file_format.txt
@@ -52,37 +52,33 @@ else # build and show Quicklaunch menu
 # To avoid calling the shell, argument values can be either
 # 0(no/false) or 1(yes/true), and 0 is the implicit value.
 # To pass an argument you need to pass all arguments before it.
-# The first argument must be 0.
 if=$1
   OPT_RESERVED_1=yes # reserved for future getopt
 else
   OPT_RESERVED_1=no
-  if=$2
-    OPT_ENABLE_ADVANCED_FEATURES=yes
-  else
-    OPT_ENABLE_ADVANCED_FEATURES=no
-  endif
+endif
+if=$2
+  OPT_ENABLE_ADVANCED_FEATURES=yes
+else
+  OPT_ENABLE_ADVANCED_FEATURES=no
 endif
 ARG0=$0
 
 # ---- User Can Change ----
+# _HOME is assigned your $HOME environment variable for convenience.
+_HOME==echo "$HOME"
 # RECENTFILE logs menu entry activations, when an entry is selected _and_
-# executed. The "Recent" menu shows its entries from RECENTFILE.  The
+# executed. The "Recent" menu draws its entries from RECENTFILE.  The
 # default path of RECENTFILE is set so that the file is shared with the
-# gmenu2 system menu. See https://github.com/step-/scripts-to-go.
-RECENTFILE==echo "$HOME/.gmenu2.log" # share "Recent" menu with gmenu2
-# If a menu entry field value matches the extended regular expression
-# BLACKLIST that menu entry won't be added to the "Recent" menu.
+# gmenu2 system menu script at https://github.com/step-/scripts-to-go.
+RECENTFILE=$_HOME/.gmenu2.log # share "Recent" menu with gmenu2
+# If a log entry matches the extended regular expression PRUNEREX, it can be
+# pruned from the "Recent" menu. PRUNEREX matches within cmd=, item=, icon= and
+# tooltip= directives only.  To prune the activation of a launcher= directive,
+# match its menu label. For instance, adding Item=Shutdown to PRUNEREX prunes
+# the system shutdown entry. See also: APPLY_PRUNING.
+PRUNEREX="@prune_this@|Item=(Shutdown|Reboot)"
 # Note: Don't use '^' and '$' anchors in regex; they will not match.
-# To blacklist the activation of a launcher= entry, match its menu
-# label. For instance, adding Item=Shutdown to BLACKLIST blacklists the
-# system shutdown entry from the "Recent" menu.
-# To prevent a cmd= entry in this file from being logged specify the
-# entry cmd= field as 'sh -c "COMMAND-LIST"' (without single quotes -
-# wsq), and insert '": @blacklist@;"' (wsq) - mind the colon+space -
-# before '"COMMAND-LIST"' (wsq). See some examples further down in
-# this file.
-BLACKLIST="@blacklist@|Item=Shutdown"
 
 # ---- Configuration ----
 # Don't change this section.
@@ -90,6 +86,25 @@ activationlogfile=$RECENTFILE # update the "Recent" menu
 configure=endsubmenu # pair submenu/endsubmenu keywords
 configure=nolaunchernodisplay # ignore NoDisplay= in .desktop files
 configure=noicons # reserve empty space for missing icons
+
+# ---- Pruning the "Recent" Menu ----
+# Don't change this section.
+# $APPLY_PRUNING prunes entries that match PRUNEREX in $RECENTFILE.
+# Log pruning isn't automatic; a cmd= directive must invoked it as follows.
+# Enter the cmd= field as 'sh -c "COMMAND-LIST"' (without single quotes - wsq),
+# and insert '"$APPLY_PRUNING;"' (wsq) before '"COMMAND-LIST"' (wsq), e.g.:
+#  cmd=sh -c "geany file.txt",     <= the COMMAND-LIST, becomes
+#  cmd=sh -c "$APPLY_PRUNING;""geany file.txt"
+# The above command deletes existing log items that match $PRUNEREX,
+# then it starts 'geany file.txt'.
+# Syntax notes:
+# - Shell-escape characters '!', '\', '"' and '$(' with a single backslash.
+#A0==echo '\$'0 # enter $0 as $A0 # or enter it as \$(0)
+_BEGIN=BEGIN{RS=\"#[{]}\";IGNORECASE=1}
+_SELECT={gsub(/^\n|\n$/,X);a[++n]=\$(0)\"\n\"RT}
+_END=END{delete a[n];for(i=1;i<n;i++)print a[i]>FILENAME}
+APPLY_PRUNING=gawk '$_BEGIN/$PRUNEREX/{next}$_SELECT$_END' '$RECENTFILE'
+# See also ENABLE_RECENTFILE_EDIT.
 
 # ---- Panel Menu ----
 # This section is translated from the Fatdog64-71x LXQt Panel default
@@ -111,26 +126,6 @@ icon=gtk-media-previous
 tooltip=Quickly repeat a previous invocation.
 include = $RECENTFILE
 endsubmenu
-
-# ---- Filter "Recent" Menu ----
-# Don't change this section.
-# APPLY_BLACKLIST prunes entries that match BLACKLIST in RECENTFILE.
-# Note: Log filtering must be explicitly invoked. It doesn't happen
-# automatically.  To invoke APPLY_BLACKLIST, specify some cmd= fields
-# as 'sh -c "COMMAND-LIST"' (without single quotes - wsq), and insert
-# '"$APPLY_BLACKLIST;"' (wsq) before '"COMMAND-LIST"' (wsq). Example:
-#  cmd=sh -c "geany file.txt", a COMMAND-LIST, becomes
-#  cmd=sh -c "$APPLY_BLACKLIST;""geany file.txt"
-# The above command deletes existing log items that match $BLACKLIST,
-# then it starts 'geany file.txt'.
-# Syntax notes:
-# - Shell-escape characters '!', '\', '"' and '$(' with a single backslash.
-#A0==echo '\$'0 # enter $0 as $A0 # or enter it as \$(0)
-BEGIN=BEGIN{RS=\"#[{]}\";IGNORECASE=1}
-SELECT={gsub(/^\n|\n$/,X);a[++n]=\$(0)\"\n\"RT}
-END_BLACKLIST=END{delete a[n];for(i=1;i<n;i++)print a[i]>FILENAME}
-APPLY_BLACKLIST=gawk '$BEGIN/$BLACKLIST/{next}$SELECT$END_BLACKLIST' '$RECENTFILE'
-# See also ENABLE_RECENTFILE_EDIT.
 
 # ---- Sort "Recent Menu ----
 # Syntax notes:
@@ -157,17 +152,16 @@ APPLY_SORT_BY_ALPHA_DESC  =gawk '$BEGIN$SELECT$END_SORT$BY_ALPHA_DESC' '$RECENTF
 
 # ---- "ROX Bookmarks" Menu ----
 # Don't change this section.
-BOOKMARKS==echo $HOME/.config/rox.sourceforge.net/ROX-Filer/Bookmarks.xml
+BOOKMARKS=$_HOME/.config/rox.sourceforge.net/ROX-Filer/Bookmarks.xml
 if=! [ -s "$BOOKMARKS" ]; echo $?
 # Syntax notes:
 # - Shell-escape characters '!', '\', '"' and '$(' with a single backslash.
-BLACKLISTED_ROX=cmd=sh -c \\\": @blacklist@;rox \\\\\\\"%s\\\\\\\"\\\"
-# With BLACKLISTED_ROX bookmark invocations are saved into the "Recent"
-# menu with a @blacklist@ mark. You can select "Tools>Prune Recent Menu"
-# to delete those invocations from the "Recent" menu.
-# With WHITELISTED_ROX bookmark invocations are saved and can't be pruned.
-#WHITELISTED_ROX=cmd=rox \\\"%s\\\"
-CONVERT_BOOKMARKS=BEGIN{FS=\"[<>\\\"]\"}\$(2)~/^bookmark /{printf \"item=%s\ntooltip=%s\n$BLACKLISTED_ROX\nicon=gtk-directory\n\",\$(3),\$(5),\$(5)>H;++n}END{print H}
+UNLISTED_ROX=cmd=sh -c \\\": @prune_this@;rox \\\\\\\"%s\\\\\\\"\\\"
+# With UNLISTED_ROX, logged bookmark invocations are marked with @prune_this@,
+# so you can select "Tools>Prune Recent Menu" to prune them from menu "Recent".
+# With LISTED_ROX, logged invocations aren't marked and therefore can't be pruned.
+#LISTED_ROX=cmd=rox \\\"%s\\\"
+CONVERT_BOOKMARKS=BEGIN{FS=\"[<>\\\"]\"}\$(2)~/^bookmark /{printf \"item=%s\ntooltip=%s\n$UNLISTED_ROX\nicon=gtk-directory\n\",\$(3),\$(5),\$(5)>H;++n}END{print H}
 BOOKMARKS_TMP==sh -c "gawk -v H=\"/tmp/$USER-$(basename '$ARG0')\" '$CONVERT_BOOKMARKS' '$BOOKMARKS'"
   submenu=_2 ROX Bookmarks
   icon=gtk-jump-to
@@ -181,7 +175,7 @@ submenu = _3 Tools
 icon = gtk-preferences
 item=Edit _Menu Items
 icon=gtk-edit
-cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""exec defaulttexteditor \"${SHOM%/*}$ARG0\""
+cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""exec defaulttexteditor \"${SHOM%/*}$ARG0\""
 item=Edit _User Items
 icon=gtk-edit
 cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""x=\"$ARG0\";e=${x##*.};x=\"${x%.*}-user.$e\";exec defaulttexteditor \"${SHOM%/*}$x\""
@@ -192,38 +186,38 @@ ENABLE_RECENTFILE_EDIT=$OPT_ENABLE_ADVANCED_FEATURES
 if=$ENABLE_RECENTFILE_EDIT
   item=Edit _Recent Menu
   icon=gtk-edit
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""exec defaulttexteditor '$RECENTFILE'"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""exec defaulttexteditor '$RECENTFILE'"
 endif
 item=_Prune Recent Menu
 icon=gtk-cut
-cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;"
-tooltip=Delete entries ~= $BLACKLIST
+cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;"
+tooltip=Delete entries ~= $PRUNEREX
   submenu=_Sort Recent Menu By
   icon=gtk-sort-ascending
   item=_Alphabet - Ascending
   icon=gtk-sort-ascending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_ALPHA_ASC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_ALPHA_ASC;"
   item=_Alphabet - Descending
   icon=gtk-sort-descending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_ALPHA_DESC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_ALPHA_DESC;"
   item=_Frequency - A
   icon=gtk-sort-ascending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_FREQUENCY_ASC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_FREQUENCY_ASC;"
   item=_Frequency - D
   icon=gtk-sort-descending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_FREQUENCY_DESC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_FREQUENCY_DESC;"
   item=_Creation Time - A
   icon=gtk-sort-ascending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_CREAT_TIME_ASC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_CREAT_TIME_ASC;"
   item=_Creation Time - D
   icon=gtk-sort-descending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_CREAT_TIME_DESC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_CREAT_TIME_DESC;"
   item=_Use Time - A
   icon=gtk-sort-ascending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_USE_TIME_ASC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_USE_TIME_ASC;"
   item=_Use Time - D
   icon=gtk-sort-descending
-  cmd=sh -c ": @blacklist@;""$APPLY_BLACKLIST;""$APPLY_SORT_BY_USE_TIME_DESC;"
+  cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""$APPLY_SORT_BY_USE_TIME_DESC;"
   endsubmenu
 endsubmenu
 
