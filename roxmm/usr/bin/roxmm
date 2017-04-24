@@ -1,13 +1,13 @@
 #!/bin/ash
 
 # roxmm - A ROX-Filer SendTo menu look-alike
-Version=1.0.0
-# License: GNU GPLv3 - (C)2016, step
+Version=1.1.0
+# License: GNU GPLv3 - (C)2016-2017 step
 # Dependencies: rox, gtkmenuplus >= 1.10, at least one of xdg-mime or mimedb,
 #   yad for some tool menu entries.
 # Homepage: https://github.com/step-/scripts-to-go
 
-TEXTDOMAIN=roxmm OUTPUT_CHARSET=UTF-8
+TEXTDOMAIN=step OUTPUT_CHARSET=UTF-8
 export TEXTDOMAIN OUTPUT_CHARSET
 
 usage() # {{{1
@@ -83,7 +83,7 @@ while test $# -gt 0; do
     --mimedb) o_mimedb=$2; shift 2 ;;
     --position) o_position=$2; shift 2 ;;
     --sections) o_sections=$2; shift 2 ;;
-    *) exec >&2; gettext "unknow option: "; echo "$*"; exit 1 ;;
+    *) exec >&2; gettext "unknown option: "; echo "$*"; exit 1 ;;
   esac
 done
 
@@ -475,6 +475,14 @@ launcherargs = \$handler_arguments # needs gtkmenuplus 1.10+
         "$HOME/.config/rox.sourceforge.net/ROX-Filer/Bookmarks.xml"
       echo endsubmenu  && ITEM_COUNT=$((++ITEM_COUNT))
       echo "launchersub=$md" && ITEM_COUNT=$((++ITEM_COUNT))
+      for icon in /usr/local/apps/ROX-Filer*/.DirIcon; do
+        if [ -f "$icon" ]; then
+          printf "item=%s\nicon=%s\ncmd=%s\n" \
+            "$(gettext "Show in _ROX")" "$icon" "rox -s \"$ITEM_PATH\"" &&
+          ITEM_COUNT=$((++ITEM_COUNT))
+          break
+        fi
+      done
     fi
     ;;
 
