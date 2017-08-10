@@ -1,0 +1,90 @@
+# fatdog-wireless-antenna 1.0.0
+# Copyright (C) 2017 step
+# This file is distributed under the same license as the fatdog-wireless-antenna package.
+# step, 2017 https://github.com/step-/
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: fatdog-wireless-antenna 1.0.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-10 08:36+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: fatdog-wireless-antenna.sh:48
+msgid "Wireless Antenna\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:49
+msgid "Interface\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:50
+msgid "Which\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:51
+msgid "Index\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:52
+msgid "Module Name\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:53
+msgid "Antenna\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:54
+msgid "Reason\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:55
+msgid "hard block\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:56
+msgid "soft block\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:57
+msgid "hard block and soft block\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:58
+msgid "operation failed\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:59
+msgid "Restart _Network\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:60
+msgid "<b>on</b>\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:61
+msgid "off\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:62
+msgid "Double-click the row or select it and press Enter to toggle the antenna.\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:63
+msgid "Restarting network...\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:64
+msgid "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:65
+msgid "8\n"
+msgstr ""

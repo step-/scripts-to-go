@@ -22,6 +22,7 @@ reflect the required shell, i.e. `#!/bin/bash`.
 Scripts in this page:
 
 * [dndmate](./README.md#dndmate)
+* [fatdog-wireless-antenna](./README.md#fatdog-wireless-antenna)
 * [gmenu2](./README.md#gmenu2)
 * [gmenu2-fdcp](./README.md#gmenu2-fdcp)
 * [quicklaunch](./README.md#quicklaunch)
@@ -81,6 +82,46 @@ dndmate --id=music & dndmate --id=weblinks &
 **Thanks** - stemsee, MochiMoppel.
 
 ![Screenshot](img/dndmate-450x-1x32.gif)
+
+----
+
+<a href="fatdog-wireless-antenna"></a>
+## fatdog-wireless-antenna
+
+Simple WiFi Antenna Manager for Fatdog64
+
+**Target User**
+
+* Fatdog64 users with multiple wireless interfaces.
+* Other (Puppy) Linux users - minimum shell source code adaptions needed, see
+  _Porting to Other Linux_.
+
+**Installing**
+
+* Download and unpack the repository snapshot
+  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Run `install/install-fatdog-wireless-antenna.sh` from the unpacked folder.
+* Download and unpack the required repository snapshot
+  [shnetlib tar file](https://github.com/step-/shnetlib/archive/master.tar.gz).
+* Follow install instructions in README.md in the shnetlib folder.
+* Run `fatdog-wireless-antenna.sh &` in a terminal window to start the main
+  window.
+
+**Dependencies**
+
+* [shnetlib](https://github.com/step-/shnetlib)
+* yad (tested with version 0.36.3)
+* rfkill (tested with busybox 1.27.0.git rfkill).
+
+**Help** - Hover over list items for tooltip help.
+
+**Porting to Other Linux**
+
+See file [PORTING](fatdog-wireless-antenna/usr/share/doc/fatdog-wireless-antenna/PORTING.md).
+
+**Screenshot**
+
+![Screenshot](img/fatdog-wireless-antenna.png)
 
 ----
 
