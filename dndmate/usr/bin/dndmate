@@ -5,7 +5,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.0.0
+  Version=1.2.0
 # META-end
 
 # ---- User-configurable default values ----
@@ -38,21 +38,21 @@ Usage: $SN [OPTIONS] [REF...]
 OPTIONS:
   Short options can't be combined together. '=' before option value is required.
   -h|--help[=all|=all-gui]  Print help and exit =all(extended) =all-gui(window)
+  --help=homepage  Open program home page.
   -a|--append      Append to DNDMATE_REFS. Default if no --zap.
-  --append-exit    Append to DNDMATE_REFS, process all OPTIONS then exit.
+  --append-exit    Append to DNDMATE_REFS, process all OPTIONS then exit. {e2}
   --debug[=FILE]   Append to debug log FILE (default $DEBUG_LOG_FILE)
-  --close          Close the other running instance that has the same ID.
-  --exit           Exit current instance immediately. e.g., --close --exit
-  --id=ID          Arbitrary ID string for DNDMATE_REFS.
-  --no-edit        Disallow editing List widget items.
-  --no-restart     Do not restart main window after adding REFs.
-  --print=TOPIC    Print TOPIC(s) to stdout and exit. TOPIC is a comma-separated
-    list of words: 'ref' (print the "Refs" file), 'check' (refs and checkmarks)
-    A blank line separates multiple printed topics.
-    i.e.   "$SN --print=ref,check
+  --close          Close the other running instance that has the same ID. {1}
+  --exit           Exit the current instance immediately. e.g., --close --exit
+  --id[=ID]        Arbitrary ID string for DNDMATE_REFS. No =ID auto-generates.
+  --no-edit        Disallow editing the List widget items.
+  --no-restart     Do not restart (refresh) the main window after adding REFs.
+  --optfile=FILE   Insert OPTIONS from FILE. {2}
+  --print=TOPICS   Print TOPICS to stdout and exit. --print=ref,check {3}
+  --symbol=MARKUP  Drag-and-drop pane custom graphic symbol. {4}
+  --uniq           Do not add duplicated REFs. {e1}
   --version        Print $Version and exit.
-  -Z|--zap         Truncate the Refs file. --append disables --zap.
-                   Idioms: --close --zap --exit OR [--zap] --append-exit REFs
+  -Z|--zap         Truncate the Refs file. --append disables --zap. {e2}
   --               Stop processing options.
 EOF
 case $1 in
@@ -62,7 +62,8 @@ case $1 in
     yad --width=700 --height=600 --center --text-info --window-icon=gtk-help
     ;;
   --help=homepage ) defaultbrowser $Homepage || xdg-open $Homepage ;;
-  * ) _dndmate_recho "Type ${0##*/} --help=all for extended help." $'\n'; false
+  * ) printf "\033[7m%s\033[0m\n" \
+		"Type ${0##*/} --help=all for extended help, notes and examples."; false
     ;;
 esac &&
   cat << EOF
@@ -103,10 +104,22 @@ Dialog Options - DNDMATE_YAD_OPTIONS, DNDMATE_WIDTH and DNDMATE_HEIGHT
   Or change window width and height by setting
   DNDMATE_WIDTH (default ${MAINDW:-none}) and DNDMATE_HEIGHT (default ${MAINDH:-none}), i.e.
     env DNDMATE_WIDTH=400 DNDMATE_HEIGHT=200 $SN
-KNOWN BUGS AND LIMITATIONS
+Known Bugs and Limitations
 * Occasionally the main window could stop responding or miss a widget.  Force
   close it and kill its yad processes, which you can list with: ps `pidof yad`
 * The ENTER and ESC keys don't work. Use Alt+O (OK), Alt+C (Cancel).
+Notes
+{1} --close delays adding new refs, if any, so some refs could be dropped.
+{2} One option per line; lines are used as they appear (verbatim). FILE path is
+  resolved relative to the working directory first then to the script directory.
+{3} TOPICS is a comma-separated list of words: 'ref' (print the "Refs" file),
+  'check' (refs and checkmarks). A blank line separates multiple printed topics.
+{4} MARKUP ::= <span ATTR="VALUE" ...>CHARACTER</span>  Pango markup  i.e.,
+    --symbol='<span font="DejaVu Sans 66" fgcolor="red">'\$'\\xe2\\x97\\x8e''</span>'
+Examples
+{e1} -a --uniq --close REF1 REF2 &  Add unique REF[12] and refresh the GUI
+{e2} --close --zap --exit &  Reset DNDMATE_REFS and close all GUIs
+     [--zap] --append-exit REFs &  [Reset] and append REFs without GUI
 ----
 EOF
 awk '/META-begin$/{f=1;next}/META-end$/{f=0}f' "$BASH_SOURCE"
@@ -214,8 +227,17 @@ _dndmate_itemize() # [args] {{{1
     set -- "$p"
   fi
   # Whence? bash -c and command-line invocation.
-  for p; do echo "$p"; done >> "$DNDMATE_REFS"
-  for p; do
+  : >> "$DNDMATE_REFS"
+  local -a a=( "$@" )
+  local -i len=$#
+  for ((p=0; p < $len; p++)); do
+    if [ "$opt_uniq" ] && grep -m1 -qxF "${a[$p]}" "$DNDMATE_REFS"; then
+      unset a[$p]
+      continue
+    fi
+    echo "${a[$p]}" >> "$DNDMATE_REFS"
+  done
+  for p in "${a[@]}"; do
     _dndmate_urlencode "$p" for-pango # => $REPLY
     # Columns: checkbox,ref,urlencoded,@font@
     printf "%s|%s|%s|%s|\n" TRUE "$p" "$REPLY" ""
@@ -540,10 +562,11 @@ show_main_dialog() # {{{1
   msg=$(printf "$(gettext \
     "<i>\u2193Drop target adds to '%s' @%d</i>")" \
     "$DNDMATE_REFS" $((1+$line_count)))
+
   # U+21E9 Dec:8681 DOWNWARDS WHITE ARROW &#x21E9; /\%u21e9  (echo -n <char> | xxd)
-  #symbol=$'\xe2\x87\xa9' # font="80"
+  #symbol='<span font="DejaVu Sans 80">'$'\xe2\x87\xa9''</span>'
   # U+25CE Dec:9678 BULLSEYE (0o) &#x25CE; /\%u25ce
-  symbol=$'\xe2\x97\x8e' # font="66"
+  symbol='<span font="DejaVu Sans 66">'$'\xe2\x97\x8e''</span>'
 
   {
     # If --append then insert stored refs at the top of the list widget.
@@ -551,7 +574,7 @@ show_main_dialog() # {{{1
     # Pluggable drag-and-drop widget outputs dropped item refs.
     yad --dnd --plug=$$ --tabnum=1 \
       --command "bash -O extdebug -c _dndmate_itemize '_dndmate_itemize'" \
-      --text="<span font=\"66\">$symbol</span>" --text-align=center
+      --text="${opt_symbol:-$symbol}" --text-align=${opt_text_align:-center}
   } |
   {
   # Pluggable list widget shows and outputs checkboxed refs.
@@ -653,6 +676,19 @@ _yad() # $@-yad-options {{{1
   yad --title="$YAD_WINTITLE" "$@"
 }
 
+tl2br() # $1-out-varname $2-text {{{1
+# Lay Pango <span> text along top-left to bottom-right diagonal.
+{
+  local -n varname=$1
+  local indent text="$2"
+  local -i i len=${#text}
+  printf -v indent "%*s" $(($len*3))
+  varname="${text:0:1}"
+  for ((i=1; i < $len; i++)); do
+    varname+="\n${indent:0:$(($i*3))}${text:$i:1}"
+  done
+}
+
 #DEBUG {{{1
 _dndmate_func_in()  { _dndmate_recho ">>> $(date +%s)" "${1:+ }$1" " "; caller 0; }
 _dndmate_func_out() { _dndmate_recho "<<< $(date +%s)" "${1:+ }$1" " "; caller 0; }
@@ -661,9 +697,9 @@ _dndmate_recho() # $(1)...$(n-1) ''|' '|'\n'
 # Print the first $#-1 arguments in ANSI reverse video
 # then print the last argument.
 {
-  printf "\e[7m"
+  printf "\033[7m"
   printf "%s%s" "${@:1:$(($# - 1))}" "${IFS:1:1}"
-  printf "\e[0m${@: -1:1}"
+  printf "\033[0m${@: -1:1}"
 }
 export -f _dndmate_recho _dndmate_func_in _dndmate_func_out _dndmate_list_refs
 alias _mtail='defaultterm -name TeY -e multitail -P a -M 10000 --no-repeat -cT ANSI -ts -iw "/tmp/.$USER-dndmate*" 10 -ts -iw "/tmp/$USER-dndmate-refs*" 10 -ts -iw "/tmp/$USER-dndmate-hist*" 10'
@@ -691,14 +727,15 @@ DNDMATE_HISTORY=${DNDMATE_HISTORY:-"${TMPDIR:-/tmp}/$USER-$SN-history%s.sh"}
 # option value.  $optIndex points to the current option ($opt) while parsing,
 # and to the first non-option argument, if any, after parsing. $# is the number
 # of arguments.
-unset opt_append opt_append_exit opt_id opt_no_edit opt_no_restart opt_print opt_zap
+unset opt_append opt_append_exit opt_id opt_no_edit opt_no_restart opt_optfile opt_print opt_symbol opt_uniq opt_zap
 optIndex=1 optQueue=
 while [[ "${!optIndex}" == -* ]]; do
   opt=${!optIndex}; ((++optIndex))
   case $opt in
-    --id|--print)
+    --optfile|--print|--symbol)
+      usage "$opt"
       echo "${0##*/}: $opt: $(gettext 'option needs a value')" >&2
-      usage "$opt"; exit 1
+      exit 1
       ;;
     -a|--append) opt_append=true ;;
     --append-exit) opt_append_exit=true ;;
@@ -714,16 +751,37 @@ while [[ "${!optIndex}" == -* ]]; do
       ;;
     --exit) optQueue+=" exit" ;;
     -h|--help|-h=*|--help=*) usage "$opt"; exit ;;
-    --id=*) opt_id=${opt#*=} ;;
+    --id) opt_id=$$
+      if ! [ "$opt_symbol" ]; then
+        tl2br opt_symbol $opt_id
+        opt_symbol="<span font=\"DejaVu Sans 13.5\" weight=\"bold\">$opt_symbol</span>"
+        opt_text_align=left # internal opt_
+      fi
+      ;;
+    --id=*) opt_id="${opt#*=}" ;;
     --no-edit) opt_no_edit=true ;;
     --no-restart) opt_no_restart=true ;;
-    --print=*) opt_print=${opt#*=} ;;
+    --symbol=*) opt_symbol="${opt#*=}" ;;
+    --optfile=*) opt_optfile="${opt#*=}"
+      ! [ -e "$opt_optfile" ] && opt_optfile="${0%/*}/$opt_optfile"
+      if ! [ -e "$opt_optfile" ]; then
+        echo "${0##*/}: '${opt#*=}': $(gettext 'not found')" >&2
+        exit 1
+      fi
+      readarray -t < "$opt_optfile"
+      set -- "${@:1:$((optIndex-2))}" "${MAPFILE[@]}" "${@:$((optIndex))}"
+      ((--optIndex))
+      unset MAPFILE
+      ;;
+    --print=*) opt_print="${opt#*=}" ;;
+    --uniq) opt_uniq=true ;;
     --version) echo $Version; exit ;;
     -Z|--zap) optQueue+=" zap"; opt_zap=true ;;
     --) break ;;
     -*)
+      usage
       echo "${0##*/}: $opt: $(gettext 'unknown option')" >&2
-      usage; exit 1
+      exit 1
       ;;
   esac
 done # $@ gets shifted further down.
@@ -815,7 +873,7 @@ case $action_code in
     # NOT-REACHED
     ;;
   * ) : unhandled
-    echo "${0##*/}: unexpected event $action_code. Exit." >&2
+    echo "${0##*/}: $action_code: $(gettext 'unexpected event')" >&2
     exit $action_code
     ;;
 esac

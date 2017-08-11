@@ -11,11 +11,14 @@
   <AppMenu>
     <AppMenu>
       <Label xml:lang="en">dndmate</Label>
-      <Item icon="dndmate-light.svg" option="--append">
-        <Label xml:lang="en">Append</Label>
+      <Item icon="gtk-dnd-multiple" option="--append">
+        <Label xml:lang="en">Default</Label>
       </Item>
-      <Item icon="dndmate-dark.svg" option="--zap">
-        <Label xml:lang="en">Zap</Label>
+      <Item icon="gtk-media-play" option="--optfile=res/media.opt">
+        <Label xml:lang="en">Media</Label>
+      </Item>
+      <Item icon="gtk-new" option="--id">
+        <Label xml:lang="en">New</Label>
       </Item>
       <Item icon="gtk-help" option="--debug">
         <Label xml:lang="en">Debug</Label>
