@@ -5,7 +5,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.0.0
+  Version=1.0.1
 # META-end
 
 # exec >>/tmp/${0##*/}.log 2>&1
@@ -39,10 +39,12 @@ i18n_table() # {{{1
     read i18n_radio_hard_blocked
     read i18n_radio_soft_blocked
     read i18n_radio_hard_and_soft_blocked
+    read i18n_rfkill_not_supported
     read i18n_error_operation_failed
     read i18n_button_restart_network
     read i18n_on
     read i18n_off
+    read i18n_unknown
     read i18n_tooltip_toggle
     read i18n_restarting_network
     read i18n_network_restarted
@@ -59,10 +61,12 @@ i18n_table() # {{{1
   "hard block\n" \
   "soft block\n" \
   "hard block and soft block\n" \
+  "rfkill not supported\n" \
   "operation failed\n" \
   "Restart _Network\n" \
   "<b>on</b>\n" \
   "off\n" \
+  "unknown\n" \
   "Double-click the row or select it and press Enter to toggle the antenna.\n" \
   "Restarting network...\n" \
   "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n" \
@@ -93,7 +97,11 @@ call_restart_network() #{{{1
 call_update_row() # $@-row {{{1
 {
   local op iface=$1 which=$2 rfkill_index=$3 module_name=$4 radio_enabled="$5"
-  [ $i18n_on = $radio_enabled ] && op=block || op=unblock
+  case "$radio_enabled" in
+    "$i18n_unknown" ) return 0 ;;
+    "$i18n_on" ) op=block ;;
+    "$i18n_off" ) op=unblock ;;
+  esac
   # Assert: $which is invariant because enum_interfaces finds the same wireless set.
   enum_interfaces
   if rfkill $op $rfkill_index; then
@@ -108,18 +116,25 @@ print_list_row() # $1-wireless-iface-which [$2-radio-blocked-reason] {{{1
   local which=$1 radio_blocked_reason=$2 radio_unblocked
   get_iface_wireless $which
   unset radio_blocked_reason
-  if [ 1 = $IFACE_rfkill_state ]; then
-    radio_unblocked=$i18n_on
-  else
-    radio_unblocked=$i18n_off
-    if ! [ "$radio_blocked_reason" ]; then
-      case $IFACE_rfkill_hard$IFACE_rfkill_soft in
-        10 ) radio_blocked_reason="$i18n_radio_hard_blocked" ;;
-        01 ) radio_blocked_reason="$i18n_radio_soft_blocked" ;;
-        11 ) radio_blocked_reason="$i18n_radio_hard_and_soft_blocked" ;;
-      esac
-    fi
-  fi
+  case $IFACE_rfkill_state in
+    '' )
+      radio_unblocked="$i18n_unknown"
+      radio_blocked_reason="$i18n_rfkill_not_supported"
+      ;;
+    1 )
+      radio_unblocked="$i18n_on"
+      ;;
+    * )
+      radio_unblocked="$i18n_off"
+      if ! [ "$radio_blocked_reason" ]; then
+        case $IFACE_rfkill_hard$IFACE_rfkill_soft in
+          10 ) radio_blocked_reason="$i18n_radio_hard_blocked" ;;
+          01 ) radio_blocked_reason="$i18n_radio_soft_blocked" ;;
+          11 ) radio_blocked_reason="$i18n_radio_hard_and_soft_blocked" ;;
+        esac
+      fi
+      ;;
+  esac
   printf "%s\n" $IFACE_iface $IFACE_which $IFACE_rfkill_index \
     ${IFACE_module_path##*/} "$radio_unblocked" "$radio_blocked_reason" \
     "$i18n_tooltip_toggle"
@@ -147,4 +162,5 @@ yad --list \
   --dclick-action="@$0 call_update_row" \
   --button="gtk-refresh:$0 call_restart_app" \
   --button="$i18n_button_restart_network!wpa_gui:$0 call_restart_network" \
-  --button="gtk-quit:0"
+  --button="gtk-quit:0" \
+  > /dev/null
