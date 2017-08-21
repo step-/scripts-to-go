@@ -5,7 +5,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.0.1
+  Version=1.0.2
 # META-end
 
 # exec >>/tmp/${0##*/}.log 2>&1
