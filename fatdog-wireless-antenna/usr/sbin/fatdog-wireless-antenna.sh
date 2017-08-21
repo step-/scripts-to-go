@@ -84,13 +84,13 @@ call_restart_app() #{{{1
 
 call_restart_network() #{{{1
 {
-  { /etc/init.d/50-Wpagui restart & echo 1; wait; } |
+  { sleep 3; echo /etc/init.d/50-Wpagui restart & echo 1; wait; } |
   yad --progress --pulsate --auto-close --on-top --no-buttons \
     --undecorated --no-focus --skip-taskbar --text-align=center --borders=10 \
     --text="$i18n_restarting_network\n"
   yad --text="$i18n_network_restarted\n" --on-top --button=gtk-ok \
     --undecorated                           --text-align=center --borders=10 \
-    --image=wpa_gui --image-on-top \
+    --image=wpagui --image-on-top \
     --timeout="$i18n_network_restarted_timeout" --timeout-indicator=bottom
 }
 
@@ -161,6 +161,6 @@ yad --list \
   --column=":HD" --tooltip-column=7 \
   --dclick-action="@$0 call_update_row" \
   --button="gtk-refresh:$0 call_restart_app" \
-  --button="$i18n_button_restart_network!wpa_gui:$0 call_restart_network" \
+  --button="$i18n_button_restart_network!wpagui:$0 call_restart_network" \
   --button="gtk-quit:0" \
   > /dev/null
