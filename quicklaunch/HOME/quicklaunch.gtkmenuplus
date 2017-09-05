@@ -4,7 +4,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
 # Homepage: https://github.com/step-/scripts-to-go
-# Version=1.0.1
+# Version=1.0.2
 
 # Enable label mnemonics throughout
 format = mnemonic="1"
@@ -100,7 +100,7 @@ configure=noicons # reserve empty space for missing icons
 # Syntax notes:
 # - Shell-escape characters '!', '\', '"' and '$(' with a single backslash.
 #A0==echo '\$'0 # enter $0 as $A0 # or enter it as \$(0)
-_BEGIN=BEGIN{RS=\"#[{]}\";IGNORECASE=1}
+_BEGIN=BEGIN{RS=\"\\x23[{]}\";IGNORECASE=1}
 _SELECT={gsub(/^\n|\n$/,X);a[++n]=\$(0)\"\n\"RT}
 _END=END{delete a[n];for(i=1;i<n;i++)print a[i]>FILENAME}
 APPLY_PRUNING=gawk '$_BEGIN/$PRUNEREX/{next}$_SELECT$_END' '$RECENTFILE'
