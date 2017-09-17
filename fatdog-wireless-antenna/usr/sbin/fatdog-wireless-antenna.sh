@@ -49,7 +49,7 @@ i18n_table() # {{{1
     read i18n_restarting_network
     read i18n_network_restarted
     read i18n_network_restarted_timeout
-    read i18n_no_wireless_interface_found
+    read i18n_wireless_interface_not_found
   } << EOF
   $(gettext -es \
   "Wireless Antenna\n" \
@@ -72,7 +72,7 @@ i18n_table() # {{{1
   "Restarting network...\n" \
   "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n" \
   "8\n" \
-  "No wireless interface found on this system.\n" \
+  "Wireless interface not found.\n" \
   )
 EOF
 }
@@ -148,7 +148,7 @@ if [ $# -gt 0 ]; then "$@"; exit; fi # call_* from yad dialog
 
 enum_interfaces
 if [ $IFACE_wireless_n = 0 ]; then
-  yad --text "$i18n_no_wireless_interface_found" \
+  yad --text "$i18n_wireless_interface_not_found" \
     --undecorated --text-align=center --borders=10 \
     --image=wpagui --image-on-top \
     --timeout="$i18n_network_restarted_timeout" \

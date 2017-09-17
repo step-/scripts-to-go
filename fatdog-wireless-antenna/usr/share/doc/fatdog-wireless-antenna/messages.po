@@ -1,4 +1,4 @@
-# fatdog-wireless-antenna 1.0.1
+# fatdog-wireless-antenna 1.0.3
 # Copyright (C) 2017 step
 # This file is distributed under the same license as the fatdog-wireless-antenna package.
 # step, 2017 https://github.com/step-/
@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: fatdog-wireless-antenna 1.0.1\n"
+"Project-Id-Version: fatdog-wireless-antenna 1.0.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-08-20 12:52+0000\n"
+"POT-Creation-Date: 2017-09-17 12:00+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,82 +17,86 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: fatdog-wireless-antenna.sh:54
+#: fatdog-wireless-antenna.sh:55
 msgid "Wireless Antenna\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:55
+#: fatdog-wireless-antenna.sh:56
 msgid "Interface\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:56
+#: fatdog-wireless-antenna.sh:57
 msgid "Which\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:57
+#: fatdog-wireless-antenna.sh:58
 msgid "Index\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:58
+#: fatdog-wireless-antenna.sh:59
 msgid "Module Name\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:59
+#: fatdog-wireless-antenna.sh:60
 msgid "Antenna\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:60
+#: fatdog-wireless-antenna.sh:61
 msgid "Reason\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:61
+#: fatdog-wireless-antenna.sh:62
 msgid "hard block\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:62
+#: fatdog-wireless-antenna.sh:63
 msgid "soft block\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:63
+#: fatdog-wireless-antenna.sh:64
 msgid "hard block and soft block\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:64
+#: fatdog-wireless-antenna.sh:65
 msgid "rfkill not supported\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:65
+#: fatdog-wireless-antenna.sh:66
 msgid "operation failed\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:66
+#: fatdog-wireless-antenna.sh:67
 msgid "Restart _Network\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:67
+#: fatdog-wireless-antenna.sh:68
 msgid "<b>on</b>\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:68
+#: fatdog-wireless-antenna.sh:69
 msgid "off\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:69
+#: fatdog-wireless-antenna.sh:70
 msgid "unknown\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:70
+#: fatdog-wireless-antenna.sh:71
 msgid "Double-click the row or select it and press Enter to toggle the antenna.\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:71
+#: fatdog-wireless-antenna.sh:72
 msgid "Restarting network...\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:72
+#: fatdog-wireless-antenna.sh:73
 msgid "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:73
+#: fatdog-wireless-antenna.sh:74
 msgid "8\n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:75
+msgid "Wireless interface not found.\n"
 msgstr ""
