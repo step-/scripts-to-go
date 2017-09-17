@@ -5,7 +5,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.0.2
+  Version=1.0.3
 # META-end
 
 # exec >>/tmp/${0##*/}.log 2>&1
@@ -49,6 +49,7 @@ i18n_table() # {{{1
     read i18n_restarting_network
     read i18n_network_restarted
     read i18n_network_restarted_timeout
+    read i18n_no_wireless_interface_found
   } << EOF
   $(gettext -es \
   "Wireless Antenna\n" \
@@ -71,6 +72,7 @@ i18n_table() # {{{1
   "Restarting network...\n" \
   "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n" \
   "8\n" \
+  "No wireless interface found on this system.\n" \
   )
 EOF
 }
@@ -145,7 +147,14 @@ i18n_table
 if [ $# -gt 0 ]; then "$@"; exit; fi # call_* from yad dialog
 
 enum_interfaces
-[ $IFACE_wireless_n = 0 ] && exit
+if [ $IFACE_wireless_n = 0 ]; then
+  yad --text "$i18n_no_wireless_interface_found" \
+    --undecorated --text-align=center --borders=10 \
+    --image=wpagui --image-on-top \
+    --timeout="$i18n_network_restarted_timeout" \
+    --button=gtk-ok
+  exit
+fi
 
 for w in $IFACE_wireless_which; do
   print_list_row $w
