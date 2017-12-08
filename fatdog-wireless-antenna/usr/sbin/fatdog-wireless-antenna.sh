@@ -5,7 +5,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.0.3
+  Version=1.1.0
 # META-end
 
 # exec >>/tmp/${0##*/}.log 2>&1
@@ -22,13 +22,28 @@ export OUTPUT_CHARSET=UTF-8
 SHNETLIB_MODE=detailed
 . /usr/sbin/shnetlib.sh
 
-export YAD_OPTIONS="--center --buttons-layout=center --window-icon=/usr/local/lib/X11/pixmaps/wifi48.png"
+LISTF="${TMPDIR:-/tmp}/${0##*/}.$$"
+POLLINTERVAL=3
+YAD_DEFAULT_POS="--center"
 
+# Efficient way to structure a translation table.
 i18n_table() # {{{1
-# i18n CAVEAT: Apparently xgettext can't extract strings from 'gettext -es'
-# correctly.  Use tool/xgettext.sh instead.
 {
+# Notes for translators:
+# 1. Apparently xgettext doesn't know how to extract strings from calls to
+#    'gettext -es'. Therefore this .pot template is generated with
+#    usr/share/doc/fatdog-wireless-antenna/xgettext.sh.
+# 2. From this point on:
+#    A. Never use \n inside your msgstr. You can use \r instead.
+#    B. Always end your msgstr with \n.
+#    C. Replace trailing spaces (hex 20) with no-breaking spaces (hex A0).
+#
   {
+    # i18n_YAD_WIDTH in pixels: change the width value for your translation.
+    # Note that yad gives the last column all the residual extra space of the
+    # other columns. So, the last column, i18n_LAST_COLUMN_FOR_LONG_DETAILS,
+    # is used to display the longest (concatenated) messages.
+    read i18n_YAD_WIDTH
     read i18n_main_window_title
     read i18n_interface_name
     read i18n_which
@@ -36,11 +51,12 @@ i18n_table() # {{{1
     read i18n_module_name
     read i18n_radio_unblocked
     read i18n_radio_blocked_reason
+    read i18n_LAST_COLUMN_FOR_LONG_DETAILS
     read i18n_radio_hard_blocked
     read i18n_radio_soft_blocked
     read i18n_radio_hard_and_soft_blocked
     read i18n_rfkill_not_supported
-    read i18n_error_operation_failed
+    read i18n_operation_not_possible
     read i18n_button_restart_network
     read i18n_on
     read i18n_off
@@ -50,20 +66,30 @@ i18n_table() # {{{1
     read i18n_network_restarted
     read i18n_network_restarted_timeout
     read i18n_wireless_interface_not_found
+    read i18n_up
+    read i18n_down
+    read i18n_dormant
+    read i18n_carrier
+    read i18n_no_carrier
+    read i18n_help_remove_hard_block
+    # i18n_list_sep consists of: comma non-breaking space \n
+    read i18n_list_sep
   } << EOF
-  $(gettext -es \
+  $(gettext -es -- \
+  "--width=550\n" \
   "Wireless Antenna\n" \
   "Interface\n" \
   "Which\n" \
   "Index\n" \
   "Module Name\n" \
   "Antenna\n" \
-  "Reason\n" \
-  "hard block\n" \
-  "soft block\n" \
-  "hard block and soft block\n" \
+  "Block\n" \
+  "Details\n" \
+  "hard\n" \
+  "soft\n" \
+  "hard and soft\n" \
   "rfkill not supported\n" \
-  "operation failed\n" \
+  "operation not possible\n" \
   "Restart _Network\n" \
   "<b>on</b>\n" \
   "off\n" \
@@ -73,49 +99,141 @@ i18n_table() # {{{1
   "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n" \
   "8\n" \
   "Wireless interface not found.\n" \
+  "up\n" \
+  "down\n" \
+  "dormant\n" \
+  "AP\n" \
+  "no AP\n" \
+  "Try to remove the hard block of interface %s with shell command rfkill, which could list the interface under different names. Or toggle the physical 'WIFI ON/OFF' switch of your computer.\n" \
+  ", \n" \
   )
 EOF
 }
 
-call_restart_app() #{{{1
+set_YAD_GEOMETRY() # $1-window-xid $2-window-title $3-scale-arguments {{{1
+# Compute the geometry of window $1, if any, otherwise of the parent yad
+# window.  If neither one exists, compute for window title $2. Assign global
+# YAD_GEOMETRY to the computed geometry formatted as a long-format option.
+# Assign YAD_GEOMETRY_POPUP to a scaled geometry centered in YAD_GEOMETRY.
+# Scale arguments is a string of numbers
+# "ScaleWidth:ScaleHeight:MaxWidth:MaxHeight",
+# where ScaleWidth/Height are expressed in percentage of the framing dialog
+# width and height, and MaxWidth/Height are expressed in px.  "-1" means
+# unconstrained Width/Height. Default "50:50:-1:-1".
+# Return 0 on successful assignments, 1 otherwise.
 {
+  local xid=${1:-$YAD_XID} title="$2" scale="${3:-50:50:-1:-1}" t a w h x y
+  if [ "$xid" ]; then
+    t=-id a=$xid
+  elif [ "$title" ]; then
+    t=-name a="$title"
+  else
+    return 1
+  fi
+  set -- $(xwininfo "$t" "$a" | awk -F: -v P="$scale" '
+/Absolute upper-left X/ {x  = $2; next}
+/Absolute upper-left Y/ {y  = $2; next}
+/Relative upper-left X/ {x -= $2; next}
+/Relative upper-left Y/ {y -= $2; next}
+/Width/  {w = $2; next}
+/Height/ {h = $2; exit}
+END {
+  if(!(x y w h)) exit(-1)
+  for(i = split(P, Scale); i > 0; i--) {Scale[i] += 0} # cast to numeric
+  xp = x + w / 2; yp = y + h / 2
+  wp = w * Scale[1] / 100; if(Scale[3] > 0 && wp > Scale[3]) { wp = Scale[3] }
+  hp = h * Scale[2] / 100; if(Scale[4] > 0 && hp > Scale[4]) { hp = Scale[4] }
+  xp -= wp / 2; yp -= hp / 2
+  if(x < 1) x = 0; if(y < 1) y = 0
+  printf "--geometry %dx%d%+d%+d --geometry %dx%d%+d%+d", w, h, +x, +y, wp, hp, +xp, +yp 
+} ')
+  [ $# = 0 ] && return 1
+  YAD_GEOMETRY="$1 $2" YAD_GEOMETRY_POPUP="$3 $4"
+  return 0
+}
+
+call_restart_app() # {{{1
+# Invoked as: [ $0 ] call_restart_app; exit
+{
+  local pid
+  # Export current dialog geometry.
+  set_YAD_GEOMETRY '' "$i18n_main_window_title" && export YAD_GEOMETRY YAD_GEOMETRY_POPUP
+  # Restart script and dialog, which will pick up the exported geometry.
   "$0" &
   sleep 0.2
-  kill $YAD_PID
+  # Close the current dialog.
+  for pid in $DIALOG_PID $YAD_PID; do
+    kill -USR1 $pid # not always working
+    kill $pid
+  done 2>/dev/null
 }
 
 call_restart_network() #{{{1
+# Invoked as: $0 call_restart_network; exit
 {
-  { sleep 3; echo /etc/init.d/50-Wpagui restart & echo 1; wait; } |
-  yad --progress --pulsate --auto-close --on-top --no-buttons \
+  local res
+  set_YAD_GEOMETRY '' "$i18n_main_window_title" "50:50:-1:150" && export YAD_GEOMETRY_POPUP
+  { echo 1; /etc/init.d/50-Wpagui restart >/dev/null & wait; res=$?; echo 100; } |
+  yad $YAD_GEOMETRY_POPUP --progress --pulsate --auto-close --on-top --no-buttons \
     --undecorated --no-focus --skip-taskbar --text-align=center --borders=10 \
     --text="$i18n_restarting_network\n"
-  yad --text="$i18n_network_restarted\n" --on-top --button=gtk-ok \
+  set_YAD_GEOMETRY '' "$i18n_main_window_title" "70:70:-1:150" && export YAD_GEOMETRY_POPUP
+  yad $YAD_GEOMETRY_POPUP --text="$i18n_network_restarted\n" --on-top --button=gtk-ok \
     --undecorated                           --text-align=center --borders=10 \
     --image=wpagui --image-on-top \
     --timeout="$i18n_network_restarted_timeout" --timeout-indicator=bottom
+  return $res
 }
 
-call_update_row() # $@-row {{{1
+call_toggle_row() # $@-row {{{1
+# Invoked as: $0 call_toggle_row <yad-list-row-fields>; exit
 {
-  local op iface=$1 which=$2 rfkill_index=$3 module_name=$4 radio_enabled="$5"
+  local iface=$1 which=$2 rfkill_index=$3 module_name=$4 radio_enabled="$5" block_reason="$6" operation_details="$7" tooltip="$8" dclick_action="$9"
+  local op res s0 s1
   case "$radio_enabled" in
-    "$i18n_unknown" ) return 0 ;;
+    "$i18n_unknown" ) return 0 ;; # theoretically possible but never seen nor tested.
     "$i18n_on" ) op=block ;;
     "$i18n_off" ) op=unblock ;;
   esac
-  # Assert: $which is invariant because enum_interfaces finds the same wireless set.
   enum_interfaces
-  if rfkill $op $rfkill_index; then
-    print_list_row $which
-  else
-    print_list_row $which "$i18n_error_operation_failed"
+  # Assert: $which is the clicked row index because enum_interfaces just found
+  # the same set of wireless interfaces that was being shown when the row was
+  # clicked. If this isn't the case, the user should click Refresh then retry
+  # toggling the interface. Verify assertion.
+  get_iface_wireless $which
+  if [ $iface != $IFACE_iface ]; then
+    # Assertion failed. Don't toggle; force refresh instead.
+    call_restart_app; exit 1
   fi
+  # Perform the double-click action.
+  # By default toggle the antenna. Request action exceptions via $dclick_action.
+  case "$dclick_action" in
+    "show tooltip" )
+      set_YAD_GEOMETRY '' "$i18n_main_window_title" "70:70:-1:150" && export YAD_GEOMETRY_POPUP
+      1>&- yad $YAD_GEOMETRY_POPUP --title="$i18n_main_window_title" \
+        --text="$tooltip" --on-top --button=gtk-ok --image=gtk-help --image-on-top &
+      ;;
+    *)
+      s0=$IFACE_rfkill_state
+      rfkill $op $rfkill_index; res=$?
+      get_iface_wireless $which; s1=$IFACE_rfkill_state
+      if [ $res = 0 -a $s0 != $s1 ]; then # success: state changed
+        print_list_row $which
+      else
+        if [ 1 = "$IFACE_rfkill_hard" -a "$op" = unblock ]; then
+          tooltip="$(printf "$i18n_help_remove_hard_block" $IFACE_iface)"
+        fi
+        print_list_row $which "<span color='red'>$i18n_operation_not_possible</span>" "$tooltip" "show tooltip"
+      fi
+      ;;
+  esac
+  return 0 # yad's '@' callback must exit 0.
 }
 
-print_list_row() # $1-wireless-iface-which [$2-radio-blocked-reason] {{{1
+print_list_row() # $1-wireless-iface-which [$2-operation_details $3-tooltip $4-dclick_action] {{{1
 {
-  local which=$1 radio_blocked_reason=$2 radio_unblocked
+  local which=$1 operation_details="$2" tooltip="$3" dclick_action="$4"
+  local radio_unblocked details
   get_iface_wireless $which
   unset radio_blocked_reason
   case $IFACE_rfkill_state in
@@ -137,18 +255,38 @@ print_list_row() # $1-wireless-iface-which [$2-radio-blocked-reason] {{{1
       fi
       ;;
   esac
+  case $IFACE_operstate in
+    up ) details="$i18n_up" ;;
+    down ) details="$i18n_down" ;;
+    dormant) details="$i18n_dormant" ;;
+    * ) details="$i18n_unknown" ;;
+  esac
+  if [ -z "$operation_details" ]; then
+    # Default text for column $i18n_LAST_COLUMN_FOR_LONG_DETAILS ("Details").
+    if [ 1 = $IFACE_carrier ]; then
+      # Show carrier detected and possibly IP address.
+      set -- $(ip -o -4 addr show $IFACE_iface) # TODO add IP6 (polling loop too)
+      x="${4%/*}"
+      [ "$x" ] && details="$x" || details="$details$i18n_list_sep$i18n_carrier"
+    else
+      details="$details$i18n_list_sep$i18n_no_carrier"
+    fi
+  else
+    details="$operation_details"
+  fi
   printf "%s\n" $IFACE_iface $IFACE_which $IFACE_rfkill_index \
     ${IFACE_module_path##*/} "$radio_unblocked" "$radio_blocked_reason" \
-    "$i18n_tooltip_toggle"
+    "$details" "${tooltip:-$i18n_tooltip_toggle}" "$dclick_action"
 }
 
 # Main {{{1
 i18n_table
-if [ $# -gt 0 ]; then "$@"; exit; fi # call_* from yad dialog
+export YAD_OPTIONS="--gtkrc=$STYLEFILE --borders=4 --buttons-layout=center --window-icon=/usr/local/lib/X11/pixmaps/wifi48.png"
+if [ $# -gt 0 ]; then "$@"; exit $?; fi # call_* from yad dialog
 
 enum_interfaces
 if [ $IFACE_wireless_n = 0 ]; then
-  yad --text "$i18n_wireless_interface_not_found" \
+  yad ${YAD_GEOMETRY:-$YAD_DEFAULT_POS} --text "$i18n_wireless_interface_not_found" \
     --undecorated --text-align=center --borders=10 \
     --image=wpagui --image-on-top \
     --timeout="$i18n_network_restarted_timeout" \
@@ -156,20 +294,47 @@ if [ $IFACE_wireless_n = 0 ]; then
   exit
 fi
 
+trap "rm -f '${LISTF:----}'*; exit 0" HUP INT QUIT TERM ABRT 0
 for w in $IFACE_wireless_which; do
   print_list_row $w
-done |
-yad --list \
-  --title="$i18n_main_window_title" --width=400 --height=200 \
+done > "$LISTF"-in
+! [ -s "$LISTF"-in ] && exit 3
+
+# Show dialog. {{{2
+# start_geometry frames this dialog and all its children dialogs.
+start_geometry="${YAD_GEOMETRY:-$YAD_DEFAULT_POS $i18n_YAD_WIDTH}"
+# Note: $i18n_LAST_COLUMN_FOR_LONG_DETAILS must be the last _visible_ column
+# because that position gathers all the residual unused widths from the other
+# visible columns, and if there is residual space the last column can expand -
+# within the fixed-size width $i18n_YAD_WIDTH. See also print_list_row().
+
+< "$LISTF"-in yad $start_geometry --title="$i18n_main_window_title" \
+  --list \
   --column="$i18n_interface_name" \
-  --column="$i18n_which:HD" \
-  --column="$i18n_radio_index:HD" \
+  --column="$i18n_which":HD \
+  --column="$i18n_radio_index":HD \
   --column="$i18n_module_name" \
   --column="$i18n_radio_unblocked" \
   --column="$i18n_radio_blocked_reason" \
-  --column=":HD" --tooltip-column=7 \
-  --dclick-action="@$0 call_update_row" \
+  --column="$i18n_LAST_COLUMN_FOR_LONG_DETAILS" \
+  --column="tooltip":HD --tooltip-column=8 \
+  --column="dclick-action":HD \
+  --dclick-action="@$0 call_toggle_row" \
   --button="gtk-refresh:$0 call_restart_app" \
   --button="$i18n_button_restart_network!wpagui:$0 call_restart_network" \
   --button="gtk-quit:0" \
-  > /dev/null
+  > /dev/null & sleep 0.2
+DIALOG_PID=$!
+
+# Monitor dialog exit and interface state changes (up/down/IP address). {{{2
+pstate="$IFACE_wireless_path$IFACE_wireless_carrier$IFACE_wireless_operstate $(ip -o -4 addr)"
+state="$pstate"
+while [ "$state" ]; do
+  ! ps $DIALOG_PID >/dev/null && exit 4
+  if [ "$pstate" != "$state" ]; then
+    call_restart_app; exit 5
+  fi
+  sleep $POLLINTERVAL
+  enum_interfaces
+  state="$IFACE_wireless_path$IFACE_wireless_carrier$IFACE_wireless_operstate $(ip -o -4 addr)"
+done
