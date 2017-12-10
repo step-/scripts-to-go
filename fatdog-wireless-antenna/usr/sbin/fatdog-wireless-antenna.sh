@@ -181,7 +181,7 @@ call_restart_network() #{{{1
   yad $YAD_GEOMETRY_POPUP --text="$i18n_network_restarted\n" --on-top --button=gtk-ok \
     --undecorated                           --text-align=center --borders=10 \
     --image=wpagui --image-on-top \
-    --timeout="$i18n_network_restarted_timeout" --timeout-indicator=bottom
+    --timeout="$i18n_network_restarted_timeout"
   return $res
 }
 
@@ -286,7 +286,8 @@ if [ $# -gt 0 ]; then "$@"; exit $?; fi # call_* from yad dialog
 
 enum_interfaces
 if [ $IFACE_wireless_n = 0 ]; then
-  yad ${YAD_GEOMETRY:-$YAD_DEFAULT_POS} --text "$i18n_wireless_interface_not_found" \
+  set_YAD_GEOMETRY '' "$i18n_main_window_title"
+  yad ${YAD_GEOMETRY_POPUP:-$YAD_DEFAULT_POS} --text "$i18n_wireless_interface_not_found" \
     --undecorated --text-align=center --borders=10 \
     --image=wpagui --image-on-top \
     --timeout="$i18n_network_restarted_timeout" \
