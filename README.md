@@ -88,13 +88,19 @@ dndmate --id=music & dndmate --id=weblinks &
 <a href="fatdog-wireless-antenna"></a>
 ## fatdog-wireless-antenna
 
-Simple WiFi Antenna Manager for Fatdog64
+WiFi Antenna Manager for Fatdog64
 
 **Target User**
 
 * Fatdog64 users with multiple wireless interfaces.
 * Other (Puppy) Linux users - minimum shell source code adaptions needed, see
   _Porting to Other Linux_.
+
+**Features**
+
+* Enable/disable antenna.
+* Auto-detect wireless interface changes: enabled, connected to access point (AP), IP address.
+* Restart Fatdog64 networking.
 
 **Installing**
 
@@ -122,6 +128,8 @@ See file [PORTING](fatdog-wireless-antenna/usr/share/doc/fatdog-wireless-antenna
 **Screenshot**
 
 ![Screenshot](img/fatdog-wireless-antenna.png)
+
+Screenshot of version 1.0.0. In version 1.1.0 column "Details" replaces column "Reason".
 
 ----
 
