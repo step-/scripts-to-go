@@ -27,6 +27,7 @@ Scripts in this page:
 * [gmenu2-fdcp](./README.md#gmenu2-fdcp)
 * [quicklaunch](./README.md#quicklaunch)
 * [roxmm](./README.md#roxmm)
+* [s-write-comment](./README.md#s-write-comment)
 * [tray-radio](./README.md#tray-radio)
 
 ----
@@ -319,6 +320,43 @@ Right - rox SendTo menu. Left - corresponding roxmm menu. Note tooltip
 and Tools menu.
 
 ![Screenshot](img/roxmm.png)
+
+----
+
+<a href="s-write-comment"></a>
+## s-write-comment
+
+File comment writer for Fatdog64 ROX-Filer build
+
+**Target User**
+
+* Fatdog64 72x+ users. This script works best in conjuction with the Fatdog64
+  ROX-Filer build.
+* Users of version of Puppy Linux that feature the "comments" patch for
+  ROX-Filer.
+* Anyone who wants to keep a comment file alongside another file, i.e.
+  `filename.ext.txt` holding comments about `filename.ext`.
+
+**Features**
+
+* Right-click ROX-Filer action "Add Comment File".
+* Command-line options to customize actions and manage comment files.
+
+**Installing**
+
+* Download and unpack the repository snapshot
+  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Copy the files rooted in `s-write-comments` to equivalent positions under
+  `/`.
+* Reboot to enable the ROX-Filer right-click action.
+
+**Help** - In a terminal window run `s-write-comment.sh --help`.
+
+**Screenshot**
+
+![Screenshot](img/s-write-comment.png)
+
+Screenshot of version 1.0.0.
 
 ----
 
