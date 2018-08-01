@@ -110,14 +110,17 @@ WiFi Antenna Manager for Fatdog64
 * Run `install/install-fatdog-wireless-antenna.sh` from the unpacked folder.
 * Download and unpack the required repository snapshot
   [shnetlib tar file](https://github.com/step-/shnetlib/archive/master.tar.gz).
-* Follow install instructions in README.md in the shnetlib folder.
+    cp usr/sbin/shnetlib.sh /usr/sbin/shnetlib.sh
+* Download and unpack the required repository snapshot
+    cp usr/bin/yad-lib.sh /usr/bin/yad-lib.sh
 * Run `fatdog-wireless-antenna.sh &` in a terminal window to start the main
   window.
 
 **Dependencies**
 
 * [shnetlib](https://github.com/step-/shnetlib)
-* yad (tested with version 0.36.3)
+* [yad-lib](https://github.com/step-/yad-lib)
+* yad (tested since version 0.36.3)
 * rfkill (tested with busybox 1.27.0.git rfkill).
 
 **Help** - Hover over list items for tooltip help.

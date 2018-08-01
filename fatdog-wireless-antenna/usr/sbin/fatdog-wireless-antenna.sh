@@ -5,22 +5,15 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.1.0
+  Version=1.2.0
 # META-end
-
-# exec >>/tmp/${0##*/}.log 2>&1
-# echo ========================
-# date +%Y%m%d-%H%M%S
-# echo "$0 $*"
-# echo ========================
-# set -x
 
 export TEXTDOMAIN=fatdog-wireless-antenna
 export OUTPUT_CHARSET=UTF-8
-#NOT-USED . gettext.sh
 
 SHNETLIB_MODE=detailed
-. /usr/sbin/shnetlib.sh
+. shnetlib.sh
+. yad-lib.sh
 
 LISTF="${TMPDIR:-/tmp}/${0##*/}.$$"
 POLLINTERVAL=3
@@ -110,74 +103,16 @@ i18n_table() # {{{1
 EOF
 }
 
-set_YAD_GEOMETRY() # $1-window-xid $2-window-title $3-scale-arguments {{{1
-# Compute the geometry of window $1, if any, otherwise of the parent yad
-# window.  If neither one exists, compute for window title $2. Assign global
-# YAD_GEOMETRY to the computed geometry formatted as a long-format option.
-# Assign YAD_GEOMETRY_POPUP to a scaled geometry centered in YAD_GEOMETRY.
-# Scale arguments is a string of numbers
-# "ScaleWidth:ScaleHeight:MaxWidth:MaxHeight",
-# where ScaleWidth/Height are expressed in percentage of the framing dialog
-# width and height, and MaxWidth/Height are expressed in px.  "-1" means
-# unconstrained Width/Height. Default "50:50:-1:-1".
-# Return 0 on successful assignments, 1 otherwise.
-{
-  local xid=${1:-$YAD_XID} title="$2" scale="${3:-50:50:-1:-1}" t a w h x y
-  if [ "$xid" ]; then
-    t=-id a=$xid
-  elif [ "$title" ]; then
-    t=-name a="$title"
-  else
-    return 1
-  fi
-  set -- $(xwininfo "$t" "$a" | awk -F: -v P="$scale" '
-/Absolute upper-left X/ {x  = $2; next}
-/Absolute upper-left Y/ {y  = $2; next}
-/Relative upper-left X/ {x -= $2; next}
-/Relative upper-left Y/ {y -= $2; next}
-/Width/  {w = $2; next}
-/Height/ {h = $2; exit}
-END {
-  if(!(x y w h)) exit(-1)
-  for(i = split(P, Scale); i > 0; i--) {Scale[i] += 0} # cast to numeric
-  xp = x + w / 2; yp = y + h / 2
-  wp = w * Scale[1] / 100; if(Scale[3] > 0 && wp > Scale[3]) { wp = Scale[3] }
-  hp = h * Scale[2] / 100; if(Scale[4] > 0 && hp > Scale[4]) { hp = Scale[4] }
-  xp -= wp / 2; yp -= hp / 2
-  if(x < 1) x = 0; if(y < 1) y = 0
-  printf "--geometry %dx%d%+d%+d --geometry %dx%d%+d%+d", w, h, +x, +y, wp, hp, +xp, +yp 
-} ')
-  [ $# = 0 ] && return 1
-  YAD_GEOMETRY="$1 $2" YAD_GEOMETRY_POPUP="$3 $4"
-  return 0
-}
-
-call_restart_app() # {{{1
-# Invoked as: [ $0 ] call_restart_app; exit
-{
-  local pid
-  # Export current dialog geometry.
-  set_YAD_GEOMETRY '' "$i18n_main_window_title" && export YAD_GEOMETRY YAD_GEOMETRY_POPUP
-  # Restart script and dialog, which will pick up the exported geometry.
-  "$0" &
-  sleep 0.2
-  # Close the current dialog.
-  for pid in $DIALOG_PID $YAD_PID; do
-    kill -USR1 $pid # not always working
-    kill $pid
-  done 2>/dev/null
-}
-
 call_restart_network() #{{{1
-# Invoked as: $0 call_restart_network; exit
+# Invoked as: $0 call_restart_network
 {
   local res
-  set_YAD_GEOMETRY '' "$i18n_main_window_title" "50:50:-1:150" && export YAD_GEOMETRY_POPUP
-  { echo 1; /etc/init.d/50-Wpagui restart >/dev/null & wait; res=$?; echo 100; } |
+  yad_lib_set_YAD_GEOMETRY '' '' "50:-1:250" && export YAD_GEOMETRY_POPUP
+  { echo 1; /etc/init.d/50-Wpagui restart >/dev/null 2>&1 & wait; res=$?; echo 100; } |
   yad $YAD_GEOMETRY_POPUP --progress --pulsate --auto-close --on-top --no-buttons \
     --undecorated --no-focus --skip-taskbar --text-align=center --borders=10 \
     --text="$i18n_restarting_network\n"
-  set_YAD_GEOMETRY '' "$i18n_main_window_title" "70:70:-1:150" && export YAD_GEOMETRY_POPUP
+  yad_lib_set_YAD_GEOMETRY '' '' "70:-1:450"
   yad $YAD_GEOMETRY_POPUP --text="$i18n_network_restarted\n" --on-top --button=gtk-ok \
     --undecorated                           --text-align=center --borders=10 \
     --image=wpagui --image-on-top \
@@ -186,7 +121,7 @@ call_restart_network() #{{{1
 }
 
 call_toggle_row() # $@-row {{{1
-# Invoked as: $0 call_toggle_row <yad-list-row-fields>; exit
+# Invoked as: $0 call_toggle_row <yad-list-row-fields>
 {
   local iface=$1 which=$2 rfkill_index=$3 module_name=$4 radio_enabled="$5" block_reason="$6" operation_details="$7" tooltip="$8" dclick_action="$9"
   local op res s0 s1
@@ -203,13 +138,13 @@ call_toggle_row() # $@-row {{{1
   get_iface_wireless $which
   if [ $iface != $IFACE_iface ]; then
     # Assertion failed. Don't toggle; force refresh instead.
-    call_restart_app; exit 1
+    yad_lib_at_restart_app --exit --yad-pid=$DIALOG_PID
   fi
   # Perform the double-click action.
   # By default toggle the antenna. Request action exceptions via $dclick_action.
   case "$dclick_action" in
     "show tooltip" )
-      set_YAD_GEOMETRY '' "$i18n_main_window_title" "70:70:-1:150" && export YAD_GEOMETRY_POPUP
+      yad_lib_set_YAD_GEOMETRY '' '' "70:-1:450" && export YAD_GEOMETRY_POPUP
       1>&- yad $YAD_GEOMETRY_POPUP --title="$i18n_main_window_title" \
         --text="$tooltip" --on-top --button=gtk-ok --image=gtk-help --image-on-top &
       ;;
@@ -227,7 +162,7 @@ call_toggle_row() # $@-row {{{1
       fi
       ;;
   esac
-  return 0 # yad's '@' callback must exit 0.
+  return 0 # yad's 'call_' callback must exit 0.
 }
 
 print_list_row() # $1-wireless-iface-which [$2-operation_details $3-tooltip $4-dclick_action] {{{1
@@ -281,12 +216,14 @@ print_list_row() # $1-wireless-iface-which [$2-operation_details $3-tooltip $4-d
 
 # Main {{{1
 i18n_table
+YAD_TITLE=$i18n_main_window_title # for yad_lib_set_YAD_GEOMETRY
 export YAD_OPTIONS="--gtkrc=$STYLEFILE --borders=4 --buttons-layout=center --window-icon=/usr/local/lib/X11/pixmaps/wifi48.png"
+yad_lib_dispatch "$@"
 if [ $# -gt 0 ]; then "$@"; exit $?; fi # call_* from yad dialog
 
 enum_interfaces
 if [ $IFACE_wireless_n = 0 ]; then
-  set_YAD_GEOMETRY '' "$i18n_main_window_title"
+  yad_lib_set_YAD_GEOMETRY
   yad ${YAD_GEOMETRY_POPUP:-$YAD_DEFAULT_POS} --text "$i18n_wireless_interface_not_found" \
     --undecorated --text-align=center --borders=10 \
     --image=wpagui --image-on-top \
@@ -309,7 +246,7 @@ start_geometry="${YAD_GEOMETRY:-$YAD_DEFAULT_POS $i18n_YAD_WIDTH}"
 # visible columns, and if there is residual space the last column can expand -
 # within the fixed-size width $i18n_YAD_WIDTH. See also print_list_row().
 
-< "$LISTF"-in yad $start_geometry --title="$i18n_main_window_title" \
+< "$LISTF"-in yad $start_geometry --title="$YAD_TITLE" \
   --list \
   --column="$i18n_interface_name" \
   --column="$i18n_which":HD \
@@ -321,7 +258,7 @@ start_geometry="${YAD_GEOMETRY:-$YAD_DEFAULT_POS $i18n_YAD_WIDTH}"
   --column="tooltip":HD --tooltip-column=8 \
   --column="dclick-action":HD \
   --dclick-action="@$0 call_toggle_row" \
-  --button="gtk-refresh:$0 call_restart_app" \
+  --button="gtk-refresh:$0 yad_lib_at_restart_app --exit" \
   --button="$i18n_button_restart_network!wpagui:$0 call_restart_network" \
   --button="gtk-quit:0" \
   > /dev/null & sleep 0.2
@@ -332,9 +269,7 @@ pstate="$IFACE_wireless_path$IFACE_wireless_carrier$IFACE_wireless_operstate $(i
 state="$pstate"
 while [ "$state" ]; do
   ! ps $DIALOG_PID >/dev/null && exit 4
-  if [ "$pstate" != "$state" ]; then
-    call_restart_app; exit 5
-  fi
+  ! [ "$pstate" = "$state" ] && yad_lib_at_restart_app --exit=5 --yad-pid=$DIALOG_PID
   sleep $POLLINTERVAL
   enum_interfaces
   state="$IFACE_wireless_path$IFACE_wireless_carrier$IFACE_wireless_operstate $(ip -o -4 addr)"
