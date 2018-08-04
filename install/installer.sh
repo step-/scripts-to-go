@@ -70,6 +70,9 @@ Pre-installation test results:
   home needed:    $home_needed: $home_dir
     pass test:    ${can_write_home:-NA}, ${can_change_home:-NA}
     owner:group:  $owner:$group
+Notes:
+  Existing files in the home destination will be backed up.
+  Existing files in other destinations will be overwritten.
 EOF
 }
 
@@ -125,7 +128,7 @@ if [ yes-yes-yes = "$home_needed-$can_write_home-$can_change_home" ]; then
   find "$source_tmp" -type f -a \( \
     -path '*/bin/*' -o -path '*.sh' -o -path '*.gtkmenuplus' \
     \) -exec chmod 0755 '{}' \; &&
-  cp $opt_verbose -a "$source_tmp"/. "$home_dir"
+  cp --backup=numbered $opt_verbose -a "$source_tmp"/. "$home_dir"
   status=$?
 fi
 
