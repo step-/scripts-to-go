@@ -51,6 +51,9 @@ Drag-and-drop Collector and Automator
 
 * Download and unpack the repository snapshot
   [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
+* Download and unpack the required repository snapshot
+  [yad-lib tar file](https://github.com/step-/yad-lib/archive/master.tar.gz).
+    cp usr/bin/yad-lib.sh /usr/bin/yad-lib.sh
 * Run `install/install-dndmate.sh` from the unpacked folder.
   `--help` is a command-line option.
 * Optionally, if ROX-Filer is your file manager, drag-and-drop the ROX-App
@@ -60,14 +63,28 @@ Drag-and-drop Collector and Automator
 
 **Dependencies**
 
-* Run `dndmate --help=all` to list script dependencies, which are shown near
-  the end of the output text.
+An updated list of dependencies is included in the comment block at
+the top of the
+[script file](https://github.com/step-/scripts-to-go/blob/master/usr/bin/dndmate).
+
+Ensure the vesion of yad in your system meets the minimum requirement listed
+below. Note in particular that you might need to compile a git commit from the
+yad author's [repository](https://github.com/v1cont/yad) to meet the minimum
+requirement marked in bold font below.
+
+Roughly these include:
+* Required shell libraries: yad-lib >= 1.0.0
+* Required packages: yad >= 0.40.3 **git b3a99043**, gawk >= 4.1.1, findutils >= 4.4.2, bash >= 4.3
+* Suggested packages: netpbm-advanced >= 10.64
+* [yad-lib](https://github.com/step-/yad-lib), see section _Installing_.
 
 **Help** - Hover over the buttons for tooltip help. Press the Help button for
 full help text.
 
 **Tips**
 
+* The look of dndmate targets can be styled to a great extent. Read all about
+  it in the style file `/usr/share/dndmate/stylef`.
 * To work on different lists at once, run separate instances with `--id`, i.e.
 
 ```
@@ -75,7 +92,7 @@ dndmate --id=music & dndmate --id=weblinks &
 ```
 
 * Add your frequently-used commands to the command history file: Click \[R\]
-  or \[1\] in the main window, then \[Edit\].
+  in the main window, then \[Edit\].
 * Read the Help file! Click \[H\] in the main window.
 
 **See also** [YAD Tips thread](http://murga-linux.com/puppy/viewtopic.php?p=908353#908353)
@@ -112,6 +129,7 @@ WiFi Antenna Manager for Fatdog64
   [shnetlib tar file](https://github.com/step-/shnetlib/archive/master.tar.gz).
     cp usr/sbin/shnetlib.sh /usr/sbin/shnetlib.sh
 * Download and unpack the required repository snapshot
+  [yad-lib tar file](https://github.com/step-/yad-lib/archive/master.tar.gz).
     cp usr/bin/yad-lib.sh /usr/bin/yad-lib.sh
 * Run `fatdog-wireless-antenna.sh &` in a terminal window to start the main
   window.

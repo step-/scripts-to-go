@@ -14,6 +14,9 @@
       <Item icon="gtk-dnd-multiple" option="--append">
         <Label xml:lang="en">Default</Label>
       </Item>
+      <Item icon="gtk-dialog-question" option="--stylef=:20-44">
+        <Label xml:lang="en">Random</Label>
+      </Item>
       <Item icon="gtk-media-play" option="--optfile=res/media.opt">
         <Label xml:lang="en">Media</Label>
       </Item>
