@@ -5,7 +5,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.2.0
+  Version=1.2.1
 # META-end
 
 export TEXTDOMAIN=fatdog-wireless-antenna
@@ -67,6 +67,7 @@ i18n_table() # {{{1
     read i18n_help_remove_hard_block
     # i18n_list_sep consists of: comma non-breaking space \n
     read i18n_list_sep
+    read i18n_Network_Tool
   } << EOF
   $(gettext -es -- \
   "--width=550\n" \
@@ -89,7 +90,7 @@ i18n_table() # {{{1
   "unknown\n" \
   "Double-click the row or select it and press Enter to toggle the antenna.\n" \
   "Restarting network...\n" \
-  "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n" \
+  "Network restarted.\r\rIf the wireless network isn't connected, click\rthe %s tray icon and connect again.\n" \
   "8\n" \
   "Wireless interface not found.\n" \
   "up\n" \
@@ -99,6 +100,7 @@ i18n_table() # {{{1
   "no AP\n" \
   "Try to remove the hard block of interface %s with shell command rfkill, which could list the interface under different names. Or toggle the physical 'WIFI ON/OFF' switch of your computer.\n" \
   ", \n" \
+  "Network Tool\n" \
   )
 EOF
 }
@@ -113,9 +115,9 @@ call_restart_network() #{{{1
     --undecorated --no-focus --skip-taskbar --text-align=center --borders=10 \
     --text="$i18n_restarting_network\n"
   yad_lib_set_YAD_GEOMETRY '' '' "70:-1:450"
-  yad $YAD_GEOMETRY_POPUP --text="$i18n_network_restarted\n" --on-top --button=gtk-ok \
+  yad $YAD_GEOMETRY_POPUP --text="$(printf "$i18n_network_restarted\n" "$i18n_Network_Tool")" --on-top --button=gtk-ok \
     --undecorated                           --text-align=center --borders=10 \
-    --image=wpagui --image-on-top \
+    --image=networktool --image-on-top \
     --timeout="$i18n_network_restarted_timeout"
   return $res
 }
@@ -226,7 +228,7 @@ if [ $IFACE_wireless_n = 0 ]; then
   yad_lib_set_YAD_GEOMETRY
   yad ${YAD_GEOMETRY_POPUP:-$YAD_DEFAULT_POS} --text "$i18n_wireless_interface_not_found" \
     --undecorated --text-align=center --borders=10 \
-    --image=wpagui --image-on-top \
+    --image=networktool --image-on-top \
     --timeout="$i18n_network_restarted_timeout" \
     --button=gtk-ok
   exit
@@ -259,7 +261,7 @@ start_geometry="${YAD_GEOMETRY:-$YAD_DEFAULT_POS $i18n_YAD_WIDTH}"
   --column="dclick-action":HD \
   --dclick-action="@$0 call_toggle_row" \
   --button="gtk-refresh:$0 yad_lib_at_restart_app --exit" \
-  --button="$i18n_button_restart_network!wpagui:$0 call_restart_network" \
+  --button="$i18n_button_restart_network!networktool:$0 call_restart_network" \
   --button="gtk-quit:0" \
   > /dev/null & sleep 0.2
 DIALOG_PID=$!

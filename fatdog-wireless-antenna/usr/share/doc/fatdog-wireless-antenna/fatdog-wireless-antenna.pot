@@ -1,14 +1,14 @@
-# fatdog-wireless-antenna 1.1.0
-# Copyright (C) 2017 step
+# fatdog-wireless-antenna 1.2.1
+# Copyright (C) 2017-2018 step
 # This file is distributed under the same license as the fatdog-wireless-antenna package.
-# step, 2017 https://github.com/step-/
+# step, 2017-2018 https://github.com/step-/
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: fatdog-wireless-antenna 1.1\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-12-08 12:00+0000\n"
+"POT-Creation-Date: 2018-11-30 09:54+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -32,182 +32,188 @@ msgstr ""
 #. is used to display the longest (concatenated) messages.
 #. i18n_list_sep consists of: comma non-breaking space \n
 
-#: fatdog-wireless-antenna.sh:46
+#: fatdog-wireless-antenna.sh:39
 #. i18n_YAD_WIDTH
-#: fatdog-wireless-antenna.sh:79
+#: fatdog-wireless-antenna.sh:73
 msgid "--width=550\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:47
+#: fatdog-wireless-antenna.sh:40
 #. i18n_main_window_title
-#: fatdog-wireless-antenna.sh:80
+#: fatdog-wireless-antenna.sh:74
 msgid "Wireless Antenna\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:48
+#: fatdog-wireless-antenna.sh:41
 #. i18n_interface_name
-#: fatdog-wireless-antenna.sh:81
+#: fatdog-wireless-antenna.sh:75
 msgid "Interface\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:49
+#: fatdog-wireless-antenna.sh:42
 #. i18n_which
-#: fatdog-wireless-antenna.sh:82
+#: fatdog-wireless-antenna.sh:76
 msgid "Which\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:50
+#: fatdog-wireless-antenna.sh:43
 #. i18n_radio_index
-#: fatdog-wireless-antenna.sh:83
+#: fatdog-wireless-antenna.sh:77
 msgid "Index\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:51
+#: fatdog-wireless-antenna.sh:44
 #. i18n_module_name
-#: fatdog-wireless-antenna.sh:84
+#: fatdog-wireless-antenna.sh:78
 msgid "Module Name\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:52
+#: fatdog-wireless-antenna.sh:45
 #. i18n_radio_unblocked
-#: fatdog-wireless-antenna.sh:85
+#: fatdog-wireless-antenna.sh:79
 msgid "Antenna\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:53
+#: fatdog-wireless-antenna.sh:46
 #. i18n_radio_blocked_reason
-#: fatdog-wireless-antenna.sh:86
+#: fatdog-wireless-antenna.sh:80
 msgid "Block\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:54
+#: fatdog-wireless-antenna.sh:47
 #. i18n_LAST_COLUMN_FOR_LONG_DETAILS
-#: fatdog-wireless-antenna.sh:87
+#: fatdog-wireless-antenna.sh:81
 msgid "Details\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:55
+#: fatdog-wireless-antenna.sh:48
 #. i18n_radio_hard_blocked
-#: fatdog-wireless-antenna.sh:88
+#: fatdog-wireless-antenna.sh:82
 msgid "hard\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:56
+#: fatdog-wireless-antenna.sh:49
 #. i18n_radio_soft_blocked
-#: fatdog-wireless-antenna.sh:89
+#: fatdog-wireless-antenna.sh:83
 msgid "soft\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:57
+#: fatdog-wireless-antenna.sh:50
 #. i18n_radio_hard_and_soft_blocked
-#: fatdog-wireless-antenna.sh:90
+#: fatdog-wireless-antenna.sh:84
 msgid "hard and soft\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:58
+#: fatdog-wireless-antenna.sh:51
 #. i18n_rfkill_not_supported
-#: fatdog-wireless-antenna.sh:91
+#: fatdog-wireless-antenna.sh:85
 msgid "rfkill not supported\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:59
+#: fatdog-wireless-antenna.sh:52
 #. i18n_operation_not_possible
-#: fatdog-wireless-antenna.sh:92
+#: fatdog-wireless-antenna.sh:86
 msgid "operation not possible\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:60
+#: fatdog-wireless-antenna.sh:53
 #. i18n_button_restart_network
-#: fatdog-wireless-antenna.sh:93
+#: fatdog-wireless-antenna.sh:87
 msgid "Restart _Network\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:61
+#: fatdog-wireless-antenna.sh:54
 #. i18n_on
-#: fatdog-wireless-antenna.sh:94
+#: fatdog-wireless-antenna.sh:88
 msgid "<b>on</b>\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:62
+#: fatdog-wireless-antenna.sh:55
 #. i18n_off
-#: fatdog-wireless-antenna.sh:95
+#: fatdog-wireless-antenna.sh:89
 msgid "off\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:63
+#: fatdog-wireless-antenna.sh:56
 #. i18n_unknown
-#: fatdog-wireless-antenna.sh:96
+#: fatdog-wireless-antenna.sh:90
 msgid "unknown\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:64
+#: fatdog-wireless-antenna.sh:57
 #. i18n_tooltip_toggle
-#: fatdog-wireless-antenna.sh:97
+#: fatdog-wireless-antenna.sh:91
 msgid "Double-click the row or select it and press Enter to toggle the antenna.\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:65
+#: fatdog-wireless-antenna.sh:58
 #. i18n_restarting_network
-#: fatdog-wireless-antenna.sh:98
+#: fatdog-wireless-antenna.sh:92
 msgid "Restarting network...\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:66
+#: fatdog-wireless-antenna.sh:59
 #. i18n_network_restarted
-#: fatdog-wireless-antenna.sh:99
-msgid "Network restarted.\r\rIf the wireless network isn't connected, click\rthe wpa_gui tray icon and connect again.\n"
+#: fatdog-wireless-antenna.sh:93
+msgid "Network restarted.\r\rIf the wireless network isn't connected, click\rthe %s tray icon and connect again.\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:67
+#: fatdog-wireless-antenna.sh:60
 #. i18n_network_restarted_timeout
-#: fatdog-wireless-antenna.sh:100
+#: fatdog-wireless-antenna.sh:94
 msgid "8\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:68
+#: fatdog-wireless-antenna.sh:61
 #. i18n_wireless_interface_not_found
-#: fatdog-wireless-antenna.sh:101
+#: fatdog-wireless-antenna.sh:95
 msgid "Wireless interface not found.\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:69
+#: fatdog-wireless-antenna.sh:62
 #. i18n_up
-#: fatdog-wireless-antenna.sh:102
+#: fatdog-wireless-antenna.sh:96
 msgid "up\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:70
+#: fatdog-wireless-antenna.sh:63
 #. i18n_down
-#: fatdog-wireless-antenna.sh:103
+#: fatdog-wireless-antenna.sh:97
 msgid "down\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:71
+#: fatdog-wireless-antenna.sh:64
 #. i18n_dormant
-#: fatdog-wireless-antenna.sh:104
+#: fatdog-wireless-antenna.sh:98
 msgid "dormant\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:72
+#: fatdog-wireless-antenna.sh:65
 #. i18n_carrier
-#: fatdog-wireless-antenna.sh:105
+#: fatdog-wireless-antenna.sh:99
 msgid "AP\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:73
+#: fatdog-wireless-antenna.sh:66
 #. i18n_no_carrier
-#: fatdog-wireless-antenna.sh:106
+#: fatdog-wireless-antenna.sh:100
 msgid "no AP\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:74
+#: fatdog-wireless-antenna.sh:67
 #. i18n_help_remove_hard_block
-#: fatdog-wireless-antenna.sh:107
+#: fatdog-wireless-antenna.sh:101
 msgid "Try to remove the hard block of interface %s with shell command rfkill, which could list the interface under different names. Or toggle the physical 'WIFI ON/OFF' switch of your computer.\n"
 msgstr ""
 
-#: fatdog-wireless-antenna.sh:76
+#: fatdog-wireless-antenna.sh:69
 #. i18n_list_sep
-#: fatdog-wireless-antenna.sh:108
+#: fatdog-wireless-antenna.sh:102
 msgid ", \n"
+msgstr ""
+
+#: fatdog-wireless-antenna.sh:70
+#. i18n_Network_Tool
+#: fatdog-wireless-antenna.sh:103
+msgid "Network Tool\n"
 msgstr ""
