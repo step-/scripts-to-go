@@ -1,7 +1,0 @@
-#EXTM3U
-# This is /usr/share/tray-radio/tray-radio.m3u
-# Don't edit this file directly.
-# Instead copy it to $HOME/tray-menu.m3u and edit the copy.
-
-#subinclude /usr/share/tray-radio/Listen to Sample Stations with _mpg123.m3u
-#subinclude /usr/share/tray-radio/Listen to Sample Stations with _Default Media Player.m3u
