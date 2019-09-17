@@ -6,7 +6,7 @@
 # Copyright (C) step, 2017
 # License: GNU GPL Version 2
 # Homepage: https://github.com/step-/scripts-to-go
-  Version=1.0.0
+  Version=1.0.1
 # META-end
 
 # Run and read "tray-radio --help=all" before changing these values!
@@ -18,7 +18,7 @@ TRAY_TOOLTIP= # leave empty for default tooltip
 
 # i18n {{{1
 # CAVEAT: Apparently xgettext isn't able to handle command 'gettext -es' below.
-export TEXTDOMAIN=tray_radio
+export TEXTDOMAIN=step
 export OUTPUT_CHARSET=UTF-8
 {
   read m_click_left
@@ -89,16 +89,17 @@ set_TRAY_TOOLTIP() #{{{1
 #%4\$s\n%5\$s"
 }
 
-play_m3u() # $1-playlist-file writes $SIT_TMPD/selected {{{1
+play_m3u() # $1-playlist-file writes $SIT_SELECTED {{{1
 {
 #DEBUG temporarily delete stderr redirection
-gtkmenuplus - >"$SIT_TMPD/exec" 2>/dev/null <<EOF
+#gtkmenuplus - >"$SIT_TMPD/exec" 2>/dev/null <<EOF
+gtkmenuplus - >"$SIT_TMPD/exec" <<EOF
 $(gtk_menu_m3u "$1")
 EOF
 # gtkmenuplus prints the command it runs, if any, at the end of its stdout,
-# from which we extract the selected station name within square brackets,
-# see PLAY_COMMAND.
-awk -F '\\[|\\]' 'END{print $2}' "$SIT_TMPD/exec" > "$SIT_TMPD/selected"
+# from which we extract the selected station name, which is within square
+# brackets, see PLAY_COMMAND.
+gawk -F '\\[|\\]' 'END{print $2}' "$SIT_TMPD/exec" > "$SIT_SELECTED"
 }
 
 gtk_menu_pls() # $1-pls-file {{{1
@@ -109,7 +110,7 @@ gtk_menu_pls() # $1-pls-file {{{1
 
 gtk_menu_m3u() # $1‐m3u-file {{{1
 # https://en.wikipedia.org/wiki/M3U
-# .m3u(m3u & extended m3u), .m3u8(unicode .m3u)
+# .m3u(m3u & extended m3u), .m3u8(unicode m3u)
 {
 # Need gawk: RS=/regex/, printf w/ positional arguments, /dev/stdin, length(array)
 gawk \
@@ -125,7 +126,7 @@ function read_lines(byVal, file, #{{{2
   RS = "a\\yb" # \y match null string at either start or end of a word
   if(file && 1 != index(file, "/"))
     file = STEM file;
-  #DEBUG
+#DEBUG
 print "read_lines("file")" > "/dev/stderr"
   if(file) {
     getline s < file
@@ -278,10 +279,10 @@ END {
 clickl() #{{{1
 {
   local selected
-  play_m3u "$SIT_PLAYLIST" # writes $SIT_TMPD/selected
+  play_m3u "$SIT_PLAYLIST" # writes $SIT_SELECTED
   # Update tooltip name of selected station.
   # Assert: station name <span> in tooltip file line 1, see $TRAY_TOOLTIP.
-  read selected < "$SIT_TMPD/selected" &&
+  read selected < "$SIT_SELECTED" &&
     [ -n "$selected" ] &&
     sed -i \
     -e '1s| *weight="[^"]*"||g' \
@@ -308,7 +309,7 @@ EOF
 usage() # [--brief|<help-option>] {{{1
 {
 # TODO i18n
-  echo "Usage: $SN [--help] [OPTIONS] [PLAYLIST'.m3u'] [PLAY-COMMAND]"
+  echo "Usage: $SN [--help] [OPTIONS] [PLAYLIST'.m3u[8]'] [PLAY-COMMAND]"
   [ "$1" = --brief ] && return
   # This script was developed and tested with:
   local pkg_name="gawk  gtkmenuplus  yad          #recommended mpg123  urxvt"
@@ -321,7 +322,7 @@ cat << EOF
 OPTIONS:
   Short options can't be combined together. '=' before option value is required.
   -h|--help[=all|=all-gui]  Print help and exit =all(extended) =all-gui(window)
-  --tray[=PLAYLIST.m3u]  Start as resident tray icon. Click icon to use.
+  --tray[=PLAYLIST.m3u[8]]  Start as resident tray icon. Click icon to use.
     When no playlist is specified search for
       '$HOME/$SN.m3u' then for '/usr/share/tray-radio/$SN.m3u'
   --version        Print $Version and exit.
@@ -330,7 +331,7 @@ Current PLAY-COMMAND:
   $PLAY_COMMAND
 Examples:
   $SN --tray=PLAYLIST.m3u [PLAY-COMMAND]
-  $SN PLAYLIST.m3u [PLAY-COMMAND]
+  $SN PLAYLIST.m3u8 [PLAY-COMMAND]
   $SN "--" "-" [PLAY-COMMAND] # playlist from stdin
 The plain and simple command "$SN" is reserved and does nothing.
 EOF
@@ -348,9 +349,11 @@ DEFAULT PLAY COMMAND - Override the default player
   [1]Command-line examples:
     $SN --tray=~/my-list.m3u 'vlc "%2\$s" # [%1\$s]"'
     $SN --tray=~/my-list.m3u 'urxvt -T "[%1\$s] - %3\$s" -geometry 60x2 -icon "%4\$s" -e mpg123 "%2\$s"'
-  where %$1\$s => station name <-- REQUIRED, WITHIN SQUARE BRACKETS
+  where %$1\$s => station name <-- REQUIRED WITHIN SQUARE BRACKETS
         %2\$s => station URL, %3\$s => scriptname, %4\$s => tray icon file
-  [2]This method is better. See section SPECIAL COMMENT LINES.
+  [2]This method is preferred. See section SPECIAL COMMENT LINES.
+  Interesting Command Examples:
+    $SN --tray=index.m3u8 'wget "%2\$s" # [%1\$s]"' # downloader menu
 PLAYLIST FILE FORMAT
   It's the Extended M3U file format, https://en.wikipedia.org/wiki/M3U.
   A radio station entry consists of two lines:
@@ -511,8 +514,9 @@ if [ -z "$SIT_TMPD" ]; then # not yet exported => parent sit
   mkdir -p "$SIT_TMPD" && chmod 700 "$SIT_TMPD" || exit 1
   trap 'case "$SIT_TMPD" in ""|/|.|..""|./*|../*) false;; esac && rm -rf "$SIT_TMPD"*' \
     HUP INT QUIT TERM ABRT 0
-  SIT_TOOLTIPF="$SIT_TMPD/tooltip" # tooltip file
-  SIT_ICONLF="$SIT_TMPD/icon" # link to icon file
+  SIT_TOOLTIPF="$SIT_TMPD/tooltip$$" # tooltip file
+  SIT_ICONLF="$SIT_TMPD/icon$$" # link to icon file
+  SIT_SELECTED="$SIT_TMPD/selected$$" # latest menu item selection
   SIT_SCRIPT=${0##*/}
 fi
 
@@ -523,7 +527,7 @@ if [ -z "$1" ]; then
   # Do not 'exit'.
 else
   case "$1" in
-    --tray|*.m3u|-) : "valid case($1)" ;;
+    --tray|*.m3u|*.m3u8|-) : "valid case($1)" ;;
     *) : "invalid case($1)"; usage >&2; exit 1 ;;
   esac
 fi
@@ -546,7 +550,7 @@ if [ -n "$1" ]; then
   [ 0 = $? ] && ln -fs "$TRAY_ICON" "$SIT_ICONLF"
   write_SIT_TOOLTIPF
 
-  export SIT_PLAYLIST SIT_PLAY_COMMAND SIT_TMPD SIT_TOOLTIPF SIT_ICONLF SIT_SCRIPT
+  export SIT_PLAYLIST SIT_PLAY_COMMAND SIT_TMPD SIT_TOOLTIPF SIT_ICONLF SIT_SCRIPT SIT_SELECTED
   if [ -n "$opt_tray" ]; then
     exec sit -i "$0" "$SIT_ICONLF" "$SIT_TOOLTIPF" clickl clickr
     exit 1
