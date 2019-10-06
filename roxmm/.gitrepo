@@ -5,7 +5,8 @@
 ;
 [subrepo]
 	remote = ../subrepo/roxmm
-	branch = master
-	commit = 
+	branch = release
+	commit = 047e3ec065993459a286ce5eb1f72e4e62649dba
 	method = merge
 	cmdver = 0.4.0
+	parent = ad7d64ca541fcfda4b5df21940057e875b5ab9b7

@@ -1,0 +1,27 @@
+1.2.0
+=====
+
+2019-10-05
+
+* New packaging.
+* Add README and manual page.
+* Replace xclip with xsel.
+* Fix SendTo/.all/ was ignored.
+* Fix sub-folders of SendTo were ignored.
+* Add menu entry "Show in ROX".
+* i18n change TEXTDOMAIN.
+* Minor fix.
+
+1.1.0
+=====
+
+(not released)
+
+1.0.0
+=====
+
+2017-02-23
+
+* First release
+
+

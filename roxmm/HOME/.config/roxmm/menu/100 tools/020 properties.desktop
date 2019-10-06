@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=_Properties
+Comment=Show Item Properties
+Exec=sh -c "for x in file \"rox -m\" \"du -sbH\" stat; do $x \"$0\"; echo; done | yad --window-icon=gtk-properties --title=\"item properties\" --text-info --mouse --width=640 --height=300 &"
+Icon=gtk-properties
+Terminal=false
+Categories=SendTo;ROXMM;
+StartupNotify=false
