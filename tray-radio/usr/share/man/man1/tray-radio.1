@@ -1,0 +1,125 @@
+.TH "TRAY-RADIO" 1 2019-09-17
+.SH tray-radio
+.LP
+Internet radio and media file tray icon menu
+.SS Target User
+.LP
+You want to select Internet radio stations and other media, from a menu using
+your existing «\f[CR].m3u\f[R]» playlists and/or URL lists.
+.LP
+You maintain your playlists as text files without extra frills.
+.LP
+You want a light-weight, quick, simple solution without flashy graphics.
+.SS Installing
+.LP
+This script can be installed and started from a command line shell prompt.
+No iconic shortcut or application menu is available.
+.LP
+First, install all dependencies \(em see section \f[I]Dependencies\f[R].
+.LP
+Then download the latest archive \f[B]attachment\f[R] from the release 
+page\f[I]:1\f[R].
+Unpack the archive into a folder of your choice.
+.LP
+From that folder run the following command «\f[CR]install/bin/install.sh\f[R]».
+This will start an interactive installer, which includes a Help screen.
+.LP
+Assuming a successful installation with default settings, you should be able to
+run «\f[CR]/usr/bin/tray-radio --tray &\f[R]» to start the tray icon.
+.LP
+\f[B]Important\f[R] \(em After having completed the installation you \f[B]must\f[R] save file «\f[CR]install.log\f[R]», which is located in folder «\f[CR]install/\f[R]», if you want to be able to
+uninstall this program in the future.  Indeed, it is recommended to save the
+whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the log file.
+.SS Dependencies
+.LP
+Install «\f[CR]gtkmenuplus\f[R]»
+\f[I]:2\f[R].
+.LP
+Optionally install the «\f[CR]mpg123\f[R]»
+\f[I]:3\f[R]
+command-line MP3 player (recommended).
+Details vary by OS distribution.
+Fatdog64 800 already includes mpg123 in the base OS.
+For Fatdog64 7xx, install the 
+package\f[I]:4\f[R]
+using the gslapt package manager.
+.LP
+Running «\f[CR]tray-radio --help=all\f[R]» will list other dependencies near the end of
+the output text.
+.SS Uninstalling
+.LP
+From the folder where you unpacked the downloaded archive run the following
+command: «\f[CR]install/bin/uninstall.sh\f[R]».
+This will start an interactive uninstaller, which includes a Help screen.
+.SS Help
+.LP
+Run one of the following lines:
+.sp 1
+.nf
+.ft CR
+tray-radio --help
+tray-radio --help=all
+tray-radio --help=all-gui
+.ft
+.fi
+.SS FILES
+.LP
+/usr/share/tray-icon/ \(em Default playlist folder
+.SS FAQ
+.sp 1.0v
+.RS
+.ti -\w'1.  'u
+1.  Can tray-radio use my preferred media player \(oqxyz\(cq?
+.RE
+.LP
+Yes. It can even use different media players in the same menu. See help topic
+\f[I]DEFAULT PLAY COMMAND\f[R].
+.sp 1.0v
+.RS
+.ti -\w'2.  'u
+2.  Can I format menu items with color, different fonts, etc.?
+.RE
+.LP
+Yes. You can apply all «\f[CR]gtkmenuplus\f[R]» formatting 
+directives\f[I]:2\f[R].
+See help topic \f[I]GTKMENUPLUS-ENTRY\f[R].
+.sp 1.0v
+.RS
+.ti -\w'3.  'u
+3.  Can I add icons to the menu?
+.RE
+.LP
+Yes. Use «\f[CR]#menu icon=\f[R]». An example is shown when you run «\f[CR]tray-radio --help=all\f[R]».
+.sp 1.0v
+.RS
+.ti -\w'4.  'u
+4.  Does tray-radio support theming?
+.RE
+.LP
+Yes. It supports GTK2 menu themes, so you can change the way the menu looks,
+and the icon set associated with the theme. See help topic \f[I]THEMING\f[R].
+.SS AUTHOR
+.LP
+step
+.SS LINKS
+.LP
+\f[B]Homepage\f[R]
+\f[I]github.com/step-/scripts-to-go\f[R]
+.LP
+\f[B]:1\f[R] release page
+\f[I]github.com/step-/scripts-to-go/releases\f[R]
+.LP
+\f[B]:2\f[R] gtkmenuplus
+\f[I]github.com/step-/gtkmenuplus\f[R]
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  formatting directives
+\f[I]blob/master/docs/menu_configuration_file_format.md\f[R]
+.RE
+.LP
+\f[B]:3\f[R] mpg123
+\f[I]mpg123.de\f[R]
+.LP
+\f[B]:4\f[R] Fatdog64 7xx «\f[CR]mpg123\f[R]» package
+\f[I]distro.ibiblio.org/fatdog/contrib/packages/710/mpg123-1.23.8-x86_64-1.txz\f[R]

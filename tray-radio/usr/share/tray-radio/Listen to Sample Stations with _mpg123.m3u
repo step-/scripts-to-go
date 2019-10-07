@@ -1,0 +1,16 @@
+#EXTM3U
+# This is /usr/share/tray-radio/Listen to Sample Stations with _mpg123.m3u
+# Don't edit this file directly.
+# Instead copy it to $HOME/tray-menu.m3u and edit the copy.
+
+# To be able to play with mpg123 first you need to install
+# * urxvt or an equivalent terminal emulator
+# * mpg123 command-line player (plays MP3 streams only)
+# For Fatdog64 mpg123 is available from the contributed repository; install it with gslapt.
+#PLAY_COMMAND urxvt -T "[%1$s] - %3$s" -geometry 60x2 -icon "%4$s" -e mpg123 "%2$s"
+
+# Optional: Add your local top stations to $HOME/radio/_TOP.m3u
+#include radio/_TOP.m3u
+
+# Sample Stations
+#include /usr/share/tray-radio/_BBC.m3u

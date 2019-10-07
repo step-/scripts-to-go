@@ -1,0 +1,16 @@
+install/bin/common.sh
+install/bin/install.sh
+install/bin/package-functions.sh
+install/bin/libterm.sh
+755	install/bin/uninstall.sh
+install/bin/view.awk
+install/changelog
+install/filelist
+install/version
+README.md
+755	usr/bin/tray-radio
+usr/share/man/man1/tray-radio.1
+usr/share/tray-radio/_BBC.m3u
+usr/share/tray-radio/Listen to Sample Stations with _Default Media Player.m3u
+usr/share/tray-radio/Listen to Sample Stations with _mpg123.m3u
+usr/share/tray-radio/tray-radio.m3u
