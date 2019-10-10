@@ -1,0 +1,72 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Quicklaunch
+Icon=gtkmenuplus
+Comment=Desktop Panel and Quicklaunch Menu
+Type=Application
+Categories=Utility;
+NoDisplay=true
+GenericName=Menu
+# Start the menu with colors that match your LXQt panel theme: (more info below).
+Exec=sh -c GTK2_RC_FILES="$(realpath\ /root/quicklaunch-user-theme-gtkrc)"\ exec\ /root/quicklaunch.gtkmenuplus
+
+# More info: file /root/quicklaunch-user-theme-gtkrc is a symbolic link. Its purpose is to
+# make the Quicklaunch menu colors harmonize with the LXQt panel application menu colors.
+# If menu color harmony is your concern, read on for details.
+#
+# Let's clarify the three key players: 1) the LXQt panel application menu (Fatdog64 button),
+# 2) the Openbox window manager menu (any application window menu and the right-click
+# desktop menu), and 3) Quicklaunch menu (this menu). The look and color of each player
+# is set by theme files located in different directories, and harmonizing colors across all
+# of them is a difficult task:
+# /usr/share/lxqt/themes/ThemeName1/
+# /usr/share/themes/ThemeName2/openbox-3/
+# /usr/share/themes/ThemeName3/gtk-2.0/
+#
+# That is the reason why you see menus that don't look quite the same; the underlying themes
+# of different desktop and application components are often mismatched.  The matching task
+# becomes even more complicated when the way to invoke Quicklaunch menu (this menu) is
+# factored in.  You may prefer to invoke Quicklaunch from the panel (via a button icon) --
+# so you expect Quicklaunch to look more like the LXQt panel application menu. Or you might
+# prefer to invoke it as part of the desktop (via a hotkey) -- so you expect Quicklaunch to
+# look more Openbox-ish.  Or you might like both, the button icon and the hotkey, so you don't
+# know what to expect due to the the conundrum: should Quicklaunch menu harmonize with Openbox
+# menus or with the LXQt panel application menu?
+# The default Quicklaunch installer's choice is the latter because I invoke Quicklauch
+# more often from the panel, although I also use a hotkey.  This is where file
+# ~/quicklaunch-user-theme-gtkrc comes into play.  That file is a symbolic link that should
+# point to a GTK2 theme file that matches your current LXQt panel theme. Such GTK2 (or
+# viceversa LXQt) themes aren't easy to find!
+#
+# The Quicklaunch installer adds two system-wide GTK2 themes that attempt to match the
+# LXQt themes supplied with Fatdog64 (just the menu part of it):
+# - /usr/share/themes/Quicklaunch-23Smokey/gtk-2.0, kind of matches theme 23Smokey
+# - /usr/share/themes/Quicklaunch-ambiance/gtk-2.0, almost matches theme ambiance.
+# Since ambiance is the default LXQt theme, the installer proceeds to point file
+# /root/quicklaunch-user-theme-gtkrc to the Quicklaunch-ambiance theme (if the link file
+# already exists the installer leaves it alone).  The end result is some harmony
+# between the Quicklaunch menu and the LXQt panel application menu.
+# If you make '23Smokey' your LXQt theme via Fatdog Control Panel > Desktop >
+# > LXQt-Panel Theme Switcher, you can re-link the Quicklaunch menu theme:
+#   ln -sf /usr/share/themes/Quicklaunch-ambiance/gtk-2.0/gtkrc /root/quicklaunch-user-theme-gtkrc
+#
+# ( and I don't know what you will choose as a matching Openbox theme via
+#   Open Fatdog Control Panel > Desktop > Openbox Configuration Manager ).
+#
+# If you changed the theme selections to something more exotic, matching all the
+# players' colors might become quite difficult. For Quicklaunch you should find
+# -- or write your own -- a GTK2 theme file that harmonizes with your new LXQt panel
+# theme *and possibly* with your Openbox theme -- the latter is obviously impossible
+# if your Openbox and LXQt panel themes don't match in the first place. Having found
+# your good-mixer GTK2 theme file, make /root/quicklaunch-user-theme-gtkrc point to
+# it, and test the result by clicking the Quicklaunch menu icon in the Desktop panel
+# or by running /root/.local/share/applications/quicklaunch.desktop (this file).
+#
+# If you want to make the Quicklaunch menu look different according to the way it's being
+# invoked, you should make a copy of this .desktop file, change the theme file path in the
+# Exec= line, and use the new .desktop file to invoke Quicklaunch, say, from a hotkey, and
+# this .desktop file for the LXQt panel button.
+
+# Note: gtkmenuplus takes care not to export the GTK2_RC_FILES value to applications
+# that are started by quicklaunch.gtkmenuplus.  This ensures that application window
+# menus will keep their default look as it should be.

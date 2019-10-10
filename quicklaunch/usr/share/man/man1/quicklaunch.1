@@ -1,0 +1,359 @@
+.TH "QUICKLAUNCH" 1 2019-10-09
+.SH quicklaunch
+.LP
+Quick-launch user menu
+.SS Target User
+.LP
+You are confortable editing a single configuration file with a text editor.
+.LP
+You want to organize your recently-used applications and documents into a
+quick-launch menu, and invoke it with a global hotkey.
+.SS Installing
+.LP
+This script can be installed and started from a command line shell prompt.
+No desktop shortcut or application menu entry is installed, but you will be
+able to invoke the menu from the LXQt desktop panel, and from a global hotkey.
+.LP
+The installer will add several files to your home folder, as well as some GTK2
+themes. The latter should be installed to «\f[CR]/\f[R]» for system-wide availability.
+.LP
+First, install all dependencies \(em see section \f[I]Dependencies\f[R].
+.LP
+Then download the latest archive \f[B]attachment\f[R] from the release 
+page\f[I]:1\f[R].
+Unpack the archive into a folder of your choice.
+.LP
+From that folder run the following command: «\f[CR]install/bin/install.sh\f[R]».
+This will start an interactive installer, which includes a Help screen.
+.LP
+Assuming a successful installation with default settings, you should be able to
+enter command \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R] in a shell prompt to display the
+default quick-launch menu.  If it is displayed then you can proceed  to read
+section 
+\f[I]Configuration\f[R]
+to learn how to assign the menu a
+global hotkey, and how to invoke the menu from LXQt panel.
+.LP
+\f[B]Important\f[R] \(em After having completed the installation you \f[B]must\f[R] save file
+«\f[CR]install.log\f[R]», which is located in folder «\f[CR]install/\f[R]», if you want to be able to
+uninstall quicklaunch in the future.  Indeed, it is recommended to save the
+whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the log file.
+.SS Dependencies
+.LP
+Install «\f[CR]gtkmenuplus\f[R]»
+\f[I]:2\f[R].
+.SS Uninstalling
+.LP
+From the folder where you unpacked the downloaded archive run the following
+command: «\f[CR]install/bin/uninstall.sh\f[R]».
+This will start an interactive uninstaller, which includes a Help screen.
+.SS Configuration
+.SS Assigning a global hotkey (optional)
+.LP
+The following instructions apply to 
+sven\f[I]:3\f[R]
+\(em the multimedia
+keyboard manager in Fatdog64 
+Linux\f[I]:4\f[R].
+They assume that key Windows+X isn\(cqt already assigned as a hotkey.
+If it is assigned, you need to disable the assignment in sven\(cqs configuration
+before re-assigning it.
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Right-click the keyboard icon \(en located in the desktop panel icon tray \(ento
+open sven\(cqs menu, and select Preferences
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click Keyboard > New > Description and type \f[I]Quicklaunch Menu Win+x\f[R]
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click inside input field Key Code with your mouse, then press keys \(lqWindows\(rq
+and \(lqX\(rq together, don\(cqt press other keys
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click inside input field Text Display with your mouse, then type \(lqMy
+quicklaunch menu\(rq
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click the Program radio button, and type: «\f[CR]/root/quicklaunch.gtkmenuplus\f[R]»
+(Change path «\f[CR]/root\f[R]» to your home path, into which you installed quicklaunch)
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click OK and close sven.
+.RE
+.LP
+Press Win+x to test the global hotkey.
+.SS Invoking quicklaunch from the desktop panel (optional)
+.LP
+The following instructions apply to LXQt panel \(em the Fatdog64
+Linux\f[I]:4\f[R]
+desktop panel.
+.LP
+Let\(cqs start by adding your quicklaunch menu as a quick-launch panel icon.
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Edit file \f[CR]\(ti/.config/lxqt/panel.conf\f[R].  If this file does not exist,
+copy the system default file «\f[CR]/etc/xdg/lxqt/panel.conf\f[R]» to
+\f[CR]\(ti/.config/lxqt/panel.conf\f[R] then edit the copy.  Find section
+«\f[CR][quicklaunch]\f[R]».  It should look something like the following text block:
+.RE
+.sp 1
+.nf
+.ft CR
+[quicklaunch]
+alignment=Left
+apps\e1\edesktop=/usr/share/applications/default-browser.desktop
+apps\e2\edesktop=/usr/share/applications/urxvt.desktop
+apps\e3\edesktop=/usr/share/applications/rox.desktop
+apps\e4\edesktop=/usr/share/applications/fatdog-control-panel.desktop
+apps/size=4
+type=quicklaunch
+.ft
+.fi
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Change «\f[CR]apps/size=4\f[R]» to «\f[CR]apps/size=5\f[R]»
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  then insert a new line above «\f[CR]apps/size=5\f[R]» and type:
+(replace path «\f[CR]/root\f[R]» with your home path, in which you installed quicklaunch):
+.RE
+.sp 1
+.nf
+.ft CR
+apps\e5\edesktop=/root/.local/share/applications/quicklaunch.desktop
+.ft
+.fi
+.LP
+Save the file and restart LXQt panel or X Windows for the changes to take
+effect.  Notice the new panel icon near the Control Panel icon.  Click it to
+display your quicklaunch menu.  The first four menu items should duplicate the
+first four panel icons.  This is so because, by default, your quicklaunch menu
+imitates the default LXQt panel «\f[CR][quicklaunch]\f[R]» configuration section.
+.LP
+Duplication can be confusing.
+You can condense all LXQt panel quick-launch icons into a single menu icon.
+Simply change the text block to:
+.sp 1
+.nf
+.ft CR
+[quicklaunch]
+alignment=Left
+apps\e1\edesktop=/root/.local/share/applications/quicklaunch.desktop
+apps\esize=1
+type=quicklaunch
+.ft
+.fi
+.LP
+Save the file and restart LXQt panel or X Windows for the changes to take
+effect.  Now only the quicklaunch icon takes up valuable panel space.
+.SS Setting a theme (optional)
+.LP
+If you did add the quicklaunch icon to the Desktop Panel, you may also want
+for the menu colors to match the Desktop Panel theme. By default, your
+quicklaunch menu uses the Onyx theme.  To apply a different theme
+edit file \f[CR]\(ti/.local/share/applications/quicklaunch.desktop\f[R],
+and read further instructions there.
+.SS Customizing the menu
+.LP
+Your menu is implemented as a 
+gtkmenuplus\f[I]:2\f[R]
+script file.  Adding a
+new menu item is relatively straightforward: specify a label for the item, the
+command it should execute, the path of an icon file. The following example adds
+two new items:
+.sp 1
+.nf
+.ft CR
+Item = _1 yad says hello world
+Cmd = yad --center --text="hello world"
+Icon = yad
+
+Item = _2 xdialog says hello world
+Cmd = Xdialog --screen-center --msgbox "hello world" 0x0
+Icon = gtk-dialog-info
+.ft
+.fi
+.LP
+Add the above text block to file \f[CR]\(ti/quicklaunch-user.gtkmenuplus\f[R].
+Then invoke the menu by clicking its icon in the desktop panel, or typing the
+quicklaunch menu global hotkey, or running \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R] in a
+shell prompt.  Either way, the menu will show the two new items. If it does
+not, you did something wrong. Then try running \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R] in a
+shell prompt and see what error messages it prints \(em if they help you
+understand what you possibly did wrong.
+.LP
+Explaining the full format of a gtkmenuplus configuration file is beyond the
+scope of this document. Read the \(lqformatting 
+directives\(dq\f[I]:2\f[R]
+manual to
+learn all that.  You can also imitate one of several items that are supplied
+in the sample user file, \f[CR]\(ti/quicklaunch-user.sample\f[R], and in the main menu
+file, \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R].
+.LP
+Recommendation: abstain from modifying the main menu file, directly because if
+you make a mistake your menu could not be displayed at all.  Instead, put all
+your changes in the user file.  Another reason for not changing the main file
+directly is that your changes would be overwritten upon updating this package.
+On the other hand, the user file never gets overwritten.
+.SH Preferred programs and the user-var file
+.LP
+Some quicklaunch items invoke the default browser and the default text editor. 
+You can change the default programs just for quicklaunch by editing the
+\f[I]user-var\f[R] file, «\f[CR]quicklaunch-user-var.gtkmenuplus\f[R]»: uncomment the settings,
+and replacing the sample values:
+.sp 1
+.nf
+.ft CR
+# defaultbrowser=firefox
+# defaulttexteditor=geany
+.ft
+.fi
+.LP
+The other lines of the user-var file affect advanced features.
+.SS Advanced features
+.SS Recent submenu
+.LP
+Since version 1.1.0, the quicklaunch menu tracks all item invocations, and adds
+them to the Recent sub-menu, and to a \(dqrecent list\(rq displayed at the bottom of
+the menu.
+.LP
+Tracked items are saved in a file named by gtkmenuplus variable
+«\f[CR]RECENTFILE\f[R]», which expands to file path \f[CR]\(ti/.gmenu2.log\f[R].  This path is
+shared with 
+gmenu2\f[I]:5\f[R]
+\(em a System and Application menu in the
+Scripts-To-Go collection.  «\f[CR]RECENTFILE\f[R]» can be set in the user-var file.
+.LP
+The number of items shown in the recent list can be configured by uncommenting
+and changing the value of gtkmenuplus variable «\f[CR]SHOW_LAST_N_COMMANDS\f[R]» in file
+user-var.  Its default value is «\f[CR]1\f[R]», which means that only the last invoked
+command is shown.
+.LP
+To exclude a specific item from being tracked \(em hence from being added to the
+recent list \(en you need to add the special string «\f[CR]@prune_this@\f[R]» to the item\(cqs
+«\f[CR]Cmd\f[R]» value. For instance, the following item is tracked:
+.sp 1
+.nf
+.ft CR
+Item = test command
+Cmd = yad --center --text="hello world"
+Icon = yad
+.ft
+.fi
+.LP
+but if you rewrite it as:
+.sp 1
+.nf
+.ft CR
+Item = test command
+Cmd = sh -c ": @prune_this@; yad --center --text=\e"hello world\e""
+.ft
+.fi
+.LP
+it stops being tracked, while producing the same practical effect as before
+(launching yad).  \(lqPruning\(rq is the technical term we use for clearing the
+recent list from items that have been marked with «\f[CR]@prune_this@\f[R]».
+Usually, pruning takes place automatically, but there could be situations in
+which you will need to prune manually; there is a menu entry in the Tools
+section for doing that.
+.LP
+The string «\f[CR]@prune_this@\f[R]» can be changed and extended. In fact, it already
+comprises the following values: \(lqReboot\(rq, \(lqRestart X\(rq, \(lqShutdown\(rq and
+\(lqSuspend\(rq, which excludes those menu labels from tracking.  The combined
+\(lqdo-not-track\(rq string is a regular expression, which can be specified in file
+user-var as variable «\f[CR]PRUNEREX\f[R]». Its default value is
+.sp 1
+.nf
+.ft CR
+PRUNEREX="@prune_this@|Item=(Reboot|Restart X|Shutdown|Suspend)"
+.ft
+.fi
+.LP
+Occasionally you may wish you could edit the Recent submenu directly. That is
+possible but its menu entry is hidden by default. To enable this feature type
+to the shell:
+\f[CR]
+\(ti/quicklaunch-user.gtkmenuplus 0 1
+\f[R]
+then select menu entry \(lqTools > Edit Recent Menu\(rq.  The file format is a bit
+obscure but essentially each menu entry ends on a line like this «\f[CR]#{}\f[R]».
+.SS ROX Bookmarks submenu
+.LP
+This is what the title says: your ROX-Filer bookmarks can be invoked from the
+quicklaunch menu.
+.SS Tools submenu
+.LP
+This submenu provides entries to
+- edit the main menu configuration file (be careful!)
+- edit the user menu configuration file
+- edit the Recent submenu (hidden by default)
+- prune the Recent submenu and recent list
+- sort the Recent submenu by different criteria.
+.SS Help
+.LP
+This file is \(lqthe\(rq help file, so keep it around for future reference
+because it isn\(cqt installed by default.  However, if the «\f[CR]man\f[R]» command is
+installed, you will be able to view these contents by running command:
+.sp 1
+.nf
+.ft CR
+man quicklaunch
+.ft
+.fi
+.LP
+and for help about gtkmenuplus directives you will run command:
+.sp 1
+.nf
+.ft CR
+man 5 gtkmenuplus
+.ft
+.fi
+.SS AUTHOR
+.LP
+step
+.SS LINKS
+.LP
+\f[B]Homepage\f[R]
+\f[I]github.com/step-/scripts-to-go\f[R]
+.LP
+\f[B]:1\f[R] release page
+\f[I]github.com/step-/scripts-to-go/releases\f[R]
+.LP
+\f[B]:2\f[R] gtkmenuplus
+\f[I]github.com/step-/gtkmenuplus\f[R]
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  formatting directives ( «\f[CR]man 5 gtkmenuplus\f[R]» )
+\f[I]blob/master/docs/menu_configuration_file_format.md\f[R]
+.RE
+.LP
+\f[B]:3\f[R] sven multimedia keyboard manager
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  source
+\f[I]distro.ibiblio.org/fatdog/source/800/sven-20190207.tar.bz2\f[R]
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  64-bit binary
+\f[I]distro.ibiblio.org/fatdog/packages/800/sven-2019.02-x86_64-1.txz\f[R]
+.RE
+.LP
+\f[B]:4\f[R] Fatdog64 Linux
+\f[I]distro.ibiblio.org/fatdog/web/\f[R]
+.LP
+\f[B]:5\f[R] Gmenu2 Fatdog64 system and application menu
+\f[I]github.com/step-/gtkmenuplus\f[R]
