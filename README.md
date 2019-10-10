@@ -1,34 +1,47 @@
+title: SCRIPTS TO GO  
+date: 2019-10-05  TODO  
+homepage: <https://github.com/step-/scripts-to-go>  
+
 # Scripts To Go
 
 _Are you sated?_
 
-I develop my scripts mostly for
-[Fatdog64 Linux](http://distro.ibiblio.org/fatdog/web/).[1]
-Fatdog64-7xx is built from _Linux From Scratch (LFS)_, and maintains
-excellent compatibility with [Puppy Linux](http://puppylinux.com/).
+## INTRO
 
-These scripts assume that the GNU versions of various shell commands are
-installed, and that GTK2+ is the GUI toolkit.
+This is a collection of scripts that I have developed and maintain for my
+personal use on Fatdog64 Linux.[:1](#LINKS).
+Originated from Puppy Linux[:2](#LINKS), nowadays Fatdog64 is built from Linux
+From Scratch (LFS)[:3](#LINKS) but still retains good compatibility with Puppy.
 
-Unless otherwise noted, the Software in this repository is licensed
-under the terms of the GNU GPL version 2 (GPLv2) license.
+Most scripts in this collection are licensed under the terms of the GNU GPL
+version 2 license --- with a few exceptions, noted in the specific scripts,
+being licensed under the MIT license.
 
-These scripts are written to be compatible with the POSIX-compliant _ash_
-shell, a [busybox](https://busybox.net/about.html) applet. The she-bang line is
-generically set as `#!/bin/sh` to simplify packaging across Linux variants. For
-scripts that require features of a specific shell, the she-bang is set to
-reflect the required shell, i.e. `#!/bin/bash`.
+The scripts assume that the GNU flavor of various shell commands is installed,
+and that GTK2+ is the GUI toolkit. Also, some scripts use [:4](#LINKS) for GUI
+dialogs --- in particular version 0.42 because it's the last version that
+supports GTK2.
 
-Scripts in this page:
+Most scripts run in the POSIX-compliant dash[:5](#LINKS) shell but are marked
+with the more generally available Bourne shell she-bang `#!/bin/sh` to simplify
+installation across Linux variants.  Scripts that require features of a specific
+shell set the she-bang to reflect that shell, e.g., `#!/bin/bash`.
 
-* [dndmate](./README.md#dndmate)
-* [fatdog-wireless-antenna](./README.md#fatdog-wireless-antenna)
-* [gmenu2](./README.md#gmenu2)
-* [gmenu2-fdcp](./README.md#gmenu2-fdcp)
-* [quicklaunch](./README.md#quicklaunch)
-* [roxmm](./README.md#roxmm)
-* [s-write-comment](./README.md#s-write-comment)
-* [tray-radio](./README.md#tray-radio)
+Since late 2019 each script, and accompanying files and documentation, is
+packaged as a tar archive, which includes an installer and uninstaller, and can
+be downloaded from the [:release](#LINKS) page.
+Scripts are occasionally updated, and a new, individual package released.
+
+## SCRIPTS
+
+* [dndmate](#dndmate)
+* [fatdog-wireless-antenna](#fatdog-wireless-antenna)
+* [gmenu2](#gmenu2)
+* [gmenu2-fdcp](#gmenu2-fdcp)
+* [quicklaunch](#quicklaunch)
+* [roxmm](#roxmm)
+* [s-write-comment](#s-write-comment)
+* [tray-radio](#tray-radio)
 
 ----
 
@@ -240,107 +253,43 @@ Smaller font and icons can be set by editing the script.
 ----
 
 <a href="quicklaunch"></a>
+
 ## quicklaunch
 
-Customizable Desktop Panel and User Menu
+Quick-launch user menu
 
-**Usage Scenarios**
+![quicklaunch icon](img/icon/quicklaunch.png) (reused gtkmenuplus[:6](#LINKS) icon)
 
-* Condensing Fatdog64 Desktop Panel icons into a single icon to free
-  some Panel real estate.
-* Displaying a quick-launch menu with a global hotkey.
-* Automatically tracking your command usage for quick re-use.
-* Keeping all customized commands in a single text file.
+[README](quicklaunch/README.md)
 
-**Installing**
+Screenshot: LXQt Panel (top) --- the four default panel icons (Browser,
+Terminal, Rox and Control panel) have migrated to the top of Quicklaunch menu
+so the Panel has more space for application icons.
+Here the Quicklaunch menu is displaying two user-added items
+(Take-a-shot and Screencaster), and three submenus
+(Recently-executed commands, Rox bookmarks and Tools).
 
-* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Run `install/install-quicklaunch.sh` from the unpacked folder.
-  `--help` is a command-line option.
-* Optionally set a global hotkey to activate the menu.
-  For the _Sven_ keyboard manager: open the Preferences dialog, select
-  **Keyboard**, **New** **Description** _Quicklaunch Menu_ **Key code**
-  _Win+x_ **Runs** Program _/root/quicklaunch.gtkmenuplus_.
+Themes: Fatdog64-802 default LXQt Panel theme (ambiance) with the
+Quicklaunch-ambiance menu theme.
 
-Optionally, replace multiple Desktop Panel icons with a single icon that
-starts the quicklauch menu. Instructions for LXQt Panel users:
-Edit file _~/.config/lxqt/panel.conf_.  If you don't have this
-file, copy the system default file _/etc/xdg/lxqt/panel.conf_ to
-_~/.config/lxqt/panel.conf_ then edit the latter.  Look for section
-`[quicklaunch]`. By default in Fatdog64-710 it looks like this:
-
-```
-[quicklaunch]
-type=quicklaunch
-apps/size=4
-apps\1\desktop=/usr/share/applications/default-browser.desktop
-apps\2\desktop=/usr/share/applications/urxvt.desktop
-apps\3\desktop=/usr/share/applications/rox.desktop
-apps\4\desktop=/usr/share/applications/fatdog-control-panel.desktop
-```
-
-It may look differently on your system if you have customized your LXQt
-panel.  Change the above to:
-
-```
-[quicklaunch]
-type=quicklaunch
-apps\size=1
-apps\1\desktop=/root/.local/share/applications/quicklaunch.desktop
-```
-
-Then restart X for the changes to take effect. Now your LXQt panel
-should include just one icon, and when you click it a menu for the four
-default icons that your replaced should be displayed.  Should you want
-different menu items edit file _~/quicklaunch.gtkmenuplus_.
-
-If you did add the quicklaunch icon to the Desktop Panel, you may also
-want for the menu colors to match the Desktop Panel theme. How to do so
-is explained in _~/.local/usr/share/applications/quicklaunch.desktop_,
-which sets the Onyx theme by default. If your desktop uses a different
-theme edit _quicklaunch.desktop_.  Instructions are given in the file.
-
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
-
-**Help** - Read section `---- Help ----` of file _~/quicklaunch.desktop_.
-
-**Screenshot**
-
-The Quicklaunch Menu icon is installed in LXQt Panel, the vertical bar
-on the left side), and replaces the default set of application icons;
-Default Web Browser, Rxvt-Unicode, ROX Filer and Fatdog64 Control
-Panel. The Panel bar is unincumbered while the default applications
-can still be accessed as menu items. Moreover, there is a sub-menu of
-ROX Filer bookmarks, and an automatically-updated sub-menu of "Recent"
-command invocations. Those are the commands that the user invokes
-frequently through Quicklaunch.  In this picture, Quicklaunch sports the
-Onyx theme.
-
-![Screenshot](img/quicklaunch.png)
+![Screenshot](img/quicklaunch-800.png)
 
 ----
 
 <a href="roxmm"></a>
+
 ## roxmm
 
-ROX-Filer SendTo Menu Look-Alike
+ROX-Filer SendTo menu emulator
 
-**Installing**
+![roxmm icon](img/icon/roxmm.png) (reused gtkmenuplus[:6](#LINKS) icon)
 
-* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Run `install/install-roxmm.sh` from the unpacked folder.
-  `--help` is a command-line option.
+[README](roxmm/README.md)
 
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
+Right - actual rox SendTo menu.
+Left - roxmm emulated menu. Note the tooltip and the Tools menu.
 
-**Help** - `roxmm --help`
-
-**Screenshot**
-
-Right - rox SendTo menu. Left - corresponding roxmm menu. Note tooltip
-and Tools menu.
-
-![Screenshot](img/roxmm.png)
+![roxmm screenshot](img/roxmm.png)
 
 ----
 
@@ -382,63 +331,46 @@ Screenshot of version 1.0.0.
 ----
 
 <a href="tray-radio"></a>
+
 ## tray-radio
 
-Internet Radio (and Media File) Tray Icon Menu
+Internet radio and media file tray icon menu
 
-**Target User**
+![tray-radio icon](img/icon/tray-radio.png)
 
-* You want to select Internet radio stations, and other media files, from a
-  menu that uses your existing `.m3u` playlists and URL list files.
-* You don't need a flashy graphical window; you want a light-weight, quick,
-  simple-to-configure solution.
-* You like to configure your media lists using text files and nothing more.
+[README](tray-radio/README.md)
 
-**Installing**
-
-* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Run `install/install-tray-radio.sh` from the unpacked folder.
-  `--help` is a command-line option.
-* Run `tray-radio --tray &` in a terminal window to start the tray icon.
-
-**Dependencies**
-
-* [gtkmenuplus](https://github.com/step-/gtkmenuplus).
-
-* Run `tray-radio --help=all` to list other script dependencies, which are shown
-  near the end of the output text.
-
-* Optionally install the _mpg123_ command-line MP3 player (recommended). For Fatdog64,
-  [mpg123](http://distro.ibiblio.org/fatdog/contrib/packages/710/mpg123-1.23.8-x86_64-1.txz)
-  can be installed using the gslapt package manager.
-
-**Help** - `tray-radio --help`, `tray-radio --help=all`, `tray-radio --help=all-gui`
-
-**FAQ**
-
-1. Can tray-radio use my preferred media player 'xyz'?
-
-Yes. It can even use different media players in the same menu. See help topic
-_DEFAULT PLAY COMMAND_.
-
-2. Can I format menu items with color, different fonts, etc. ?
-
-Yes. You can apply all
-[gtkmenuplus](https://github.com/step-/gtkmenuplus) formatting
-[directives](https://github.com/step-/gtkmenuplus/blob/master/docs/menu_configuration_file_format.txt).
-See help topic _GTKMENUPLUS-ENTRY_.
-
-3. Can I add icons to the menu?
-
-Yes. Use `#menu icon=`. An example is shown when you run `tray-radio --help=all`.
-
-4. Does tray-radio support theming?
-
-Yes. It supports GTK2 menu themes, so you can change the way the menu looks,
-and the icon set associated with the theme. See help topic _THEMING_.
-
-**Screenshot**
-
-![Screenshot](img/tray-radio.gif)
+![tray-radio screenshot](img/tray-radio.gif)
 
 ----
+
+<a name="LINKS">
+
+## LINKS
+
+**Homepage**
+[github.com/step-/scripts-to-go](https://github.com/step-/scripts-to-go)
+
+**Release packages**
+[github.com/step-/scripts-to-go/releases](https://github.com/step-/scripts-to-go/releases)
+
+**:1** Fatdog64 Linux
+[distro.ibiblio.org/fatdog/web/](http://distro.ibiblio.org/fatdog/web/)
+
+**:2** Puppy Linux
+[puppylinux.com/](http://puppylinux.com/)
+
+**:3** Linux From Scratch
+[www.linuxfromscratch.org](https://www.linuxfromscratch.org)
+
+**:4** yad GUI dialog
+[github.com/v1cont/yad)[yad](https://github.com/v1cont/yad)
+
+**:5** dash shell
+[www.mankier.com/1/dash](https://www.mankier.com/1/dash)
+
+**:6** gtkmenuplus
+[github.com/step-/gtkmenuplus](https://github.com/step-/gtkmenuplus)
+
+**:x** busybox
+[busybox.net/about.html](https://busybox.net/about.html)
