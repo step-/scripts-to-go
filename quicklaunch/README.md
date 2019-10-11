@@ -22,7 +22,7 @@ able to invoke the menu from the LXQt desktop panel, and from a global hotkey.
 The installer will add several files to your home folder, as well as some GTK2
 themes. The latter should be installed to `/` for system-wide availability.
 
-First, install all dependencies --- see section _Dependencies_.
+First, install all dependencies, see [Dependencies](#dependencies).
 
 Then download the latest archive **attachment** from the release page[:1](#LINKS).
 Unpack the archive into a folder of your choice.
@@ -41,9 +41,13 @@ global hotkey, and how to invoke the menu from LXQt panel.
 uninstall quicklaunch in the future.  Indeed, it is recommended to save the
 whole folder `install/`, which holds the uninstall program and the log file.
 
+<a name="dependencies"></a>
+
 ## Dependencies
 
 Install `gtkmenuplus`[:2](#LINKS).
+
+* Since version 800, Fatdog64 includes gtkmenuplus; no need to install it again.
 
 ## Uninstalling
 
@@ -175,7 +179,7 @@ On the other hand, the user file never gets overwritten.
 
 # Preferred programs and the user-var file
 
-Some quicklaunch items invoke the default browser and the default text editor. 
+Some quicklaunch items invoke the default browser and the default text editor.
 You can change the default programs just for quicklaunch by editing the
 _user-var_ file, `quicklaunch-user-var.gtkmenuplus`: uncomment the settings,
 and replacing the sample values:

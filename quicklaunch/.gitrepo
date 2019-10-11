@@ -6,7 +6,7 @@
 [subrepo]
 	remote = ../subrepo/quicklaunch
 	branch = release
-	commit = 13396934492ed7a4bdf53b3db6a9dad758e95e69
+	commit = 8e8c013b5edc76adea2202fd9dbaa080a4299611
 	method = merge
 	cmdver = 0.4.0
-	parent = ad7d64ca541fcfda4b5df21940057e875b5ab9b7
+	parent = 54772f12aedd0ed306cceec5ea291bd7da31ca4e
