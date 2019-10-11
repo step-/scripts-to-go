@@ -467,6 +467,10 @@ if [ yes-yes-yes = "$HOME_NEEDED-$CAN_WRITE_HOME-$CAN_CHANGE_HOME" ]; then
   Suffix=$(date +%Y%m%d%H%M%S)
   while read p; do
 
+    # the chmod MODE that functions {copy_file_to,make}_dest will set
+    set_MODE "$p"
+    p=${p#$MODE$TAB}
+
     # Install HOME only
     case $p in
       HOME/* )

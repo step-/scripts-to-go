@@ -45,6 +45,8 @@ whole folder `install/`, which holds the uninstall program and the log file.
 
 Install `gtkmenuplus`[:2](#LINKS).
 
+* Since version 800, Fatdog64 already includes gtkmenuplus; no need to install it again.
+
 ## Uninstalling
 
 From the folder where you unpacked the downloaded archive run the following
