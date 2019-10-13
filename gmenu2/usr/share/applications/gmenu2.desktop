@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=_Gmenu2
+GenericName=Stand-alone extended application menu
+Comment=Stand-alone extended application menu
+Exec=gmenu2
+Icon=gmenu2
+Terminal=false
+Categories=X-Desktop;GTK;
