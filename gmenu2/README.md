@@ -46,7 +46,7 @@ but as long as the menu is displayed all is good.
 uninstall quicklaunch in the future.  Indeed, it is recommended to save the
 whole folder `install/`, which holds the uninstall program and the log file.
 
-<a name="dependencie"></a>
+<a name="dependencies"></a>
 
 ## Dependencies
 
