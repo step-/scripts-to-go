@@ -169,53 +169,28 @@ Screenshot of version 1.0.0. In version 1.1.0 column "Details" replaces column "
 ----
 
 <a href="gmenu2"></a>
+
 ## gmenu2
 
-Fatdog64 System and Application Menu
+Stand-alone extended application menu
 
-**Usage Scenarios**
+![gmenu2 icon](img/icon/gmenu2.png) (reused gtkmenuplus[:6](#LINKS) icon)
 
-* Replacing the out-of-the-box Fatdog64 System menu because you don't
-  use the Openbox and JWM window managers.
-* Displaying the system menu with a global hotkey.
+[README](gmenu2/README.md)
 
-**Installing**
+Screenshot: Gmenu2 showing the traditional Fatdog64 application categories,
+as well as its own submenus 'Wine', 'Uncategorized', 'Recent', and 'Gmenu2'.
+If [gmenu2-fdcp](#gmenu2-fdcp) was installed, a 'Control Panel' submenu would
+be shown, too.
+The 'Recent' submenu tracks command activations for quick re-use.
+Recent items are shared with [quicklaunch](#quicklaunch).
 
-* Download and unpack the repository snapshot
-  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Run `install/install-gmenu2.sh` from the unpacked folder.
-  `--help` is a command-line option.
-* Optionally set a global hotkey to activate the menu.
-  For the _Sven_ keyboard manager: open the Preferences dialog, select
-  **Keyboard**, **New** **Description** _System Menu_ **Key code**
-  _Win+s_ **Runs** Program _gmenu2_.
-* See also script _gmenu2-fdcp_ in this repository.
-* Run `gmenu2` from a terminal window to display the menu.
-
-**Extensions**
-
-If gmenu2 finds script `gmenu2-fdcp` somewhere in the `PATH` it
-automatically adds menu entries for all Fatdog64 control panel items.
-
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
-
-**Help** - Hover over menu entries for tooltip help.
-
-**Thanks** - Gmenu2 was inspired by SFR's GMenu script.
-
-**Screenshot**
-
-Note the typical Puppy Linux system sub-menus, and the additional
-'Wine', 'Uncategorized', 'Recent', and 'Gmenu2' sub-menus.  'Recent'
-automatically tracks item and launcher activations for quick re-use.
-Recent items are shared with _quicklaunch_, another menu script in this
-repository.
-
-![Screenshot](img/gmenu2.png)
+![gmenu2 screenshot](img/gmenu2.png)
 
 ----
 
 <a href="gmenu2-fdcp"></a>
+
 ## gmenu2-fdcp
 
 Fatdog64 Control Panel As a Menu
@@ -336,7 +311,7 @@ Screenshot of version 1.0.0.
 
 Internet radio and media file tray icon menu
 
-![tray-radio icon](img/icon/tray-radio.png)
+![tray-radio icon](img/icon/tray-radio.png) .
 
 [README](tray-radio/README.md)
 
