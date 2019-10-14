@@ -178,9 +178,10 @@ Stand-alone extended application menu
 
 [README](gmenu2/README.md)
 
-Screenshot: Gmenu2 showing the traditional Fatdog64 application categories,
+Screenshot:
+gmenu2 showing the traditional Fatdog64 application categories,
 as well as its own submenus 'Wine', 'Uncategorized', 'Recent', and 'Gmenu2'.
-If [gmenu2-fdcp](#gmenu2-fdcp) was installed, a 'Control Panel' submenu would
+If [gmenu2-fdcp](#gmenu2-fdcp) is installed, a 'Control Panel' submenu will
 be shown, too.
 The 'Recent' submenu tracks command activations for quick re-use.
 Recent items are shared with [quicklaunch](#quicklaunch).
@@ -193,37 +194,17 @@ Recent items are shared with [quicklaunch](#quicklaunch).
 
 ## gmenu2-fdcp
 
-Fatdog64 Control Panel As a Menu
+Stand-alone Fatdog64 control menu (also [gmenu2](#gmenu2) extension)
 
-**Usage Scenarios**
+![gmenu2-fdcp icon](img/icon/gmenu2-fdcp.png) .
 
-* Quickly viewing and running the many system functions that the
-  Fatdog64 Control Panel provides.
-* Displaying a Control Panel menu with a global hotkey.
+[README](gmenu2-fdcp/README.md)
 
-**Installing**
+Screenshot:
+Gmenu2-fdcp control menu displaying the default large font and 32-pixel icons
+(resizable) on Fatdog64 700.
 
-* Download and unpack the repository snapshot [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Run `install/install-gmenu1-fdcp.sh` from the unpacked folder.
-  `--help` is a command-line option.
-* Optionally set a global hotkey to activate the menu.
-  For the _Sven_ keyboard manager: open the Preferences dialog, select
-  **Keyboard**, **New** **Description** _Control Panel Menu_ **Key code**
-  _Win+p_ **Runs** Program _gmenu1-fdcp_.
-* This script works stand-alone and also as an embeddable module in
-  another gtkmenuplus menu. See script _gmenu1_ in this repository.
-* For stand-alone use, run `gmenu2-fdcp` from a terminal window.
-
-**Dependencies** - [gtkmenuplus](https://github.com/step-/gtkmenuplus).
-
-**Help** - `gmenu2-fdcp --help`
-
-**Screenshot**
-
-Fatdog64 control menu with default large font and 32-pixel icons.
-Smaller font and icons can be set by editing the script.
-
-![Screenshot](img/gmenu2-fdcp.png)
+![gmenu2-fdcp screenshot](img/gmenu2-fdcp.png)
 
 ----
 
