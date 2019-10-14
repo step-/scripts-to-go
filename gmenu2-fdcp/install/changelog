@@ -1,0 +1,24 @@
+1.1.0
+=====
+
+2019-10-13
+
+* New packaging.
+* Add README and manual page.
+* Add option --icon-size.
+* Some performance improvements.
+
+1.0.1
+=====
+
+2017-01-06
+
+* Works as gmenu2 extension.
+
+1.0.0
+=====
+
+2016-10-16
+
+* First release.
+

@@ -1,0 +1,15 @@
+install/bin/common.sh
+755	install/bin/install.sh
+install/bin/package-functions.sh
+install/bin/libterm.sh
+755	install/bin/uninstall.sh
+install/bin/view.awk
+install/changelog
+install/filelist
+install/version
+README.md
+755	usr/bin/gmenu2-fdcp
+usr/share/applications/gmenu2-fdcp.desktop
+usr/share/icons/hicolor/scalable/apps/gmenu2-fdcp.svg
+usr/share/icons/hicolor/96x96/apps/gmenu2-fdcp.png
+usr/share/man/man1/gmenu2-fdcp.1

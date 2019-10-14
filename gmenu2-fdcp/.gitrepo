@@ -5,7 +5,8 @@
 ;
 [subrepo]
 	remote = ../subrepo/gmenu2-fdcp
-	branch = master
-	commit = 
+	branch = release
+	commit = 5afd60ab203a22cb007828e76ae34413787e585b
 	method = merge
 	cmdver = 0.4.0
+	parent = 3853329254cfaab2fd50e6f6396f985883d0e061

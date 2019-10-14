@@ -1,0 +1,171 @@
+.TH "GMENU2-FDCP" 1 2019-10-13
+.SH gmenu2-fdcp
+.LP
+Stand-alone Fatdog64 control menu (also gmenu2 extension)
+.SS Intended Use
+.LP
+As a stand-alone menu equivalent to the Fatdog64 control panel for
+Fatdog64 700-721 users.
+.LP
+As a 
+gmenu2\f[I]:6\f[R]
+extension.
+.SS Installing
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Fatdog64 800 already provides a very similar Control Menu.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  As a gmenu2 extension this script is only needed for Fatdog64 «\f[CR]<=\f[R]» 802.
+.RE
+.LP
+This script can be installed from a command line shell prompt.
+It should be installed to «\f[CR]/\f[R]» for system-wide availability.
+.LP
+It can be started from a shell prompt.  The installer also adds a \(lqFatdog64
+Control Menu (gmenu2-fdcp)\(rq entry in section \(lqSetup\(rq of the system application menu.
+.LP
+First, install all dependencies, see 
+\f[I]Dependencies\f[R].
+.LP
+Then download the latest archive \f[B]attachment\f[R] from the release 
+page\f[I]:1\f[R].
+Unpack the archive into a folder of your choice.
+.LP
+From that folder run the following command: «\f[CR]install/bin/install.sh\f[R]».
+This will start an interactive installer, which includes a Help screen.
+.LP
+Assuming a successful installation with default settings, enter command
+«\f[CR]gmenu2-fdcp\f[R]» in a shell prompt to display the control menu.
+.LP
+\f[B]Important\f[R] \(em After having completed the installation you \f[B]must\f[R] save file
+«\f[CR]install.log\f[R]», which is located in folder «\f[CR]install/\f[R]», if you want to be able to
+uninstall gmenu2-fdcp in the future.  Indeed, it is recommended to save the
+whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the log file.
+.SS Dependencies
+.LP
+Install «\f[CR]gtkmenuplus\f[R]»
+\f[I]:2\f[R].
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Since version 800, Fatdog64 includes gtkmenuplus; no need to install it again.
+.RE
+.SS Uninstalling
+.LP
+From the folder where you unpacked the downloaded archive run the following
+command: «\f[CR]install/bin/uninstall.sh\f[R]».
+This will start an interactive uninstaller, which includes a Help screen.
+.SS Configuration
+.SS Assigning a global hotkey (optional)
+.LP
+The following instructions apply to 
+sven\f[I]:3\f[R]
+\(em the multimedia
+keyboard manager in Fatdog64 
+Linux\f[I]:4\f[R].
+They assume that key Windows+m isn\(cqt already assigned as a hotkey.
+If it is assigned, you need to disable the assignment in sven\(cqs configuration
+before re-assigning it.
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Right-click the keyboard icon \(en located in the desktop panel icon tray \(ento
+open sven\(cqs menu, and select Preferences
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click Keyboard > New > Description and type \f[I]Stand-alone Control Menu Win+m\f[R]
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click inside input field Key Code with your mouse, then press keys \(lqWindows\(rq
+and \(lqm\(rq together, don\(cqt press other keys
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click inside input field Text Display with your mouse, then type \(lqSystem and
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Applications\(rq
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click the Program radio button, and type: «\f[CR]gmenu2-fdcp\f[R]»
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click OK and close sven.
+.RE
+.LP
+Press Win+m to test the global hotkey.
+.SS Setting a theme (optional)
+.LP
+If «\f[CR]quicklaunch\f[R]»
+\f[I]:5\f[R]
+is installed, you can theme the gmenu2 menu using
+the themes and instructions provided with the quicklaunch package.
+.SS Help
+.LP
+For a short usage summary run the following line:
+.sp 1
+.nf
+.ft CR
+gmenu-fdcp --help
+.ft
+.fi
+.LP
+This file is \(lqthe\(rq help file, so keep it around for future reference
+because it isn\(cqt installed by default.  However, if the «\f[CR]man\f[R]» command is
+installed, you will be able to view these contents by running command:
+.sp 1
+.nf
+.ft CR
+man gmenu2-fdcp
+.ft
+.fi
+.SS AUTHOR
+.LP
+step
+.SS LINKS
+.LP
+\f[B]Homepage\f[R]
+\f[I]github.com/step-/scripts-to-go\f[R]
+.LP
+\f[B]:1\f[R] release page
+\f[I]github.com/step-/scripts-to-go/releases\f[R]
+.LP
+\f[B]:2\f[R] gtkmenuplus
+\f[I]github.com/step-/gtkmenuplus\f[R]
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  formatting directives ( «\f[CR]man 5 gtkmenuplus\f[R]» )
+\f[I]blob/master/docs/menu_configuration_file_format.md\f[R]
+.RE
+.LP
+\f[B]:3\f[R] sven multimedia keyboard manager
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  source
+\f[I]distro.ibiblio.org/fatdog/source/800/sven-20190207.tar.bz2\f[R]
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  64-bit binary
+\f[I]distro.ibiblio.org/fatdog/packages/800/sven-2019.02-x86_64-1.txz\f[R]
+.RE
+.LP
+\f[B]:4\f[R] Fatdog64 Linux
+\f[I]distro.ibiblio.org/fatdog/web/\f[R]
+.LP
+\f[B]:5\f[R] Quicklaunch user menu
+\f[I]github.com/step-/gtkmenuplus\f[R]
+.LP
+\f[B]:6\f[R] Gmenu2: Stand-alone extended application menu
+\f[I]github.com/step-/gtkmenuplus\f[R]

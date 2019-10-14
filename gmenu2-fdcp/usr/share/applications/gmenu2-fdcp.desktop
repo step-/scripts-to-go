@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=Fatdog64 Control Menu
+GenericName=gmenu2-fdcp
+Comment=A menu collecting several system utilities
+Exec=gmenu2-fdcp
+Icon=gmenu2-fdcp
+Terminal=false
+Categories=Setup;PackageManager;
