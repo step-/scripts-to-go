@@ -6,7 +6,7 @@
 [subrepo]
 	remote = ../subrepo/gmenu2
 	branch = release
-	commit = 4a49c32cbbc84474c6642c00f400ba340d150ba7
+	commit = c6e157db5f13b9c7b3bdc91cc99569028d427333
 	method = merge
 	cmdver = 0.4.0
-	parent = 2438e349d6622434fb57f0a2a323bb7f0a712e3d
+	parent = 69647d59633cd75794a2f13ce5b51cb6ce2d48a8

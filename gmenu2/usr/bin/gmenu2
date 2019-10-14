@@ -567,8 +567,9 @@ function add_fdcp803_submenu(   s, rs, x) # [[[2
 {
   if (0 < (getline s < (x = "/etc/fatdog-version"))) {
     close(x)
-    if (s +0 < 803)
-      return -1 # Fatdog64 version too old
+  }
+  if (s +0 < 803) {
+    return -1 # Fatdog64 version too old or not on Fatdog64
   }
   rs = RS; RS = "\x1\x2\x3"
   x = "fatdog-control-panel.sh --menu --menu-export-to=-"

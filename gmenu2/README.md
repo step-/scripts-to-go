@@ -43,7 +43,7 @@ but as long as the menu is displayed all is good.
 
 **Important** --- After having completed the installation you **must** save file
 `install.log`, which is located in folder `install/`, if you want to be able to
-uninstall quicklaunch in the future.  Indeed, it is recommended to save the
+uninstall gmenu2 in the future.  Indeed, it is recommended to save the
 whole folder `install/`, which holds the uninstall program and the log file.
 
 <a name="dependencies"></a>
