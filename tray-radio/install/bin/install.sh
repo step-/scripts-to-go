@@ -27,6 +27,7 @@ OPTIONS:
   --skip-home   skip installing to /Home
   --skip-no     skip installing to /Destination when it fails the
                 test ('NO'); likewise skip installing to /Home
+  --unattended  install without questions with default options
   --verbose     report each file copy
   --            stop processing OPTIONS
 FILES:
@@ -48,13 +49,14 @@ EOF
 }
 
 # Parse options. {{{1
-unset opt_help opt_skip_dest opt_skip_home opt_skip_no opt_verbose
+unset opt_help opt_skip_dest opt_skip_home opt_skip_no UNATTENDED_RUN opt_verbose
 for a; do
   case $a in
     -h|--help) opt_help=1 ;;
     --skip-dest) opt_skip_dest=1 ;;
     --skip-home) opt_skip_home=1 ;;
     --skip-no) opt_skip_no=1 ;;
+    --unattended) export UNATTENDED_RUN=1 ;;
     --verbose) opt_verbose=1 ;;
     --) shift; break ;;
     -*) echo "Unknown option $a" >&2; exit 1 ;;
@@ -99,6 +101,8 @@ log_start() { # {{{1
     # keep STATUS last
   log start \
     "DATETIME=$(date +"%F %T")" \
+    "DISPLAY=$DISPLAY" \
+    "FATDOG_VERSION=$FATDOG_VERSION" \
     "STATUS=" \
     ;
 }
@@ -222,6 +226,12 @@ log_test() { # {{{1
 
 test_any_NO() { # {{{1
   [ "$CAN_WRITE_DEST" = NO -o "$CAN_WRITE_HOME" = NO -o "$CAN_CHANGE_HOME" = NO ]
+}
+
+set_FATDOG_VERSION() { # {{{1
+  if [ -e /etc/fatdog-version ]; then
+    read FATDOG_VERSION < /etc/fatdog-version
+  fi
 }
 
 set_SKIP_DEST() { # {{{1
@@ -467,6 +477,10 @@ if [ yes-yes-yes = "$HOME_NEEDED-$CAN_WRITE_HOME-$CAN_CHANGE_HOME" ]; then
   Suffix=$(date +%Y%m%d%H%M%S)
   while read p; do
 
+    # the chmod MODE that functions {copy_file_to,make}_dest will set
+    set_MODE "$p"
+    p=${p#$MODE$TAB}
+
     # Install HOME only
     case $p in
       HOME/* )
@@ -520,11 +534,37 @@ call_if_defined() { # {{{1
   return $ret
 }
 
+# make lx-qt panel rebuild its menu on Fatdog64 {{{1}}}
+# $FILELIST $FATDOG_VERSION <=
+rebuild_lxqt_panel_menu() { # {{{1
+  if ! [ "$DISPLAY" ]; then
+    : "no X desktop"
+    return
+  fi
+  if ! grep -qm1 "\.desktop$" "$FILELIST"; then
+    : "no new applications installed"
+    return
+  fi
+  if [ ${FATDOG_VERSION:-0} -lt 800 ] ; then
+    : "no lxqt panel or not Fatdog64"
+    return
+  elif [ $FATDOG_VERSION -le 802 ]; then
+    if [ -e $HOME/.local/share/applications/defaults.list ]; then
+      touch $HOME/.local/share/applications/defaults.list
+    fi
+  else
+    if [ -e /tmp/rebuild-lxqt-panel-menu ]; then
+      touch /tmp/rebuild-lxqt-panel-menu
+    fi
+  fi
+}
+
 # Main {{{1}}}
 
 set_traps_and_TMPD
 trap 'echo; print_reverse -p "Nothing installed (test failed)"; exit' USR1
 
+set_FATDOG_VERSION
 log_start
 log_args
 
@@ -554,7 +594,7 @@ echo
 # Test passed: confirm installation?
 unset prompt
 case $SKIP_DEST/$SKIP_HOME in
-  /   ) prompt="Confirm '$DEST_DIR'${HOME_DIR:+ and "'"$HOME_DIR"'"} ?";;
+    / ) prompt="Confirm '$DEST_DIR'${HOME_DIR:+ and "'"$HOME_DIR"'"} ?";;
   1/  ) prompt="Confirm ${HOME_DIR:-nothing to do} ?";;
   /1  ) prompt="Confirm '$DEST_DIR' ?";;
   1/1 ) prompt="Confirm nothing to do ?";;
@@ -564,14 +604,16 @@ prompt_install
 get_this_keypress_or_exit I prompt_install
 echo
 echo "Start"
-
+#######
 set -ef
-
+#######
 log install "$(date "+%F %T")" # don't change "%F %T"
 
 install_to_dest_dir
 
 install_to_home_dir
+
+rebuild_lxqt_panel_menu
 
 log end
 echo "Installed"
