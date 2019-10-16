@@ -15,6 +15,7 @@ usage() { # {{{1
   cat << EOF
 OPTIONS:
   -h, --help    show help then exit immediately
+  --unattended  uninstall without questions with default options
   --verbose     report each file removal
   --            stop processing OPTIONS
 FILES:
@@ -36,10 +37,11 @@ EOF
 }
 
 # Parse options. {{{1
-unset opt_help opt_verbose
+unset opt_help UNATTENDED_RUN opt_verbose
 for a; do
   case $a in
     -h|--help) opt_help=1 ;;
+    --unattended) export UNATTENDED_RUN=1 ;;
     --verbose) opt_verbose=1 ;;
     --) shift; break ;;
     -*) echo "Unknown option $a" >&2; exit 1 ;;
@@ -81,8 +83,8 @@ prompt_continue() { # {{{1
 
 # => $SELECTED_SESSION {{{1}}}
 # Set SELECTED_SESSION = "<index> <unique datetime>"
-# <index> == 0 => no more sessions left to uninstall
-# <index>  < 0 => disabled session selected
+# <index> == NO_MORE   => no more sessions left to uninstall
+# <index> =~ D<number> => disabled session selected
 set_SELECTED_SESSION() { # {{{1
 
   ### extract status and datetime, one per line, from the log file
@@ -94,7 +96,7 @@ set_SELECTED_SESSION() { # {{{1
   ### show the user the result list from the STATUS/FEATURE query
 
   set_PROMPT
-  local datetime col_datetime status col_status default=0 n_max=0 p x
+  local datetime col_datetime status col_status default=NO_MORE n_max=0 p x
   {
   print_reverse -p "Install sessions:"
   while read status; do
@@ -119,8 +121,9 @@ set_SELECTED_SESSION() { # {{{1
   done < "$resf"
 
   printf "%s %s\n%s\n" $default $n_max "${disabled# }" > "$TMPD"/selected
-  if [ 0 = $default ]; then
-    kill -USR1 $$ # suicide visible after more ends
+  if [ NO_MORE = $default ]; then
+    kill -USR1 $$ # suicide visible after pager 'more' ends
+    default=0     # cosmetic for %d below
   fi
   printf "${PROMPT}""Which session do you want to uninstall? (enter a number) [%d]""\n" $default
   } | {
@@ -128,30 +131,34 @@ set_SELECTED_SESSION() { # {{{1
     prompt_continue
   }
 
-  ### retrieve selected index (and session count) from the above sub-shell
+  # retrieve return values from the above sub-shell
 
   { read default n_max; read disabled; } < "$TMPD"/selected # default index [%d]
   unset SELECTED_SESSION
 
   # no more sessions left to uninstall?
-  if [ 0 = "$default" ]; then return; fi
+  if [ NO_MORE = "$default" ]; then return; fi
 
-  if read x 2>/dev/null; then
+  ### get user input (x)
+
+  x=DEFAULT
+  if ! [ "$UNATTENDED_RUN" ]; then
+    # read user input: [<number>] ENTER
+    read x
+  fi
 
     # disabled session selected?
     for p in $disabled; do
-      if [ "$x" = "$p" ]; then x="-$x"; fi
+      if [ "$x" = "$p" ]; then x="D$x"; fi
     done
 
     case $x in
-      -* ) : disabled session ;;
+      D[0-9]* ) : disabled session ;;
       [1-9]|[1-9][0-9]|[1-9][0-9][0-9] )
         if [ "$x" -gt "$default" ]; then x=$default; fi ;;
-      * )
+      '' | DEFAULT )
         x=$default ;;
     esac
-  fi
-
   SELECTED_SESSION="$x $($AWK "NR==$(($x*2))" "$resf")"
 }
 
@@ -223,7 +230,6 @@ undo_copy() { # {{{1
   esac
 }
 
-# Main {{{1}}}
 # $1-session-DATETIME $2-status {{{1}}}
 update_session_status() { # {{{1
   $AWK -v DATETIME="$1" -v STATUS="$2" '#{{{awk
@@ -238,11 +244,12 @@ update_session_status() { # {{{1
   #awk}}}' "$LOGFILE"
 }
 
+# Main {{{1}}}
 set_traps_and_TMPD
 trap 'echo; print_reverse -p "No installed sessions found."; exit' USR1
-
+#######
 set -ef
-
+#######
 VIEW="${0%uninstall.sh}view.awk"
 
 warn_unless_logfile_writable \
@@ -252,7 +259,7 @@ while :; do
   set_SELECTED_SESSION
   case $SELECTED_SESSION in
     '' ) exit ;;
-    -* ) continue ;;
+    D[0-9]* ) continue ;; # disabled session selected
   esac
   print_reverse -p "Confirm uninstalling session $SELECTED_SESSION ?"
   prompt_uninstall

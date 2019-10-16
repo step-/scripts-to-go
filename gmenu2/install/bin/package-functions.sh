@@ -36,13 +36,9 @@ EOF
 #   print_reverse "*** triggers right before installing to /Destination/Dir"
 # }
 
-package_post_install_dest () {
+# package_post_install_dest () {
 #   print_reverse "*** triggers right after installing to /Destination/Dir"
-  if [ "$DISPLAY" ] && [ -e $HOME/.local/share/applications/defaults.list ]; then
-    # backport fix for LXQt panel doesn't show new .desktop file
-    touch $HOME/.local/share/applications/defaults.list
-  fi
-}
+# }
 
 # package_pre_install_home () {
 #   print_reverse "*** triggers right before installing to /Home/Dir"
