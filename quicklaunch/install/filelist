@@ -3,8 +3,8 @@ HOME/.local/share/applications/quicklaunch.desktop
 HOME/quicklaunch-user.sample
 install/bin/common.sh
 755	install/bin/install.sh
-install/bin/package-functions.sh
 install/bin/libterm.sh
+install/bin/package-functions.sh
 755	install/bin/uninstall.sh
 install/bin/view.awk
 install/changelog

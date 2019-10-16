@@ -24,10 +24,14 @@ die_if_not_terminal() { # {{{1
 }
 
 # Loop until the desired key is pressed {{{1}}}
-# $1-desired-keypress [$2-prompt-function]
-# => $KEYPRESS
+# $1-desired-UPPERCASE-keypress [$2-prompt-function]
+# $UNATTENDED_RUN <= | => $KEYPRESS
 get_this_keypress_or_exit() { # {{{1
   local desired="$1" prompt_func="${2:-:}"
+  if [ "$UNATTENDED_RUN" ]; then
+    KEYPRESS=$desired
+    return
+  fi
   while sleep 0.1; do
     empty_keyboard_buffer
     set_KEYPRESS
