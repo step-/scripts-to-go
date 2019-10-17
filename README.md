@@ -117,54 +117,19 @@ dndmate --id=music & dndmate --id=weblinks &
 ----
 
 <a href="fatdog-wireless-antenna"></a>
+
 ## fatdog-wireless-antenna
 
 WiFi Antenna Manager for Fatdog64
 
-**Target User**
+![fatdog-wireless-antenna icon](img/icon/fatdog_wireless_antenna.png) .
 
-* Fatdog64 users with multiple wireless interfaces.
-* Other (Puppy) Linux users - minimum shell source code adaptions needed, see
-  _Porting to Other Linux_.
+[README](fatdog-wireless-antenna/README.md)
 
-**Features**
+Screenshot:
+version 1.0.0. In version 1.1.0 column "Details" replaces column "Reason".
 
-* Enable/disable antenna.
-* Auto-detect wireless interface changes: enabled, connected to access point (AP), IP address.
-* Restart Fatdog64 networking.
-
-**Installing**
-
-* Download and unpack the repository snapshot
-  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Run `install/install-fatdog-wireless-antenna.sh` from the unpacked folder.
-* Download and unpack the required repository snapshot
-  [shnetlib tar file](https://github.com/step-/shnetlib/archive/master.tar.gz).
-    cp usr/sbin/shnetlib.sh /usr/sbin/shnetlib.sh
-* Download and unpack the required repository snapshot
-  [yad-lib tar file](https://github.com/step-/yad-lib/archive/master.tar.gz).
-    cp usr/bin/yad-lib.sh /usr/bin/yad-lib.sh
-* Run `fatdog-wireless-antenna.sh &` in a terminal window to start the main
-  window.
-
-**Dependencies**
-
-* [shnetlib](https://github.com/step-/shnetlib)
-* [yad-lib](https://github.com/step-/yad-lib)
-* yad (tested since version 0.36.3)
-* rfkill (tested with busybox 1.27.0.git rfkill).
-
-**Help** - Hover over list items for tooltip help.
-
-**Porting to Other Linux**
-
-See file [PORTING](fatdog-wireless-antenna/usr/share/doc/fatdog-wireless-antenna/PORTING.md).
-
-**Screenshot**
-
-![Screenshot](img/fatdog-wireless-antenna.png)
-
-Screenshot of version 1.0.0. In version 1.1.0 column "Details" replaces column "Reason".
+![fatdog-wireless-antenna screenshot](img/fatdog-wireless-antenna.png)
 
 ----
 
