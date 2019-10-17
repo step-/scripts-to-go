@@ -1,0 +1,78 @@
+1.3.0
+=====
+
+2019-10-17
+
+* Re-released for scripts-to-go.
+* No new functionality; equivalent to version 1.2.1 for Fatdog64-721...802.
+* New packaging with installer/uninstaller.
+* Add README and manual page.
+* Change TEXTDOMAIN.
+* Add .desktop file and icons.
+
+1.2.1
+=====
+
+2018-11-30
+
+* Release for Fatdog64-721 and follow-on versions.
+* No new functionality.
+* Update icon and translation template.
+
+1.2.0
+=====
+
+2018-08-01
+* No new functionality.
+* New requirement: yad-lib 1.0.0 or higher.
+
+1.1.0
+=====
+
+2017-12-10
+
+* First release for Fatdog64-720
+* Require: shnetlib 1.2.0 or higher.
+* Keep position of dragged-around main dialog and popups.
+* Update .pot file for translations.
+* Update xgettext.sh tool for translators.
+* Replace column "Reason" with more-capable column "Details".
+* Auto-detect interface status and IP address changes, show in "Details".
+* Add help popup and tooltip for hard-blocked interface.
+* Fix 'Restart Network' button (it wasn't acted upon).
+* Work-around for BusyBox v1.27.0.git-2017-11-11.
+* Performance improvements.
+
+1.0.3
+=====
+
+2017-09-18
+
+* Add message "Wireless interface not found".
+
+1.0.2
+=====
+
+2017-08-21
+
+* Add icons.
+* See README
+
+1.0.1
+=====
+
+2017-08-20
+
+* Updates for shnetlib 1.1.0
+* Fix: Handle kernel modules that don't support rfkill.
+* i18n: Add some new messages.
+* Require: shnetlib 1.1.0 or higher.
+
+1.0.0
+=====
+
+2017-08-11
+
+* First public version.
+* Includes section on porting to other Linux.
+
