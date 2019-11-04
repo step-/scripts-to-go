@@ -6,7 +6,7 @@
 [subrepo]
 	remote = ../subrepo/fatdog-wireless-antenna
 	branch = release
-	commit = 336e87528bc43a0137f48453e479fb5fbe87cb45
+	commit = 123b5dbc169228216e566c9faf4e2824b3aa573b
 	method = merge
 	cmdver = 0.4.0
-	parent = ad7d64ca541fcfda4b5df21940057e875b5ab9b7
+	parent = 8604819b9d6d889fa04a678e74fbe12056899ecb

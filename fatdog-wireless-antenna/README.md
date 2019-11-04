@@ -1,5 +1,5 @@
 title: FATDOG-WIRELESS-ANTENNA  
-date: 2019-10-17  
+date: 2019-11-04  
 homepage: <https://github.com/step-/scripts-to-go>  
 
 # fatdog-wireless-antenna
@@ -37,7 +37,7 @@ Assuming a successful installation with default settings, enter command
 
 **Important** --- After having completed the installation you **must** save file
 `install.log`, which is located in folder `install/`, if you want to be able to
-uninstall gmenu2-fdcp in the future.  Indeed, it is recommended to save the
+uninstall this program in the future.  Indeed, it is recommended to save the
 whole folder `install/`, which holds the uninstall program and the log file.
 
 <a name="dependencies"></a>
@@ -45,6 +45,9 @@ whole folder `install/`, which holds the uninstall program and the log file.
 ## Dependencies
 
 Install `shnetlib`[:2](#LINKS) and `yad-lib`[:3](#LINKS).
+
+* Since version 800, Fatdog64 includes shnetlib and yad-lib; no need to install
+  them again.
 
 ## Uninstalling
 

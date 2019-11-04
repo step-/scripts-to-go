@@ -5,7 +5,7 @@
 # Copyright (C) step, 2017-2019
 # License: GNU GPL Version 2
   Homepage=https://github.com/step-/scripts-to-go
-  Version=1.3.0 # re-released: same as 1.2.1
+  Version=1.3.1
 # META-end
 
 export TEXTDOMAIN=fatdog
@@ -109,14 +109,13 @@ call_restart_network() #{{{1
 # Invoked as: $0 call_restart_network
 {
   local res
-  yad_lib_set_YAD_GEOMETRY '' '' "50:-1:250" && export YAD_GEOMETRY_POPUP
+  yad_lib_set_YAD_GEOMETRY '' '' 50:1:250:::100 && export YAD_GEOMETRY_POPUP
   { echo 1; /etc/init.d/50-Wpagui restart >/dev/null 2>&1 & wait; res=$?; echo 100; } |
   yad $YAD_GEOMETRY_POPUP --progress --pulsate --auto-close --on-top --no-buttons \
     --undecorated --no-focus --skip-taskbar --text-align=center --borders=10 \
     --text="$i18n_restarting_network\n"
-  yad_lib_set_YAD_GEOMETRY '' '' "70:-1:450"
+  YAD_XID= yad_lib_set_YAD_GEOMETRY '' '' 70:20:450:::100
   yad $YAD_GEOMETRY_POPUP --text="$(printf "$i18n_network_restarted\n" "$i18n_Network_Tool")" --on-top --button=gtk-ok \
-    --undecorated                           --text-align=center --borders=10 \
     --image=networktool --image-on-top \
     --timeout="$i18n_network_restarted_timeout"
   return $res
@@ -146,7 +145,7 @@ call_toggle_row() # $@-row {{{1
   # By default toggle the antenna. Request action exceptions via $dclick_action.
   case "$dclick_action" in
     "show tooltip" )
-      yad_lib_set_YAD_GEOMETRY '' '' "70:-1:450" && export YAD_GEOMETRY_POPUP
+      yad_lib_set_YAD_GEOMETRY '' '' 70:20:450:::100 && export YAD_GEOMETRY_POPUP
       1>&- yad $YAD_GEOMETRY_POPUP --title="$i18n_main_window_title" \
         --text="$tooltip" --on-top --button=gtk-ok --image=gtk-help --image-on-top &
       ;;
