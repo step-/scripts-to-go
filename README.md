@@ -1,5 +1,5 @@
 title: SCRIPTS TO GO  
-date: 2019-10-05  TODO  
+date: 2019-11-08  
 homepage: <https://github.com/step-/scripts-to-go>  
 
 # Scripts To Go
@@ -8,7 +8,7 @@ _Are you sated?_
 
 ## INTRO
 
-This is a collection of scripts that I have developed and maintain for my
+This is a collection of scripts that I developed and maintain mostly for my
 personal use on Fatdog64 Linux.[:1](#LINKS).
 Originated from Puppy Linux[:2](#LINKS), nowadays Fatdog64 is built from Linux
 From Scratch (LFS)[:3](#LINKS) but still retains good compatibility with Puppy.
@@ -34,85 +34,32 @@ Scripts are occasionally updated, and a new, individual package released.
 
 ## SCRIPTS
 
-* [dndmate](#dndmate)
-* [fatdog-wireless-antenna](#fatdog-wireless-antenna)
-* [gmenu2](#gmenu2)
-* [gmenu2-fdcp](#gmenu2-fdcp)
-* [quicklaunch](#quicklaunch)
-* [roxmm](#roxmm)
-* [s-write-comment](#s-write-comment)
-* [tray-radio](#tray-radio)
+* [dndmate](#dndmate) (automation)
+* [fatdog-wireless-antenna](#fatdog-wireless-antenna) (network)
+* [gmenu2](#gmenu2) (system menu)
+* [gmenu2-fdcp](#gmenu2-fdcp) (control panel)
+* [quicklaunch](#quicklaunch) (personal menu)
+* [roxmm](#roxmm) (file menu)
+* [s-write-comment](#s-write-comment) (file)
+* [tray-radio](#tray-radio) (audio)
 
 ----
 
 <a href="dndmate"></a>
+
 ## dndmate
 
-Drag-and-drop Collector and Automator
+Drag-and-drop list maker and automator
 
-**Usage Scenarios**
+![dndmate icon](img/icon/dndmate.png) .
 
-* You have multiple filer windows open in different folders, and you want to
-  perform an action (run a command) targeting some of the files in some of the
-  open filer windows.
-* You keep an ongoing list of file paths, and you want to add files to the list
-  with a mouse action from a filer window, and also with a simple shell command.
-* Some of the above scenarios, targeting web links in addition to files, i.e.,
-  keeping a list of web bookmarks.
+[README](dndmate/README.md)
 
-**Installing**
+Screenshot:
+version 1.4.0
 
-* Download and unpack the repository snapshot
-  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Download and unpack the required repository snapshot
-  [yad-lib tar file](https://github.com/step-/yad-lib/archive/master.tar.gz).
-    cp usr/bin/yad-lib.sh /usr/bin/yad-lib.sh
-* Run `install/install-dndmate.sh` from the unpacked folder.
-  `--help` is a command-line option.
-* Optionally, if ROX-Filer is your file manager, drag-and-drop the ROX-App
-  `/usr/local/apps/dndmate` to your desktop, or create a link to it on your
-  desktop.
-* Run `dndmate` in a terminal window to start the drag-and-drop target.
+[![dndmate screenshot](img/dndmate-1.4.0-s-240x222.png)](https://postimg.cc/jn7xR2GB)
 
-**Dependencies**
-
-An updated list of dependencies is included in the comment block at
-the top of the
-[script file](https://github.com/step-/scripts-to-go/blob/master/usr/bin/dndmate).
-
-Ensure the vesion of yad in your system meets the minimum requirement listed
-below. Note in particular that you might need to compile a git commit from the
-yad author's [repository](https://github.com/v1cont/yad) to meet the minimum
-requirement marked in bold font below.
-
-Roughly these include:
-* Required shell libraries: yad-lib >= 1.0.0
-* Required packages: yad >= 0.40.3 **git b3a99043**, gawk >= 4.1.1, findutils >= 4.4.2, bash >= 4.3
-* Suggested packages: netpbm-advanced >= 10.64
-* [yad-lib](https://github.com/step-/yad-lib), see section _Installing_.
-
-**Help** - Hover over the buttons for tooltip help. Press the Help button for
-full help text.
-
-**Tips**
-
-* The look of dndmate targets can be styled to a great extent. Read all about
-  it in the style file `/usr/share/dndmate/stylef`.
-* To work on different lists at once, run separate instances with `--id`, i.e.
-
-```
-dndmate --id=music & dndmate --id=weblinks &
-```
-
-* Add your frequently-used commands to the command history file: Click \[R\]
-  in the main window, then \[Edit\].
-* Read the Help file! Click \[H\] in the main window.
-
-**See also** [YAD Tips thread](http://murga-linux.com/puppy/viewtopic.php?p=908353#908353)
-
-**Thanks** - stemsee, MochiMoppel.
-
-![Screenshot](img/dndmate-450x-1x32.gif)
 
 ----
 
@@ -129,7 +76,7 @@ WiFi Antenna Manager for Fatdog64
 Screenshot:
 version 1.0.0. In version 1.1.0 column "Details" replaces column "Reason".
 
-![fatdog-wireless-antenna screenshot](img/fatdog-wireless-antenna.png)
+[![fatdog-wireless-antenna screenshot](img/fatdog-wireless-antenna-240x113.png)](img/fatdog-wireless-antenna.png)
 
 ----
 
@@ -151,7 +98,7 @@ be shown, too.
 The 'Recent' submenu tracks command activations for quick re-use.
 Recent items are shared with [quicklaunch](#quicklaunch).
 
-![gmenu2 screenshot](img/gmenu2.png)
+[![gmenu2 screenshot](img/gmenu2-240x267.png)](img/gmenu2.png)
 
 ----
 
@@ -166,10 +113,10 @@ Stand-alone Fatdog64 control menu (also [gmenu2](#gmenu2) extension)
 [README](gmenu2-fdcp/README.md)
 
 Screenshot:
-Gmenu2-fdcp control menu displaying the default large font and 32-pixel icons
+gmenu2-fdcp control menu displaying the default large font and 32-pixel icons
 (resizable) on Fatdog64 700.
 
-![gmenu2-fdcp screenshot](img/gmenu2-fdcp.png)
+[![gmenu2-fdcp screenshot](img/gmenu2-fdcp-240x164.png)](img/gmenu2-fdcp.png)
 
 ----
 
@@ -183,7 +130,8 @@ Quick-launch user menu
 
 [README](quicklaunch/README.md)
 
-Screenshot: LXQt Panel (top) --- the four default panel icons (Browser,
+Screenshot:
+LXQt Panel (top) --- the four default panel icons (Browser,
 Terminal, Rox and Control panel) have migrated to the top of Quicklaunch menu
 so the Panel has more space for application icons.
 Here the Quicklaunch menu is displaying two user-added items
@@ -193,7 +141,7 @@ Here the Quicklaunch menu is displaying two user-added items
 Themes: Fatdog64-802 default LXQt Panel theme (ambiance) with the
 Quicklaunch-ambiance menu theme.
 
-![Screenshot](img/quicklaunch-800.png)
+[![quicklaunch screenshot](img/quicklaunch-800-240x98.png)](img/quicklaunch-800.png)
 
 ----
 
@@ -210,44 +158,25 @@ ROX-Filer SendTo menu emulator
 Right - actual rox SendTo menu.
 Left - roxmm emulated menu. Note the tooltip and the Tools menu.
 
-![roxmm screenshot](img/roxmm.png)
+[![roxmm screenshot](img/roxmm-240x90.png)](img/roxmm.png)
 
 ----
 
 <a href="s-write-comment"></a>
+
 ## s-write-comment
 
-File comment writer for Fatdog64 ROX-Filer build
+File comment file writer
 
-**Target User**
+![s-write-comment icon](img/icon/s-write-comment.png) .
 
-* Fatdog64 72x+ users. This script works best in conjuction with the Fatdog64
-  ROX-Filer build.
-* Users of version of Puppy Linux that feature the "comments" patch for
-  ROX-Filer.
-* Anyone who wants to keep a comment file alongside another file, i.e.
-  `filename.ext.txt` holding comments about `filename.ext`.
+[README](s-write-comment/README.md)
 
-**Features**
+Screenshot:
+version 1.0.0.
 
-* Right-click ROX-Filer action "Add Comment File".
-* Command-line options to customize actions and manage comment files.
+[![s-write-comment screenshot](img/s-write-comment-240x160.png)](img/s-write-comment.png)
 
-**Installing**
-
-* Download and unpack the repository snapshot
-  [tar file](https://github.com/step-/scripts-to-go/archive/master.tar.gz).
-* Copy the files rooted in `s-write-comments` to equivalent positions under
-  `/`.
-* Reboot to enable the ROX-Filer right-click action.
-
-**Help** - In a terminal window run `s-write-comment.sh --help`.
-
-**Screenshot**
-
-![Screenshot](img/s-write-comment.png)
-
-Screenshot of version 1.0.0.
 
 ----
 
@@ -261,7 +190,9 @@ Internet radio and media file tray icon menu
 
 [README](tray-radio/README.md)
 
-![tray-radio screenshot](img/tray-radio.gif)
+Screenshot:
+
+[![tray-radio screenshot](img/tray-radio-240x107.png)](img/tray-radio.gif)
 
 ----
 
