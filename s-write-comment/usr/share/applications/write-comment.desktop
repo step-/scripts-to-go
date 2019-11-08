@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Write Comment
+GenericName=Comment file creator
+Comment=Create and edit a comment file
+Exec=s-write-comment.sh %F
+Terminal=false
+Type=Application
+Icon=posted.png
+Categories=Utility;SendTo;
+StartupNotify=true
+NoDisplay=true

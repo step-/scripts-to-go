@@ -5,7 +5,8 @@
 ;
 [subrepo]
 	remote = ../subrepo/s-write-comment
-	branch = master
-	commit = 
+	branch = release
+	commit = 6e110744f38bc80e92c9a164122702e16b473e66
 	method = merge
 	cmdver = 0.4.0
+	parent = ad7d64ca541fcfda4b5df21940057e875b5ab9b7

@@ -1,0 +1,15 @@
+etc/xdg/rox.sourceforge.net/SendTo/Add-Comment-File
+install/bin/common.sh
+755	install/bin/install.sh
+install/bin/libterm.sh
+install/bin/package-functions.sh
+755	install/bin/uninstall.sh
+install/bin/view.awk
+install/changelog
+install/filelist
+install/version
+README.md
+755	usr/local/bin/s-write-comment.sh
+usr/share/applications/write-comment.desktop
+usr/share/icons/posted.png
+usr/share/man/man1/s-write-comment.1

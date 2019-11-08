@@ -1,0 +1,18 @@
+1.1.0
+=====
+
+2019-11-08
+
+* New packaging.
+* Add README and manual page.
+* Undepend attr but depend fgetattr for consistency with other scripts.
+* update trap code
+
+1.0.0
+=====
+
+(not yet released in scripts-to-go)
+
+* 2019-02-28 Updated for Fatdog64 800 base
+* 2017-12-20 Included in Fatdog64 720 base
+
