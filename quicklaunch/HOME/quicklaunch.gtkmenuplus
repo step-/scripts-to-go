@@ -1,0 +1,272 @@
+#!/usr/bin/gtkmenuplus
+
+# Quick-launch user menu
+# Copyright (C) step, 2017-2019
+# License: GNU GPL Version 2
+# Homepage: https://github.com/step-/scripts-to-go
+# Version=1.1.0
+
+# Enable label mnemonics throughout
+format = mnemonic="1"
+
+# Don't change this section.
+# ---- Gtkmenuplus Version Check ----
+configure=endsubmenu
+# Require: gtkmenuplus >= 1.1.5 https://github.com/step-/gtkmenuplus
+if=awk -v V="`gtkmenuplus -v`" 'END{split(V,a,/[., ]/);print(a[1]>1||a[2]>1||a[2]==1&&a[3]>=5)?0:1}' /dev/null
+  item=<span color="red" size="x-large">Please upgrade gtkmenuplus to version >= 1.1.5</span>
+  cmd=false
+  icon=gtk-dialog-error
+  separator
+  item=Go to download site
+  cmd=$defaultbrowser https://github.com/step-/gtkmenuplus/releases &
+  icon=gtk-go-down
+  item=Cancel
+  cmd=true
+  icon=gtk-cancel
+else # build and show Quicklaunch menu
+
+# Don't change this section.
+# ---- Command-line Arguments ----
+# To avoid calling the shell, argument values can be either
+# 0(no/false) or 1(yes/true), and 0 is the implicit value.
+# To pass an argument you need to pass all arguments before it.
+if=$1
+  OPT_RESERVED_1=yes # reserved for future getopt
+else
+  OPT_RESERVED_1=no
+endif
+if=$2
+  OPT_ENABLE_ADVANCED_FEATURES=yes
+else
+  OPT_ENABLE_ADVANCED_FEATURES=no
+endif
+ARG0=$0
+TMPF==echo "/tmp/$USER-$(basename '$ARG0')"
+
+# Don't change this section.
+#:## USER VARIABLES
+# To change some of the following values **copy lines to** file
+# quickmenu-user-var.gtkmenuplus and **edit that file**.
+#
+# * Default Programs
+# ```
+defaultbrowser=defaultbrowser
+defaulttexteditor=defaulttexteditor
+# ```
+# * _HOME is assigned your $HOME environment variable for convenience.
+# ```
+_HOME==echo "$HOME"
+# ```
+# * RECENT_FILE logs menu entry activations, when an entry is selected _and_
+# executed. The "Recent" menu draws its entries from RECENT_FILE.  The
+# default path of RECENT_FILE is set so that the file is shared with the
+# gmenu2 system menu script at https://github.com/step-/scripts-to-go.
+# ```
+RECENT_FILE=$_HOME/.gmenu2.log # share "Recent" menu with gmenu2
+# ```
+# * ROX_BOOKMARKS_FILE is the ROX-Filer bookmarks file.
+# You shouldn't need to change this.
+# ```
+ROX_BOOKMARKS_FILE=$_HOME/.config/rox.sourceforge.net/ROX-Filer/Bookmarks.xml
+# ```
+# * If a log entry matches the extended regular expression PRUNEREX, it can be
+# pruned from the "Recent" menu. PRUNEREX matches on cmd=, item=, icon= and
+# tooltip= directives only.  To prune the activation of a launcher= directive,
+# match its menu label. For instance, adding Item=Shutdown to PRUNEREX prunes
+# the system shutdown entry. See also: _APPLY_PRUNING.
+# ```
+PRUNEREX="@prune_this@|Item=(Reboot|Restart X|Shutdown|Suspend)"
+# ```
+# Note: Don't use '^' and '$' anchors in regex; they will not match.
+#
+# * Automatically show the last $SHOW_LAST_N_COMMANDS above the user section.
+# Zero disables. '0' is the key mnemonic of _all_ such entries.
+# ```
+SHOW_LAST_N_COMMANDS=1
+# ```
+
+# Don't change this section.
+include=quicklaunch-user-var.gtkmenuplus
+
+# Don't change this section.
+# ---- Configuration ----
+activationlogfile=$RECENT_FILE # update the "Recent" menu
+configure=endsubmenu # pair submenu/endsubmenu keywords
+configure=nolaunchernodisplay # ignore NoDisplay= in .desktop files
+configure=noicons # reserve empty space for missing icons
+
+# Don't change this section. 
+# ---- Patterns ----
+# Syntax notes:
+# - Escape characters '!', '\', '"' and '$(' with a single backslash for sh -c
+#A0==echo '\$'0 # enter $0 as $A0 # or enter it as \$(0)
+_BEGIN=BEGIN{ RS=\"\\x23[{]}\";IGNORECASE=1; }
+#{vim syntax fix
+_SELECT={ gsub(/^\n|\n$/,X);a[++n]=\$(0)\"\n\"RT; }END{ delete a[n];--n; }
+# - Same as above but w/o escapes for sh -c.
+_BEGINnoe=BEGIN{ RS="\x23[{]}";IGNORECASE=1}
+_SELECTnoe={ gsub(/^\n|\n$/,X);a[++n]=$(0)"\n"RT; }END{ delete a[n];--n; }
+# Must be the very first output line.
+_PROT=BEGIN{print OUT}
+
+# Don't change this section.
+# ---- Pruning the "Recent" Menu ----
+# $_APPLY_PRUNING prunes entries that match PRUNEREX in $RECENT_FILE.
+# Log pruning isn't automatic; a cmd= directive must invoked it as follows.
+# Enter the cmd= field as 'sh -c "COMMAND-LIST"' (without single quotes - wsq),
+# and insert '"$_APPLY_PRUNING;"' (wsq) before '"COMMAND-LIST"' (wsq), e.g.:
+#  cmd=sh -c "geany file.txt",     <= the COMMAND-LIST, becomes
+#  cmd=sh -c "$_APPLY_PRUNING;""geany file.txt"
+# The example above deletes existing log items that match $PRUNEREX,
+# then it starts 'geany file.txt'.
+# Syntax notes:
+# - Shell-escape characters '!', '\', '"' and '$(' with a single backslash.
+_END_PRUNE=END{ for(i=1;i<=n;i++)print a[i]>FILENAME; }
+_APPLY_PRUNING=gawk '$_BEGIN/$PRUNEREX/{next}$_SELECT$_END_PRUNE' '$RECENT_FILE'
+# See also ENABLE_RECENT_FILE_EDIT.
+
+#You can add/edit menu entries in this section.
+#:## THE PANEL MENU
+# This section is equivalent to the Fatdog64-71x LXQt Panel default
+# configuration file $HOME/.config/lxqt/panel.conf.
+# (For Fatdog64-70x it's $HOME/.config/razor/razor-panel/panel.conf.)
+# You can add/edit the menu items below to reflect your own panel.conf file.
+# ```
+launcher=/usr/share/applications/default-browser.desktop
+launcher=/usr/share/applications/urxvt.desktop
+launcher=/usr/share/applications/rox.desktop
+launcher=/usr/share/applications/fatdog-control-panel.desktop
+# ```
+# However, upgrading to the next quicklaunch version will be easier if you
+# keep all your custom menu items in the following user file located in the
+# quicklaunch.gtkmenuplus folder:
+# ```
+include=quicklaunch-user.gtkmenuplus
+# ```
+
+separator
+
+# ---- Sort "Recent Menu ----
+# Syntax notes:
+# - Shell-escape characters '!', '\' and '"' with a single backslash.
+_END_SORT=END{ asort(a,b,\"C\");for(i=1;i<=n;i++)print b[i]>FILENAME; }
+_CMP_FUNC=function C(i,v,j,v2,A,B){ split(v,A,/:/);split(v2,B,/:/)
+_ALPHA_CMP_FUNC=function C(i,v,j,w,A,B){ split(v,A,/item=|\n/);split(w,B,/item=|\n/);gsub(/_/,X,A[3]);gsub(/_/,X,B[3])
+#}vim syntax fix
+_BY_FREQUENCY_ASC  =$_CMP_FUNC;return A[2]<B[2]?-1:(A[2]==B[2]?0:1)}
+_BY_FREQUENCY_DESC =$_CMP_FUNC;return A[2]<B[2]?1:(A[2]==B[2]?0:-1)}
+_BY_CREAT_TIME_ASC =$_CMP_FUNC;return A[3]<B[3]?-1:(A[3]==B[3]?0:1)}
+_BY_CREAT_TIME_DESC=$_CMP_FUNC;return A[3]<B[3]?1:(A[3]==B[3]?0:-1)}
+_BY_USE_TIME_ASC   =$_CMP_FUNC;return A[4]<B[4]?-1:(A[4]==B[4]?0:1)}
+_BY_USE_TIME_DESC  =$_CMP_FUNC;return A[4]<B[4]?1:(A[4]==B[4]?0:-1)}
+_BY_ALPHA_ASC =$_ALPHA_CMP_FUNC;return A[3]<B[3]?-1:(A[3]==B[3]?0:1)}
+_BY_ALPHA_DESC=$_ALPHA_CMP_FUNC;return A[3]<B[3]?1:(A[3]==B[3]?0:-1)}
+#{vim syntax fix
+_APPLY_SORT_BY_FREQUENCY_ASC  =gawk '$_BEGIN$_SELECT$_END_SORT$_BY_FREQUENCY_ASC' '$RECENT_FILE'
+_APPLY_SORT_BY_FREQUENCY_DESC =gawk '$_BEGIN$_SELECT$_END_SORT$_BY_FREQUENCY_DESC' '$RECENT_FILE'
+_APPLY_SORT_BY_CREAT_TIME_ASC =gawk '$_BEGIN$_SELECT$_END_SORT$_BY_CREAT_TIME_ASC' '$RECENT_FILE'
+_APPLY_SORT_BY_CREAT_TIME_DESC=gawk '$_BEGIN$_SELECT$_END_SORT$_BY_CREAT_TIME_DESC' '$RECENT_FILE'
+_APPLY_SORT_BY_USE_TIME_ASC   =gawk '$_BEGIN$_SELECT$_END_SORT$_BY_USE_TIME_ASC' '$RECENT_FILE'
+_APPLY_SORT_BY_USE_TIME_DESC  =gawk '$_BEGIN$_SELECT$_END_SORT$_BY_USE_TIME_DESC' '$RECENT_FILE'
+_APPLY_SORT_BY_ALPHA_ASC   =gawk '$_BEGIN$_SELECT$_END_SORT$_BY_ALPHA_ASC' '$RECENT_FILE'
+_APPLY_SORT_BY_ALPHA_DESC  =gawk '$_BEGIN$_SELECT$_END_SORT$_BY_ALPHA_DESC' '$RECENT_FILE'
+
+# Don't change this section.
+# ---- "Recent" Menu ----
+submenu = _1 Recent
+icon=gtk-media-previous
+tooltip=Quickly repeat a previous invocation.
+include = $RECENT_FILE
+endsubmenu
+
+# Don't change this section.
+# ---- "ROX Bookmarks" Menu ----
+if=! [ -s "$ROX_BOOKMARKS_FILE" ]; echo $?
+# Syntax notes:
+# - Shell-escape characters '!', '\', '"' and '$(' with a single backslash.
+_UNLISTED_ROX=cmd=sh -c \\\": @prune_this@;rox \\\\\\\"%s\\\\\\\"\\\"
+# With _UNLISTED_ROX, logged bookmark invocations are marked with @prune_this@,
+# so you can select "Tools>Prune Recent Menu" to prune them from menu "Recent".
+# With _LISTED_ROX, logged invocations aren't marked and therefore can't be pruned.
+#_LISTED_ROX=cmd=rox \\\"%s\\\"
+_CONVERT_BOOKMARKS=BEGIN{ print>OUT;FS=\"[<>\\\"]\"; }\$(2)~/^bookmark /{ printf \"item=%s\ntooltip=%s\n$_UNLISTED_ROX\nicon=gtk-directory\n\",\$(3),\$(5),\$(5)>OUT;++n; }
+_OUT=$TMPF-2
+_GET_BOOKMARKS=sh -c "gawk -v OUT='$_OUT' '$_PROT$_CONVERT_BOOKMARKS' '$ROX_BOOKMARKS_FILE'"
+_INCLUDE_TMPF==$_GET_BOOKMARKS
+  submenu=_2 ROX Bookmarks
+  icon=gtk-jump-to
+  include = $_INCLUDE_TMPF
+  endsubmenu
+endif
+
+# Don't change this section.
+# ---- "Tools" Menu ----
+submenu = _3 Tools
+icon = gtk-preferences
+item=Edit _Menu Items
+icon=gtk-edit
+cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""exec $defaulttexteditor \"${SHOM%/*}$ARG0\""
+item=Edit _User Items
+icon=gtk-edit
+cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""x=\"$ARG0\";e=${x##*.};x=\"${x%.*}-user.$e\";exec $defaulttexteditor \"${SHOM%/*}$x\""
+ENABLE_RECENT_FILE_EDIT=$OPT_ENABLE_ADVANCED_FEATURES
+# You shouldn't edit RECENT_FILE by hand, but if you do keeping intact
+# the structure of each record is vital.  A record begins with a line
+# that starts with '#{NUMBER;...}' and ends with a line equal to '#{}'.
+if=$ENABLE_RECENT_FILE_EDIT
+  item=Edit _Recent Menu
+  icon=gtk-edit
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""exec $defaulttexteditor '$RECENT_FILE'"
+endif
+item=_Prune Recent Menu
+icon=gtk-cut
+cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;"
+tooltip=Delete entries ~= $PRUNEREX
+  submenu=_Sort Recent Menu By
+  icon=gtk-sort-ascending
+  item=_Alphabet - Ascending
+  icon=gtk-sort-ascending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_ALPHA_ASC;"
+  item=_Alphabet - Descending
+  icon=gtk-sort-descending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_ALPHA_DESC;"
+  item=_Frequency - A
+  icon=gtk-sort-ascending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_FREQUENCY_ASC;"
+  item=_Frequency - D
+  icon=gtk-sort-descending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_FREQUENCY_DESC;"
+  item=_Creation Time - A
+  icon=gtk-sort-ascending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_CREAT_TIME_ASC;"
+  item=_Creation Time - D
+  icon=gtk-sort-descending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_CREAT_TIME_DESC;"
+  item=_Use Time - A
+  icon=gtk-sort-ascending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_USE_TIME_ASC;"
+  item=_Use Time - D
+  icon=gtk-sort-descending
+  cmd=sh -c ": @prune_this@;""$_APPLY_PRUNING;""$_APPLY_SORT_BY_USE_TIME_DESC;"
+  endsubmenu
+endsubmenu
+
+# Don't change this section.
+# ---- Recent Menu "Last Used" Item(s) ----
+# Syntax notes:
+# - _GET_LAST_ENTRY isn't passed to sh -c; don't shell-escape characters.
+_MKTEMPnoe=BEGIN{ print"\x23">OUT; if(!MAX)exit; sep="separator\n"; }
+_PRINTnoe=print sep V[2]"\n"V[3]"\n"V[4]"\n"V[5]
+_END_LASTnoe=END{ asort(a,b,"C");min=((0+MAX)<n) ?0+MAX :n;for(i=min; i>=1; i--){ if(split(b[i],V,"\n")){ $_PRINTnoe>OUT; sep=""; }; }; }
+_OUT=$TMPF-1
+_GET_LAST_ENTRY=gawk -v OUT='$_OUT' -v MAX=$SHOW_LAST_N_COMMANDS '$_PROT$_BEGINnoe$_MKTEMPnoe$_SELECTnoe$_END_LASTnoe$_BY_USE_TIME_DESC' '$RECENT_FILE'
+_INCLUDE_TMPF==$_GET_LAST_ENTRY
+include = $_INCLUDE_TMPF
+# Suggested keeping this item at at the very end of the menu so arrow-up can be
+# pressed to quickly access it. For this reason the item list is sorted in
+# reverse order, that is, press the arrow-up key once for the last used item,
+# twice for the second to the last used item, and so on.
+
+endif # version check
+# vim: ft=sh:

@@ -1,0 +1,37 @@
+#!/usr/bin/gtkmenuplus
+
+# Quick-launch user menu
+# Copyright (C) step, 2017-2019
+# License: GNU GPL Version 2
+# Homepage: https://github.com/step-/scripts-to-go
+# Version=1.1.0
+
+# ---- user's items
+Separator
+
+Item=_Control Panel Menu
+Cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""exec fatdog-control-panel.sh --menu"
+Icon=/usr/share/pixmaps/midi-icons/controlpanel48.png
+Tooltip=display the Fatdog64 Control Panel as a menu
+
+Item=_Take a Shot!
+Cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""exec tas"
+Icon=/usr/local/lib/X11/mini-icons/mini-camera.xpm
+Tooltip=Screenshot utility
+
+# # internet radio player from github.com/step-/scripts-to-go
+# Item=Tray _Radio
+# Cmd=sh -c ": @prune_this@;""$APPLY_PRUNING;""exec tray-radio --tray"
+# Icon=gtk-media-play
+# Tooltip=Web radio player
+
+# # password manager: install package keepassxc then uncommment
+# Launcher=/usr/share/applications/org.keepassxc.KeePassXC.desktop
+
+# # include another gtkmenuplus configuration file
+# Include=/mnt/windows/office2007.gtkmenuplus
+
+Endsubmenu
+
+# -- end of user's items --
+

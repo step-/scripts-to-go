@@ -1,0 +1,40 @@
+1.1.0
+=====
+
+2019-10-09
+
+* New packaging.
+* Add README and manual page.
+* Simplify theme selection with ~/quicklaunch-user-theme-gtkrc.
+* Better explain menu theming (quicklaunch.desktop).
+* Fix minimum version check.
+* Reverse order of Last Used items.
+* Move last-executed entry to menu end.
+* Fix issue which overwrite the bookmarks menu.
+* Expose bookmarks path as variable ROX_BOOKMARKS_FILE.
+* Rename variable to RECENT_FILE.
+* Expose some settings in new file ~/quicklaunch-user-var: defaultbrowser, defaulttexteditor
+* Automatically append N menu entries to repeat the last N commands (SHOW_LAST_N_COMMANDS).
+* Other fixes and improvements.
+
+1.0.3
+=====
+
+(not released)
+
+1.0.1
+=====
+
+2017-03-28
+
+* Improve command line parameter parsing.
+* Improve use and comments for "Recent" menu pruning.
+* Define $_HOME for convenience.
+
+1.0.0
+=====
+
+2017-01-06
+
+* First release
+
