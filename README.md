@@ -6,6 +6,15 @@ homepage: <https://github.com/step-/scripts-to-go>
 
 _Are you sated?_
 
+## DOWNLOADS
+
+Since November 2019 each script, and accompanying files and documentation, is
+packaged as a tar archive, which includes an installer and uninstaller, and can
+be downloaded from the [:release](#LINKS) page.
+Scripts are occasionally updated, and new, individual packages released.
+
+The release page lists package versions. This page does not.
+
 ## INTRO
 
 This is a collection of scripts that I developed and maintain mostly for my
@@ -26,11 +35,6 @@ Most scripts run in the POSIX-compliant dash[:5](#LINKS) shell but are marked
 with the more generally available Bourne shell she-bang `#!/bin/sh` to simplify
 installation across Linux variants.  Scripts that require features of a specific
 shell set the she-bang to reflect that shell, e.g., `#!/bin/bash`.
-
-Since late 2019 each script, and accompanying files and documentation, is
-packaged as a tar archive, which includes an installer and uninstaller, and can
-be downloaded from the [:release](#LINKS) page.
-Scripts are occasionally updated, and a new, individual package released.
 
 ## SCRIPTS
 
@@ -86,7 +90,7 @@ version 1.0.0. In version 1.1.0 column "Details" replaces column "Reason".
 
 Stand-alone extended application menu
 
-![gmenu2 icon](img/icon/gmenu2.png) (reused gtkmenuplus[:6](#LINKS) icon)
+![gmenu2 icon](img/icon/gmenu2.png) (gtkmenuplus[:6](#LINKS) icon)
 
 [README](gmenu2/README.md)
 
@@ -126,7 +130,7 @@ gmenu2-fdcp control menu displaying the default large font and 32-pixel icons
 
 Quick-launch user menu
 
-![quicklaunch icon](img/icon/quicklaunch.png) (reused gtkmenuplus[:6](#LINKS) icon)
+![quicklaunch icon](img/icon/quicklaunch.png) (gtkmenuplus[:6](#LINKS) icon)
 
 [README](quicklaunch/README.md)
 
@@ -151,7 +155,7 @@ Quicklaunch-ambiance menu theme.
 
 ROX-Filer SendTo menu emulator
 
-![roxmm icon](img/icon/roxmm.png) (reused gtkmenuplus[:6](#LINKS) icon)
+![roxmm icon](img/icon/roxmm.png) (gtkmenuplus[:6](#LINKS) icon)
 
 [README](roxmm/README.md)
 
