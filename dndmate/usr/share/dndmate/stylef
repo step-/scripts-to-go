@@ -1,0 +1,170 @@
+# ########################################
+# Default style file for Dejavu Sans fonts
+# ########################################
+# Usage: dndmate --stylef=FILEPATH:POSITION
+# POSITION can be a LINENUMBER, a LINENUMBER_RANGE, null or a LABEL/ID.
+# LINENUMBER is interpreted modulus the number of lines in FILEPATH.
+# LINENUMBER_RANGE is LINENUMBER_a'-'LINENUMBER_b with a < b.
+# If POSITION is LINENUMBER_RANGE or null, a random LINENUMBER is generated
+# within the given line range or all file lines respectively.
+# LABEL/ID identifies a line that starts with a text label followed by ';'.
+# '#' starts a comment line.  Comments and blank lines don't count against
+# calculating POSITION.
+
+# File format: comma-separated file (CSV) with comments and unquoted values.
+# Columns: id-style,width,height,glyph,glyph-scale,mult,fgcolor,bgcolor
+# Column values can also be set with dndmate command options, i.e., --width=300.
+# This file overrides the corresponding command options, except --id.
+# A null column value is ignored.
+# Column id-style consists of an optional LABEL/ID followed by ';'style.
+# A LABEL starts with '-' otherwise it's an ID. If ID is given it is also used
+# to fill in option --id unless command line sets --id.
+
+### Some possible layouts ###
+
+# Compact
+-1;c
+# Horizontal
+-2;h
+# Vertical
+-3;v
+# Vertical with splitter (hx or just x -> horizontal splitter)
+-4;vx
+# Compact, no button labels
+-5;cL
+# Compact, no button icons
+-6;cI
+# Set window width
+-7;,800
+# Set window height
+-8;,,600
+
+### Changing glyphs ###
+
+# Change glyph size multiplier (default 5)
+-9;,,,,,10
+# Change glyph and size. Only the first character is used for the glyph.
+-10;,,,Play,,7
+# The smallest possible decorated window: compact, no button labels/icons, splitter, glyph size multiplier=1.
+# Undecorate with: env DNDMATE_YAD_OPTIONS=--undecorated dndmate --stylef=:8
+-11;cLIx,,,,,1
+# -12: Musical note unicode glyph, and set ID. Running "dndmate --stylef=:MyMusic" sets --id=MyMusic and window title.
+MyMusic;,,,𝅗𝅥
+# -13: As above but green glyph and don't set --id. Run "dndmate --stylef=:-MyMusic"
+-MyMusic;,,,𝅗𝅥,,,green
+
+# ### ###
+
+# Note that usings LABEL/ID for POSITION is line-number independent.
+# Note that comment lines don't count to determine _numerical_ position of a line.
+# Placeholders to keep the next block of lines in _numerical_ range 20-44.
+-14;
+-15;
+-16;
+-17;
+-18;
+-19;
+
+### Keep positions in range 20-44, which file AppInfo.xml references.
+### Run "dndmate --stylef=:20-44" to pick a random glyph within the range.
+### Range 20:44 doesn't assign an ID because lines start with "-".
+
+# Simple, distinct colors https://sashat.me/2017/01/11/list-of-20-simple-distinct-colors/
+# w/maroon, w/brown, w/olive, w/teal, w/navy, w/black, w/red, b/orange, b/yellow,
+# #b/lime, b/green, b/cyan, w/blue, w/purple, w/magenta, b/grey, b/pink, b/coral,
+# b/beige, b/mint, b/lavender, b/white.
+# You should see chess and geometric shape symbols below. Prepared for font Dejavu Sans.
+# http://jrgraphix.net/r/Unicode/25A0-25FF
+# https://en.wikipedia.org/wiki/Chess_symbols_in_Unicode
+-20;,,,♔,,,white,maroon
+-21;,,,♕,,,white,#aa6e28
+-22;,,,♖,,,white,olive
+-23;,,,♗,,,white,teal
+-24;,,,♘,,,white,navy
+-25;,,,♙,,,white,black
+-26;,,,◰,,,white,red
+-27;,,,▣,,,black,orange
+-28;,,,▤,,,black,yellow
+-29;,,,▥,,,black,lime
+-30;,,,◱,,,white,green
+-31;,,,▧,,,black,cyan
+-32;,,,◲,,,white,blue
+-33;,,,◳,,,white,purple
+-34;,,,◍,,,white,magenta
+-37;,,,▨,,,white,grey
+-36;,,,♚,,,black,pink
+-37;,,,♛,,,black,coral
+-38;,,,♜,,,black,beige
+-39;,,,♝,,,black,#aaffc3
+-40;,,,♞,,,black,lavender
+-41;,,,♟,,,black,white
+-42;,,,◍,,,black,white
+-43;,,,◉,,,black,white
+# This oversized glyph is explicitly scaled down to 70%. Note that setting a
+# value here overrides any value given with --glyph-scale.
+-44;,,,◯,70,,black,white
+
+# Placeholders to keep the next block of lines in _numerical_ range 51:
+-45;
+-46;
+-47;
+-48;
+-49;
+-50;
+
+### Lowercase letters, crimson on transparent.
+### Ranges 51:76(a-z), 77:102(A-Z) assign an ID because lines don't start with "-".
+a;,,,a,,,crimson,none
+b;,,,b,,,crimson,none
+c;,,,c,,,crimson,none
+d;,,,d,,,crimson,none
+e;,,,e,,,crimson,none
+f;,,,f,,,crimson,none
+g;,,,g,,,crimson,none
+h;,,,h,,,crimson,none
+i;,,,i,,,crimson,none
+j;,,,j,,,crimson,none
+k;,,,k,,,crimson,none
+l;,,,l,,,crimson,none
+m;,,,m,,,crimson,none
+n;,,,n,,,crimson,none
+o;,,,o,,,crimson,none
+p;,,,p,,,crimson,none
+q;,,,q,,,crimson,none
+r;,,,r,,,crimson,none
+s;,,,s,,,crimson,none
+t;,,,t,,,crimson,none
+u;,,,u,,,crimson,none
+v;,,,v,,,crimson,none
+w;,,,w,,,crimson,none
+x;,,,x,,,crimson,none
+y;,,,y,,,crimson,none
+z;,,,z,,,crimson,none
+
+### Uppercase letters with --id, black on white
+A;,,,A,,,black,white
+B;,,,B,,,black,white
+C;,,,C,,,black,white
+D;,,,D,,,black,white
+E;,,,E,,,black,white
+F;,,,F,,,black,white
+G;,,,G,,,black,white
+H;,,,H,,,black,white
+I;,,,I,,,black,white
+J;,,,J,,,black,white
+K;,,,K,,,black,white
+L;,,,L,,,black,white
+M;,,,M,,,black,white
+N;,,,N,,,black,white
+O;,,,O,,,black,white
+P;,,,P,,,black,white
+Q;,,,Q,,,black,white
+R;,,,R,,,black,white
+S;,,,S,,,black,white
+T;,,,T,,,black,white
+U;,,,U,,,black,white
+V;,,,V,,,black,white
+W;,,,W,,,black,white
+X;,,,X,,,black,white
+Y;,,,Y,,,black,white
+Z;,,,Z,,,black,white

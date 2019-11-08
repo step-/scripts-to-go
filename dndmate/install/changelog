@@ -1,0 +1,84 @@
+1.4.0
+=====
+
+2019-11-07
+
+* New packaging.
+* Add README and manual page.
+* Upgrade dependency on yad-lib.sh 1.2.0.
+* Remove dependency on netpbm-advanced.
+* Fully integrated list item right-click editing (add, change, delete).
+* Add Properties button in Help window.
+* New Copy button.
+* Aggregate Edit, Clear, Copy buttons under the new Copy button.
+* Allow items to contain "|" (set new variable DNDMATE_SEPARATOR).
+* New options: --tail, --uncheck-drop, --uncheck-append, --info, --icon-get, --clean, --append-exit.
+* Extend option --exit to --exit[=CODE].
+* Remove option --no-restart.
+* Allow indenting --optf FILE.
+* Much improved and updated runtime help page.
+* New /usr/shared/command-samples.en.txt.
+* New styles in /usr/share/dndmate/stylef.
+* New presets random-no-id.opt, random-lowercase-id.opt and random-uppercase-id.opt in /usr/local/apps/dndmate/res/.
+* Ensure ASCII for icon path.
+* Fix anybody can read user's temporary files.
+* Fix window icon keeps changing when a randomly-chosen style is involved.
+* Fix resized window keeps going back to compact style.
+* Fix two long-forgotten issues.
+* Fix null characters in DNDMATE_REFS.
+* Fix out-of-order multi-dropped items.
+* Fix bash 4.4 portability issue.
+* Fix parsing command line when there are no options.
+* Performance and documentation improvements; other bugs fixed.
+* ROX-app: add more icons (R, G, B, Bl, W).
+* ROX-app: menu left-click implies --optf=res/default.opt, which sets compact window style.
+
+1.3.0
+=====
+
+2018-08-04
+
+* Require yad >= 0.40.3 commit b3a99043 2018-06-07.
+* New: instance windows maintain their position and size (require yad-lib).
+* New options: --stylef, --width, --height, --fgcolor, --bgcolor, --font-family, --opt, --glyph-scale.
+* New: default style file prepared for Djavu Sans font.
+* New: matching application icon and drop target glyph.
+* New: random application icons.
+* New: application icon and drop target foreground and background color support.
+* New: Autofit drop target glyph for horizontal layout.
+* New: Initial window width is unconstrained (was 300 px).
+* Changed: removed feature: DNDMATE_DANGER_RE; renamed some command-line options.
+* Updated: Help/usage text.
+* Fixed: --close didn't work correctly. Many other fixes.
+* ROX-app: add menu entry to start dndmate with a random icon.
+
+1.2.0
+=====
+
+2017-08-11
+
+* Now option --id without =ID auto-generates ID.
+* New option --optfile=FILE to read options from FILE.
+* New option --symbol to change drop target background graphics.
+* Add various media symbols based on font DejaVu Sans.
+* New option --uniq.
+* New usage warning for "--close -a refs".
+* Improve help.
+* ROX-app: change menu entries.
+* ROX-app: add --id=media entry.
+
+1.1.0
+=====
+
+2017-03-16
+
+* First public release
+
+1.0.0
+=====
+
+2017-01-29
+
+(not released)
+
+

@@ -1,0 +1,2 @@
+: Ex 1; printf "%s\\n" "$@" | yad --text-info --text="`date +%T` - Items:" --width=300 --center
+: Ex 2; env | grep '^DNDMATE_' | yad --text-info --text="`date +%T` - Useful variables:" --width=500 --center

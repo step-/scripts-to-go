@@ -5,7 +5,8 @@
 ;
 [subrepo]
 	remote = ../subrepo/dndmate
-	branch = master
-	commit = 
+	branch = release
+	commit = 671e88cb952e4117ce54a76df64e751acb6e9899
 	method = merge
 	cmdver = 0.4.0
+	parent = 9258618a619dacdd004e8b09b8de34ccb3bf21c5

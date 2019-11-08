@@ -1,0 +1,687 @@
+.TH "DNDMATE" 1 2019-11-07
+.SH Dndmate
+.LP
+Drag-and-drop list maker and automator
+.SS Target User
+.LP
+Lists are your thing (playlist, todo list, checklist, shopping list, etc.).
+.LP
+Your tasks involve gathering lots of similar data items, such as, files
+scattered across folders or todo notes from various projects, and so on.
+.SS Benefits
+.LP
+With dndmate you can easily create a list of items incrementally.
+The list is sticky: you can come back to it in a day or a year from now and you
+will still find all items.  Of course, you can also clear the list, edit the
+list directly from dndmate \(eneven edit individual items in place\(en keep
+multiple lists, snooze individual items, rearrange items, and more.
+.LP
+A list is stored in a plain text file \(enone line one item\(en you name the file.
+.LP
+To add an item you drag it to a drop target \(enone target one list.
+You can change the look of the target, make it smaller, larger, change its
+color and shape. You can keep multiple targets open.
+.LP
+And you can also add an item from the command line \(enno dragging required.
+.LP
+An item can be anything that your Linux considers \(lqdraggable\(rq. That includes a
+file or folder icon, a line of text, a browser link, etc. as long as it fits on
+one line. An undraggable item can still be added from the command line.
+.LP
+Some things that you could do with dndmate: keep your shopping list; keep a
+todo list; assemble a media playlist; collect short text clips; classify your
+photo file collection; keep your bookmarks, send notifications from other
+applications...  Yes, you can even keep a file list.
+.LP
+A dndmate target can be quickly started in several ways, choose the one that
+best fits your task:
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  drop multiple file icons onto a dndmate desktop icon
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  assign a system hotkey to start dndmate
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  run dndmate from a shell command line to set specific options
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  create dndmate style files
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  use the included ROX-app, which has its own right-click control menu.
+.RE
+.LP
+Advanced users can automate tasks by running shell commands on \f[I]selected\f[R] list
+items, directly from the dndmate command line.  Some examples:
+.RS
+.LP
+«\f[CR]vlc "$@"\f[R]» plays the (multi-item) selection
+.LP
+«\f[CR]cp -ar --backup "$@" \(ti/copies\f[R]» copies all items to folder \(lqcopies\(rq
+.LP
+«\f[CR]ln -t \(ti/links -sf --backup "$@"\f[R]» creates links to all items in folder \(lqlinks\(rq
+.RE
+.LP
+(Option «\f[CR]--backup\f[R]» creates a backup of existing files before overwriting them).
+.SS Installing
+.LP
+This program can be installed from a command line shell prompt.
+It should be installed to «\f[CR]/\f[R]» for system-wide availability.
+.LP
+It can be started from a shell prompt.  The installer also adds a \(lqDndmate\(rq
+entry in section \(lqUtility\(rq of the system application menu.
+.LP
+Instructions for starting this program with a global hotkey, and as a ROX-app,
+are given further down.
+.LP
+First, install all dependencies, see 
+\f[I]Dependencies\f[R].
+.LP
+Then download the latest archive \f[B]attachment\f[R] from the release 
+page\f[I]:1\f[R].
+Unpack the archive into a folder of your choice.
+.LP
+From that folder run the following command: «\f[CR]install/bin/install.sh\f[R]».
+This will start an interactive installer, which includes a Help screen.
+.LP
+Assuming a successful installation with default settings, enter command
+«\f[CR]dndmate\f[R]» in a shell prompt to start the default drop target.
+.LP
+\f[B]Important\f[R] \(em After having completed the installation you \f[B]must\f[R] save file
+«\f[CR]install.log\f[R]», which is located in folder «\f[CR]install/\f[R]», if you want to be able to
+uninstall this program in the future.  Indeed, it is recommended to save the
+whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the log file.
+.SS Dependencies
+.LP
+Install «\f[CR]yad-lib\f[R]»
+\f[I]:2\f[R]
+>= 1.2.0.
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Since version 800, 
+Fatdog64\f[I]:4\f[R]
+includes yad-lib 1.1.0; upgrading is
+recommended.
+.RE
+.LP
+Install «\f[CR]yad\f[R]»
+\f[I]:5\f[R]
+version 0.42. Later versions are untested with dndmate
+and will probably not work well due to missing support for legacy yad features.
+Also, version 0.42 is the last version to support GTK2.
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  On OSes other than Fatdog64, for maximum compatibility I recommend installing
+the yad binary 
+package\f[I]:5\f[R]
+that comes with Fatdog64-800, or compiling
+its sources.
+.RE
+.LP
+This program requires the GNU version of «\f[CR]awk\f[R]», gawk >= 4.1.1, which is
+commonly pre-installed on most Linux distributions.
+.SS Uninstalling
+.LP
+From the folder where you unpacked the downloaded archive run the following
+command: «\f[CR]install/bin/uninstall.sh\f[R]».
+This will start an interactive uninstaller, which includes a Help screen.
+.SS Basic Usage
+.LP
+Start dndmate from a shell prompt or the Utility section of the system menu.
+.sp 1
+.nf
+.ft CR
+dndmate &
+.ft
+.fi
+.LP
+The drop target is the silver bullseye symbol on the left side of the window.
+Items will appear, as you add them, in the empty box on the right side.
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Button «\f[CR][R]\f[R]» selects and runs commands.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Button «\f[CR][C]\f[R]» copies opens a subdialog.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Button «\f[CR][Q]\f[R]» exits dndmate.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Button «\f[CR][H]\f[R]» shows the online help.
+.RE
+.LP
+Hover the mouse pointer over each button to read a short description.
+.LP
+Now, click «\f[CR][Q]\f[R]» to close the target then, for some wow effect, try this command:
+.sp 1
+.nf
+.ft CR
+dndmate --optf=random.opt &
+.ft
+.fi
+.SS Add items to the list
+.LP
+Open the file manager, drag one or more file icons over the bullseye, drop.
+They should immediately appear as new items in \f[B]the list\f[R] view box.
+You can drop files and folders, browser URLs, and lines of text.
+.LP
+Try from your browser. Open some website.
+Drag the small lock icon located to the left of the URL in the address bar
+(it is a lock for Chrome browser, it may vary for other browser), drop.
+The website address should appear as a new item.
+.LP
+Try from your text editor, such as Geany: select some words (one line maximum),
+drag and drop. A new item should appear with your words in it.
+If you also see a new, empty item it means you dropped more than one line.
+If can only drop one line of text at the time \(enexcluding the newline.
+.LP
+You can add items from the command line. With the previous dndmate window still
+open run the following shell command:
+.sp 1
+.nf
+.ft CR
+dndmate --append-exit "line before the last line" "the last line"
+.ft
+.fi
+.LP
+Then scroll down to the bottom of the list view. See also section
+\f[I]Add items from the shell\f[R].
+.SS List navigation
+.LP
+Instead of with the mouse, you can navigate through list items with the arrow
+keys, «\f[CR][TAB]\f[R]», etc., and press buttons with keyboard shortcuts.  The «\f[CR][ALT]\f[R]»
+key is the shortcut prefix, and the shortcut lead is the underlined letter of
+each button label. Press the prefix and the lead keys together to invoke the
+shortcut.
+.SS Search the list
+.LP
+Click any list item once then start typing the search term.  As you type more
+letters the search advances and finds the first item that includes the term
+anywhere.  Press the down arrow key to find the next matching item, and so on.
+The search term is treated as a regular expression.
+.SS Copy the list
+.LP
+Notice each item has a checked box. The check mark means the item is selected
+for further operation. Click button «\f[CR][C]\f[R]» to copy the checked items.  A new
+subdialog opens, which lists all checked items as text.  Select some text and
+copy it to the clipboard with a right-click.  Click «\f[CR][OK]\f[R]» to close the
+subdialog.
+.RS
+.LP
+Keyboard shortcut: select and item with the arrow keys, press the Space bar
+to toggle the check mark on and off.
+.RE
+.SS Edit individual list items
+.LP
+Click an item in the main window to select it.
+Then click it again to edit its content.
+Right click it to delete or duplicate it.
+Right click also to add a new, empty item at the end of the list.
+Then click it to select it and click again to edit its content.
+.RS
+.LP
+Keyboard shortcut: with and item selected press the right arrow key once to
+turn edit mode on.  To exit edit mode press the Enter key.
+.RE
+.SS Edit the list as a whole
+.LP
+In the main window click button «\f[CR][C]\f[R]». Notice the «\f[CR][Edit]\f[R]» button. Click it.
+Your text editor opens the \f[B]raw file\f[R] that backs all items.
+You can edit this file to add, modify delete items but follow the line format.
+.LP
+If an item is to be checked in the main window its line begins with «\f[CR]TRUE|\f[R]».
+It the item is not to be checked its line begins with «\f[CR]FALSE|\f[R]».
+Then follows the item text, and finally two vertical bars «\f[CR]||\f[R]» to end the item.
+Each line must contain exactly three vertical bars in the indicated positions.
+Therefore, no item can contain a vertical bar \(enbut see the
+\f[I]next section\f[R]
+for ways to get around this.
+.LP
+Save the file (or don\(cqt to discard your changes). Close your text editor.
+Click «\f[CR][OK]\f[R]» in the subdialog.
+.RS
+.LP
+_Note: the file is referred to as the \f[B]raw file\f[R]. There is also another
+file, referred to as the \f[B]ref file\f[R], which lists the contents of checked
+items only \(enequivalent to the content of the copy subdialog.
+.RE
+.SS Reserved character
+.LP
+As we have seen, by default dndmate reserves the vertical bar character «\f[CR]|\f[R]»,
+therefore no item is allowed to contain that character. However, you can change
+the reserved character, to allow items to include «\f[CR]|\f[R]», by setting environment
+variable 
+\f[I]DNDMATE_SEPARATOR\f[R]
+to some other character, which no item
+will include. See also the \f[I]Reserved character\f[R] topic accessible by clicking
+button «\f[CR][H]\f[R]» in the main window.
+.SS Clear the list
+.LP
+When you clear the list \f[I]all items are lost\f[R] \(enthey cannot be recoved.
+To clear the list click «\f[CR][C]\f[R]» in the main window, then click «\f[CR][Clear]\f[R]».
+You will be prompted to confirm your intention.
+.SS Save and back up the list
+.LP
+By default the list and raw files are saved automatically into the system
+temporary directory.  Therefore, they will be deleted when the system reboots.
+However, they can be made permanent by setting environment variable
+\f[I]_DNDMATE_REFS\f[R].
+.LP
+There is no \(lqBackup\(rq command per se because backing up simply amounts to
+copying the \f[B]raw file\f[R] to a destination of your liking. For that you need
+to know where the raw file is located. You can find out in two ways:
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Open the raw file in your text editor, as explained above.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click button «\f[CR][H]\f[R]» in the main window, scroll down after topic \f[I]Option\f[R]»
+to topic \f[I]The \(lqRef\(rq File - DNDMATE\f[R]REFS and REFs_ and read how then
+names of the raw and list files are formed, and can be customized.
+.RE
+.SS Export the list
+.LP
+There is no \(lqExport\(rq command per se because exporting simply amounts to
+copying the \f[B]list file\f[R] to a destination of your liking. For that you need
+to know where the list file is located. You can find out in two ways:
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Hover the mouse pointer over button «\f[CR][H]\f[R]» and read the tooltip.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Edit the list file to open it.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Do as explained about button «\f[CR][H]\f[R]» in section \f[I]Backing up the list\f[R]».
+.RE
+.SS Name your lists! (ID)
+.LP
+Do you want to create more than one list? Then you must read this.
+.LP
+Name each new list by giving it an ID, e.g., «\f[CR]dndmate --id=this-ID\f[R]».
+A given ID brings its own distinct \(lqRef\(rq file and window group.
+All dndmate windows belong to some group.
+.LP
+With «\f[CR]--id\f[R]» dndmate can distinguish all (sub)windows that share the same ID,
+and apply options and actions to members of that ID group only.
+Without «\f[CR]--id\f[R]» REFs and windows belong to the single, unnamed, default group.
+If «\f[CR]--id\f[R]» is not followed by «\f[CR]=ID\f[R]», a new, unique, unnamed group is formed.
+If «\f[CR]--id=ID\f[R]» is given the window title displays the name «\f[CR]ID\f[R]», and new REFs
+are added under that ID.
+.LP
+if you want to run multiple drop targets \(eneither together or one by one\(en
+you need to understand about the target ID, which is simply a text string
+you choose to identify each target, therefore its raw data file.
+.LP
+To run a dndmate target with a given ID, say \(lqMyTarget\(rq, start dndmate this way:
+.sp 1
+.nf
+.ft CR
+dndmate --id="MyTarget"
+.ft
+.fi
+.LP
+This automatically adds \(lqmyTarget\(rq to the name of the \f[B]raw file\f[R].
+Remember to specify «\f[CR]--id="MyTarget"\f[R]» every time you want to access that
+particular list.
+.RS
+.LP
+Click button «\f[CR][H]\f[R]» and read section \f[I]Understanding IDs\f[R]» to know
+ŵhat other things can be affected by giving a target an ID.
+.LP
+When running multiple targets at the same time, they all must be given
+different IDs. This is because if two targets share the same ID, the second
+one to start will \f[I]replace\f[R] the first one.  This is so even if the two
+targets \f[I]look\f[R] different to you. The look does not matter. The ID does.
+.RE
+.SS Run shell commands on list items
+.LP
+With some items checked in the main window, click button «\f[CR][R]\f[R]».
+This will open a one-line entry form where you can enter a shell command or
+selected a previous command from the pull-down menu.
+.LP
+Your command can be anything, it does not need to refer to the checked item,
+but normally it will.  The placeholder for the checked items is entered as
+«\f[CR]"$@"\f[R]». This syntax is just the regular shell syntax, if you understand
+shell prompt usage.
+.RS
+.LP
+Caveat: by default the output of your command isn\(cqt redirected at all,
+therefore it goes to dndmate\(cqs standard ouput. If you started dndmate from a
+terminal you will see your command\(cqs output there. If instead you started
+dndmante from an icon you will not see command output, unless your command
+explicitly redirects its standard output.
+.RE
+.LP
+Executed commands are saved to the history log file.
+By default this file is saved automatically into the system temporary
+directory.  Therefore, it will be deleted when the system reboots.
+However, you can be made permanent by setting environment variable
+\f[I]_DNDMATE_HISTORY\f[R].
+.SS ROX-app (optional)
+.LP
+If ROX-Filer is your file manager, you can drag the ROX-app icon
+«\f[CR]/usr/local/apps/dndmate\f[R]» to your desktop. The icon responds to drop icons.
+You can also right-click the icon and select the \(lqdndmate\(rq item to access a
+specific submenu.
+.LP
+To change the icon color:
+.sp 1
+.nf
+.ft CR
+cd /usr/local/apps/dndmate
+# change p to one of the available colors; to list colors: ls res
+p=red
+ln -sf res/dndmate_$p.svg .DirIcon
+.ft
+.fi
+.SS Assigning a global hotkey (optional)
+.LP
+The following instructions apply to 
+sven\f[I]:3\f[R]
+\(em the multimedia
+keyboard manager in Fatdog64 
+Linux\f[I]:4\f[R].
+They assume that key Windows+b isn\(cqt already assigned as a hotkey.
+If it is assigned, you need to disable the assignment in sven\(cqs configuration
+before re-assigning it.
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Right-click the keyboard icon \(en located in the desktop panel icon tray \(ento
+open sven\(cqs menu, and select Preferences
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click Keyboard > New > Description and type \f[I]Drag-and-drop list maker Win+b\f[R]
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click inside input field Key Code with your mouse, then press keys \(lqWindows\(rq
+and \(lqb\(rq together, don\(cqt press other keys
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click inside input field Text Display with your mouse, then type \(lqSystem and
+Applications\(rq
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click the Program radio button, and type:
+«\f[CR]dndmate --id --optf=random.opt\f[R]».
+The command set a unique group id, and merges more options from preset file
+«\f[CR]random.opt\f[R]» \(enlocated in the ROX-app folder. In turn «\f[CR]random.opt\f[R]» sets the
+compact window style, and a random target symbol in the range 20-44 of the
+global style file «\f[CR]/usr/share/dndmate/stylef\f[R]».
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Click OK and close sven.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Alternatively, you could set the Program field with another preset:
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  «\f[CR]dndmate --optf=random-lowercase-id.opt\f[R]»
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  «\f[CR]dndmate --optf=random-uppercase-id.opt\f[R]»
+.RE
+.RE
+.LP
+Press Win+b to test the global hotkey.
+.SS Advanced Usage
+.SS Configuration through environment variables
+.LP
+\f[B]TL;DR\f[R] \(en
+To make the list file and the history file permanent (survive a system reboot)
+add the following lines to your user profile file
+(«\f[CR]\(ti/.fatdog/profile\f[R]» in Fatdog64),
+log out and log in again:
+.sp 1
+.nf
+.ft CR
+export DNDMATE_HISTORY="$HOME/.cache/dndmate-history.sh"
+export DNDMATE_REFS="$HOME/.cache/dndmate-refs-%s.txt"
+.ft
+.fi
+.LP
+.LP
+Dndmate does not provide a user configuration file to set preferences. Instead
+it expects preferences to be set in the form of environment variables, which a
+user can either set when invoking a single dndmate instance, or set in the user
+profile file to affect all future invocations.
+(Changes to the user profile file are effective at the next login).
+.LP
+Run «\f[CR]dndmate --help=all\f[R]» or click button «\f[CR][H]\f[R]» in the main window to read more
+about the following environment variables:
+.RS
+.LP
+«\f[CR]DNDMATE_EDITOR\f[R]» \(en history editor program path,
+default «\f[CR]defaulttexteditor\f[R]» or «\f[CR]geany\f[R]» or «\f[CR]leafpad\f[R]»
+.LP
+«\f[CR]DNDMATE_HISTORY\f[R]» \(en history file path template,
+default «\f[CR]/tmp/$USER-dndmate-history%s.sh\f[R]»
+.LP
+«\f[CR]DNDMATE_REFS\f[R]» \(en list file path template,
+default «\f[CR]/tmp/$USER-dndmate-refs%s.txt\f[R]»
+.LP
+«\f[CR]DNDMATE_SEPARATOR\f[R]» \(en reserved character that items must not include,
+default «\f[CR]|\f[R]»
+.LP
+«\f[CR]DNDMATE_STYLEF\f[R]» \(en style file path,
+default «\f[CR]/usr/share/dndmate/stylef\f[R]»
+.LP
+«\f[CR]DNDMATE_YAD_INITIAL_POSITION\f[R]» \(en initial window placement and size,
+e.g., «\f[CR]--center --width=500\f[R]»
+.LP
+«\f[CR]DNDMATE_YAD_OPTIONS\f[R]» \(en extra yad options,
+e.g., «\f[CR]--on-top\f[R]»
+.LP
+«\f[CR]SHELL\f[R]» \(en user command processor
+.RE
+.SS Style file
+.LP
+Dndmate targets can be styled, essentially to change the window layout and
+icon, and the drop target symbol and color; see option «\f[CR]--stylef\f[R]» in the
+runtime help («\f[CR][H]\f[R]»).  New styles can be saved to a personal style file or
+added to the global style file «\f[CR]/usr/share/dndmate/stylef\f[R]»; see that file for
+instructions.
+.SS Add items from the shell
+.LP
+One thing is to add items \f[I]and\f[R] close (exit) dndmate.  Another thing is to add
+items and keep dndmate open with the expectation to add more items later.  Both
+scenarios can be easily achieved but how to do the latter isn\(cqt immediately
+obvious.
+.LP
+\f[B]First scenario:\f[R] add and close
+.sp 1.0v
+.RS
+.ti -\w'1.  'u
+1.  Make sure that dndmate isn\(cqt already running, then
+.RE
+.RS
+.ti -\w'2.  'u
+2.  Run «\f[CR]dndmate [--id=ID] [--append] item1 item2 ...\f[R]» then
+.RE
+.RS
+.ti -\w'3.  'u
+3.  Close dndmate.
+.RE
+.LP
+Repeat steps 2 and 3 as long as necessary. Square brackets wrap optional
+elements. Adding «\f[CR]--id=ID\f[R]» serves to name a specific list (and its windows).
+Adding «\f[CR]--append\f[R]» serves to emphasize that we are adding items, and it\(cqs
+pedantic because appending is dndmate\(cqs default action anyway.
+.LP
+Step 1 above is essential. If you were to append in step 2 while another
+dndmate (identified by the same ID) was still running, the list would be
+doubled in size \(enprobably not what you expected.
+.LP
+\f[B]Second scenario:\f[R] add while another dndmate is running
+.sp 1.0v
+.RS
+.ti -\w'1.  'u
+1.  Run «\f[CR]dndmate [--id=ID] --append-exit item1 item2 ...\f[R]»
+.RE
+.LP
+With «\f[CR]--append-exit\f[R]» no window is started, so the existing dndmate window
+keeps running and will show the new items. If no window is running this
+will be a silent update; you won\(cqt notice until you start a new window.
+.LP
+Another way to add when another dndmate is running:
+.sp 1.0v
+.RS
+.ti -\w'1.  'u
+1.  Close the running dndmate with «\f[CR]dndmate [--id=ID] --close --exit\f[R]»
+.RE
+.RS
+.ti -\w'2.  'u
+2.  Start a new window «\f[CR]dndmate [--id=ID] item1 item2 ...\f[R]»
+.RE
+.LP
+Nothing bad would happen if no dndmate was running in step 1 above.
+.SS Esoteric Usage
+.LP
+External applications can call the dndmate style engine to generate a random
+SVG icon for their own use, e.g.:
+.sp 1
+.nf
+.ft CR
+TMPS=/tmp/myApp.$$.tmp
+rm -f "$TMPS" # --icon-get appends
+if dndmate --stylef=: "$@" --icon-get="$TMPS" --clean --exit; then
+  read DND_SVG_ICON < "$TMPS"
+fi
+# The new icon file path is $DND_SVG_ICON.
+.ft
+.fi
+.SS Tips
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  To work on different lists at once, run separate instances with «\f[CR]--id\f[R]», i.e.
+.RE
+.sp 1
+.nf
+.ft CR
+dndmate --id=music & dndmate --id=weblinks &
+.ft
+.fi
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  The above example rewritten to take advantage of the two predefined styles
+\(lqMyMusic\(rq and \(lq-MyMusic\(rq:
+.RE
+.sp 1
+.nf
+.ft CR
+dndmate --stylef=:MyMusic & dndmate --stylef=:-MyMusic &
+.ft
+.fi
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Preload your frequently-used commands into the command history file.
+Click «\f[CR][R]\f[R]» in the main window then click «\f[CR][Edit]\f[R]».
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  The runtime help page starts with a TL;DR section!
+.RE
+.SS Help
+.LP
+While dndmate is active hover over the GUI buttons for tooltip help or
+press the Help button for full help, which is also accessed with
+.sp 1
+.nf
+.ft CR
+dndmate --help=all
+.ft
+.fi
+.LP
+This file is \(lqthe\(rq help file, so keep it around for future reference
+because it isn\(cqt installed by default.  However, if the «\f[CR]man\f[R]» command is
+installed, you will be able to view these contents by running command:
+.sp 1
+.nf
+.ft CR
+man dndmate
+.ft
+.fi
+.SS AUTHOR
+.LP
+step
+.LP
+Thanks to stemsee and MochiMoppel for early discussion.
+.SS LINKS
+.LP
+\f[B]Homepage\f[R]
+\f[I]github.com/step-/scripts-to-go\f[R]
+.LP
+\f[B]:1\f[R] release page
+\f[I]github.com/step-/scripts-to-go/releases\f[R]
+.LP
+\f[B]:2\f[R] yad-lib
+\f[I]github.com/step-/yad-lib\f[R]
+.LP
+\f[B]:3\f[R] sven multimedia keyboard manager
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  source
+\f[I]distro.ibiblio.org/fatdog/source/800/sven-20190207.tar.bz2\f[R]
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  64-bit binary
+\f[I]distro.ibiblio.org/fatdog/packages/800/sven-2019.02-x86_64-1.txz\f[R]
+.RE
+.LP
+\f[B]:4\f[R] Fatdog64 Linux
+\f[I]distro.ibiblio.org/fatdog/web/\f[R]
+.LP
+\f[B]:5\f[R] yad - a GTK dialog program
+\f[I]github.com/v1cont/yad\f[R]
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Fatdog64 800 binary package
+\f[I]distro.ibiblio.org/fatdog/packages/800/yad\f[I]gtk2-0.42.0\f[R]5\f[R]
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Fatdog64 800 source (the build recipe can be found under «\f[CR]/usr/src\f[R]» in the binary package)
+\f[I]distro.ibiblio.org/fatdog/source/800/yad_gtk2-62d54eb5bf5ae2457c6986c33c6de89a6284f969.tar.gz\f[R]
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Puppy Linux forum - yad tips thread
+\f[I]murga-linux.com/puppy/viewtopic.php?p=908353#908353\f[R]
+.RE

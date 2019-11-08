@@ -1,0 +1,1575 @@
+#!/bin/bash
+
+# META-begin
+# dndmate - drag-and-drop list maker and automator
+# Copyright (C) step, 2017-2019
+# License: GNU GPL Version 2
+  Homepage=https://github.com/step-/scripts-to-go
+  Version=1.4.0
+# Required shell libraries: yad-lib >= 1.2.0
+# Required packages: yad == 0.42 (>0.42 untested), gawk >= 4.1.1, findutils >= 4.4.2, bash >= 4.3
+# META-end
+
+usage() # [$1-cmdline-option] {{{1
+{
+  # TODO i18n
+  local lte=$'\u2264'
+  [ "$1" != --help=gui -a "$1" != --help=print ] &&
+  cat << EOF
+Version: $Version
+Usage: $SN [OPTIONS] [REF...]
+  Drag items to the target to append their REFerence texts to the "Ref" file,
+  and update the List View. Items can be files, folders, browser URLs, and text
+  lines.  Sub-folders aren't expanded.
+TL;DR
+  Read the full help in a window: $SN --help=gui
+  Open a new window and add some REFs: $SN [--append] REFs
+  Append without window replacement: $SN --append-exit REFs
+  Start with a random drop target symbol: $SN --stylef=:
+  Don't add duplicate REFs: --uniq REFs
+  Open a new window in a new, unique group: --id
+  Close a group of windows: --id=GroupID --close -exit
+  Empty the list and the "Ref" file: --zap
+  Apply symbol and icon from the style file: --stylef=:-MyMusic
+  Change drop target symbol: --glyph=$'\\u25cf' --fgcolor=navy
+OPTIONS:
+  Short options can't be combined together. '=' before option value is required.
+  -h|--help[=all|=gui|=print]  Show help and exit =all(extended) =gui(window)
+  --help=homepage  Open the $SN home page.
+  -a|--append      Append to "Ref" file. Replace existing window, if any.
+                   Appending is the default action unless --zap is given. {1}
+  --append-exit    Append to "Ref" file, process OPTIONS then exit. {1} {e2}
+  --debug[=FILE]   Trace to debug log FILE (default $DEBUG_LOG_FILE)
+  --bgcolor=BC     Glyph background color, BC:= SVG color SPEC + 'none'.
+  --clean          Remove work files of any instance with the same ID. {8}
+  --close          Close any other running instance with the same ID. {1}
+  --exit[=CODE]    Exit the current instance immediately. {1}
+  --fgcolor=FC     Glyph color, FC:= SVG SPEC.
+  --font-family=FF Font family (default: the system font), FF:= SVG text SPEC.
+  --glyph          Glyph in the drag-and-drop pane. {4}
+  --glyph-scale=N% Fit larger glyphs. 0 < N $lte 100 integer, default 90.
+  --height=H       Set window height.
+  --icon-get[=FILE]Create icon file and append path to FILE or stdout. {8}
+  --id[=ID]        Bind a "Ref" file and a group of windows to the named ID.
+  --info           Dump variables to stdout.
+  --mult=M         Drag-and-drop glyph size multiplier, integer M > 0. Default 5.
+  --no-edit        Disallow editing the List widget items.
+  --optf=FILE      Insert OPTIONS from FILE. {2}
+  --print=TOPICS   Print TOPICS to stdout and exit. --print=ref,check {3}
+  --style=C        Customize dialog style. {5}
+  --stylef=FILE:P  Read values of --id, --glyph, --glyph-scale, --style,
+                   --fgcolor, and --bgcolor from FILE at P {7}.
+  --tail           Autoscroll list when a new item is added.
+  --uncheck-append Uncheck new items added with --append / --append-exit. {e2}
+  --uncheck-drop   Uncheck new items dropped on the target.
+  --uniq           Do not add duplicated REFs. Existing REFs are unchanged. {e1}
+  --version        Print "$Version" and exit.
+  --width=W        Set window width.
+  -Z|--zap         Empty the "Ref" file. --append disables --zap. {e2}
+  --               Stop processing options.
+EOF
+case $1 in
+  --help=all ) : pass-through to show extended help ;;
+  --help=gui )
+    usage --help=all |
+    yad ${YAD_WINTITLE:+--title="$YAD_WINTITLE"} --width=700 --height=600 --center --window-icon=gtk-help \
+      --text-info --button=gtk-ok --button=gtk-print:"$0 --help=print" \
+      --button="gtk-properties:$0 --help=properties" &
+    return
+    ;;
+  --help=print )
+    local p="${TMPDIR:-/tmp}/.$SN-print.$$"
+    usage --help=all > "$p" &&
+      yad ${YAD_WINTITLE:+--title="$YAD_WINTITLE"} --center --window-icon=gtk-print \
+      --print --type=TEXT --filename="$p" --add-preview
+    rm -f "$p"
+    return
+    ;;
+  --help=properties)
+    local p="${TMPDIR:-/tmp}/.$SN-properties.$$"
+    > "$p" printf "%s\n" "$(gettext "Group:") $YAD_WINTITLE" "$(gettext "List:") $_DNDMATE_REFS" "Command:" &&
+    >> "$p" printf "  %s\n" $(xargs -0L1 < "$_DNDMATE_CMDLINE") &&
+    yad ${YAD_WINTITLE:+--title="$YAD_WINTITLE"} --center --width=600 --window-icon=gtk-properties --button=gtk-ok --text-info < "$p"
+    rm -f "$p"
+    return
+    ;;
+  --help=homepage ) defaultbrowser $Homepage || xdg-open $Homepage ;;
+  * ) printf "\033[7m%s\033[0m\n" \
+    "Type ${0##*/} --help=all for extended help, notes and examples."; false
+    ;;
+esac &&
+  cat << EOF
+The list identifier (ID)
+  Name a list by giving it an ID, e.g., $SN --id=this-ID.
+  A given ID brings its own distinct "Ref" file and window group.
+  All $SN windows belong to some group.
+  With --id dndmate can distinguish all (sub)windows that share the same ID,
+  and apply options/actions to members of that ID group only.
+  Without --id REFs and windows belong to the single, unnamed, default group.
+  If --id is not followed by "=ID", a new unique, unnamed group is formed.
+  If --id=ID is given the window title displays the name "ID" and new REFs are
+  added under that ID.
+The "Ref" File - DNDMATE_REFS and REFs
+  This $SN instance is configured to save REFs and raw data respectively to
+  . the "Ref" file '$_DNDMATE_REFS'
+  . the "Raw" file '$_DNDMATE_LIST'.
+  To change both file paths at once set environment variable DNDMATE_REFS, i.e.
+    env DNDMATE_REFS=/folder/user-\$USER-%s.txt $SN --id=ThisID [REFs]
+  where the value of option --id (default value: \$\$) replaces "%s". {6}
+  When REFs are passed with --append each can be any single-line text string,
+  and the main window, if running, is restarted. {1}
+Reserved character - DNDMATE_SEPARATOR
+  By default $SN reserves character "|" for internal use, therefore no item is
+  allowed to contain that character. To change the reserved character so your
+  items can include "|", set environment variable DNDMATE_SEPARATOR to some
+  other character, which no item will include, e.g.
+    env DNDMATE_SEPARATOR=\$'\t' $SN --id=tab
+List View
+  Select the List View, press Ctrl+F, type a regular expression to find an
+  item. Select then click or right-click an item to edit the list in place.
+  You can also edit the List File with the default Editor Program.
+Command Execution - SHELL (login shell)
+  Click "Run" and enter COMMAND; this runs: \$SHELL -c "COMMAND". Append "\$@"
+  to COMMAND to pass it the checked items.
+Command History - DNDMATE_HISTORY
+  Typed commands are stored in file '$_DNDMATE_HISTORY',
+  where the value of option --id (default value \$\$) replaces "%s". {6}
+  To customize the file path set environment variable DNDMATE_HISTORY, i.e.
+    env DNDMATE_HISTORY=\$HOME/.cache/$SN-history.sh $SN
+History Editor Program - DNDMATE_EDITOR
+  The default program can be changed by setting environment variable
+  DNDMATE_EDITOR. Current value: "$_DNDMATE_EDITOR"
+Yad Options - DNDMATE_YAD_OPTIONS, DNDMATE_YAD_INITIAL_POSITION, DNDMATE_STYLEF
+  Pass extra yad options (not all will apply) using environment variable
+  DNDMATE_YAD_OPTIONS. See 'man yad' for a list of valid options.
+  Consider the following: --on-top --no-focus --undecorated i.e.
+    env DNDMATE_YAD_OPTIONS="--on-top --undecorated" $SN
+  Request main window initial position by setting environment variable
+  DNDMATE_YAD_INITIAL_POSITION (default: window manager placement):
+    env DNDMATE_YAD_INITIAL_POSITION="--center" $SN # or --mouse
+  Change size and look of the main window by setting DNDMATE_STYLEF {7}
+    env DNDMATE_STYLEF=: $SN    # /usr/share/$SN/stylef
+Limitations
+. The ENTER key is disabled. Use Alt+O (OK), Alt+C (Cancel), ESC.
+Notes
+{1} The only two correct ways to append REFs and manage windows:
+  Append to an existing $SN window:
+    $SN [--id=ID] --append-exit REF
+  If unsure whether a window does exist:
+    $SN [--id=ID] --close --exit; $SN [--id=ID] [--append] REF
+{2} One option per line including '--'; line is used as is but indentation is trimmed;
+  FILE path is resolved relative to working directory first then to script directory.
+{3} TOPICS is a comma-separated list of words: 'ref' (print the "Ref" file),
+  'check' (refs and checkmarks). A blank line separates multiple printed topics.
+{4} Example: --glyph=$'\\u25cf' --fgcolor=navy. The glyph shape and colors are
+  used for the main window icon, too.
+{5} For option --style each character of C, modifies the dialog as follows:
+    c:compact window, h:horizontal layout, v:vertical layout, x:list expander,
+    I:no button icons, L:no button labels, T:no button tooltips.
+      $SN --style=cIvx   ;   $SN --style=cLv
+{6} Omit %s to create a single, global history file.
+{7} Values in --stylef override the corresponding options except --id.
+    If FILE is omitted, it's filled in with the first '$SN/stylef' in
+    \$XDG_CONFIG_HOME:\$USER/.config:\$XDG_DATA_DIRS:/usr/share
+    Position P can be a line number or range, null or a label. See
+    /usr/share/$SN/stylef for details. {e3}
+{8} For any app to get an SVG icon and clean up after using it:
+      ICONPATH=\$($SN -id=appID --stylef=: --icon-get --clean --exit)
+      # using \$ICONPATH...
+      rm -f "\$ICONPATH" # no command history file was created
+    --clean removes all work files except SVG icon and non-empty history.
+Examples
+{e1} -a --uniq --close REF1 REF2 &  Add unique REFs and refresh the list
+{e2} --close --zap --exit &  Reset "Ref" file and close all windows
+     [--zap] --append-exit REFs &  Reset and append REFs without windows
+     [--zap] --append [--uncheck-append] REFs & ditto and unmark items
+{e3} --stylef=:1 ; --stylef=:2-6 ; --stylef=: ; --stylef=:MyMusic
+----
+EOF
+}
+
+set_APP_ICON_and_SPLITTER_SIZE() # $1-int:scale-factor $2-glyph $3-fgcolor $4-bgcolor $5-font-family $6-glyph-scale {{{1
+{
+  local s=${1:-$opt_mult} glyph=${2:-$opt_glyph} fgcolor=${3:-$opt_fgcolor} bgcolor=${4:-$opt_bgcolor} font_family=${5:-$opt_font_family} glyph_scale=${6:-$opt_glyph_scale}
+  glyph=${glyph:0:1}
+  [ "$font_family" ] && font_family=" font-family=\"$font_family\""
+  local text_x=$((50+(100-$glyph_scale)/2)) text_y=$((81+(100-$glyph_scale)/2))
+  local scale=0.$glyph_scale; [ 0.100 = $scale ] && scale=1
+  local font_size=$((s*8 +(s -1)*3 -s/2))
+
+  # Hex dump the unicode glyph to keep the filepath within ASCII.
+  # If hex format isn't desired replace $dump with $glyph in the APP_ICON assignment.
+  local dump IFS
+  set -- $(printf %s "$glyph" | od -A n -t x1)
+  IFS=""
+  dump=$*
+  unset IFS
+
+  declare -g SPLITTER_SIZE=$((s*17 +2)) APP_ICON="${TMPDIR:-/tmp}/.$USER-$SN-$dump-$glyph_scale-${fgcolor//[# ]}-${bgcolor//[# ]}.svg"
+  echo '<svg width="'$((s*16))'" height="'$((s*17))'" version="1.1" viewBox="0 0 '$((s*8))' '$((s*8))'" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="'$bgcolor'"/><text x="'$text_x'%" y="'$text_y'%"'"$font_family"' font-size="'$font_size'" fill="'$fgcolor'" text-anchor="middle" transform="scale('$scale,$scale')">'$glyph'</text></svg>' > "$APP_ICON"
+  # https://www.w3.org/TR/SVG/text.html#TextElement
+}
+
+set_SPLITTER_WORKAROUND() # {{{1
+# Motivation: Work around the following issue.
+# Yad's --splitter is broken for --paned because yad draws the splitter at a
+# fixed X position, which corresponds to the dialog button container box width,
+# regardless of the requested --splitter=W value. The fixed splitter can crop
+# out part of the --dnd image when the button container width is small due to
+# few/no/small buttons (cf. --style=cLI). This work-around puts a $w by $h
+# transparent line on top of the --paned dialog (in show_main_dialog), which
+# pushes the splitter to the requested X position.
+{
+  declare -g SPLITTER_WORKAROUND
+  local -i w=$SPLITTER_SIZE h=1
+  local transparent_svg="${TMPDIR:-/tmp}/.$USER-$SN-$w-$h.svg"
+  if ! [ -e "$transparent_svg" ]; then
+    echo "<svg viewBox=\"0 0 $w $h\" xmlns=\"http://www.w3.org/2000/svg\"></svg>" > "$transparent_svg"
+  fi &&
+  SPLITTER_WORKAROUND="--image=$transparent_svg --image-on-top"
+}
+
+_dndmate_find_data_file() # [--system] $1-filename $2-varname {{{1
+# Assign $2-varname the first existing $1-filename by the standard XDG search order.
+# If --system then only system directories are searched.
+{
+  local p filename userdirs IFS=" " SN=dndmate
+  if [ --system = "$1" ]; then
+    filename=$2
+    shift
+  else
+    filename=$1 userdirs="$XDG_CONFIG_HOME $USER/.config"
+  fi
+  shift
+  local -n varname="$1"
+  for p in $userdirs ${XDG_DATA_DIRS//:/ } /usr/share; do
+    [ -e "$p/$SN/$filename" ] && varname="$p/$SN/$filename" && set +x && return
+  done
+  varname=$filename
+}; export -f _dndmate_find_data_file
+
+_dndmate_print_quoted_var_assignment() # $1-varname [$2-rename-varname] {{{1
+# Print varname=value with fully-escaped quoting. Rename too if $2.
+# varname must exist.
+{
+  local x="$(declare -p $1)"
+  x="${x#declare -? }"
+  [ "$2" ] && x="$2=${x#*=}"
+  echo "$x"
+}; export -f _dndmate_print_quoted_var_assignment
+
+_dndmate_list_existing() # [--grep=pat] [--grepv=pat] $1-what $2-start-with [$3-add-prefix] [$4-add-suffix] {{{1
+# List compgen category ('export' | 'variable' | 'function' | ...) item
+# that start with start-with; add prefix and suffix to all found items.
+{
+  local include exclude
+  if [[ $1 == --grep=*  ]]; then include="${1#--grep=}";  shift; fi
+  if [[ $1 == --grepv=* ]]; then exclude="${1#--grepv=}"; shift; fi
+  local what=$1 start_with=$2 prefix=$3 suffix=$4 name sep
+  compgen -A $what $start_with | while read name; do
+    [[ -n "$include" && ! $name =~ $include ]] && continue
+    [[ -n "$exclude" &&   $name =~ $exclude ]] && continue
+    echo -n "${sep}${prefix}${name}${suffix}"
+    sep=' '
+  done
+  echo
+}; export -f _dndmate_list_existing
+
+_dndmate_get_state_with_lock() # {{{1
+{
+  ! [ -s "$_DNDMATE_STATE" ] && return
+  exec 8< "$_DNDMATE_STATE"
+  flock -s 8 # acquire read lock
+  . "$_DNDMATE_STATE"
+  flock -u 8 # release lock
+  exec 8<&-
+}; export -f _dndmate_get_state_with_lock
+
+_dndmate_save_state_with_lock() # $@-varname(s) {{{1
+# Add (or replace) shell assignment(s), like varname=value, in the state file.
+# A value is the current value of the global variable varname.
+# A varname must start with "state_".
+# An assignment statement can extend over multiple lines.
+# Return the whole state as a side effect by setting non-local variables state_*.
+{
+  local varname x IFS=" "
+
+  exec 8>> "$_DNDMATE_STATE"
+  flock -x 8 # acquire write lock
+  for varname; do
+    _dndmate_print_quoted_var_assignment "$varname" >> "$_DNDMATE_STATE"
+  done
+  # Unset global state_* variables then read back state_* from file.
+  # This eliminates double assignments (last wins), and returns the state.
+  unset x $(_dndmate_list_existing variable state_)
+  . "$_DNDMATE_STATE"
+  for x in $(_dndmate_list_existing variable state_); do
+    _dndmate_print_quoted_var_assignment $x
+  done > "$_DNDMATE_STATE"
+  flock -u 8 # release lock
+  exec 8>&-
+}; export -f _dndmate_save_state_with_lock
+
+_dndmate_write_data_by_id_with_lock() # [--unique] [--compact] $1-mode $2-id $3@-data... {{{1
+# Write $3@-data... to a shared record with flock. $2-id is the record key.
+# $1-mode applies to a record and can be 'w'(write) or 'w+'(append).
+# If --unique is given $3@-data are added iff not already in the record.
+# If --compact is given replace runs of \n with a single \n in record.
+# Record format: ^<key1>\n<data1,1>\n<data1,2>\n...<data1,N>\n\n
+# This format allows grep'ing individual data fields e.g. to delete them.
+{
+
+  local p unique compact n
+  for p; do case $p in
+    --unique ) unique=$((++n)) ;; --compact ) compact=$((++n)) ;; * ) break ;;
+  esac; done
+  shift $n
+  local mode=${1:-w+} id="${2:-ERROR-NO-KEY}" data="$3" # and $4... if any
+  shift 3 && for p; do data+=$'\n'"$p"; done
+  exec 8>>"$_DNDMATE_DATA_BY_ID" # database and lock file
+  flock -x 8 # acquire write lock
+  awk -v COMPACT="$compact" -v UNIQUE="$unique" -v KEY="$id" -v DATA="$data" -v MODE=$mode ' #{{{awk
+BEGIN { RS=""; FS="\n" } # \n\n separates records, \n separates fields
+{ K[++nK] = $1; R[$1] = $0 } # $1 is an id
+END {
+  if(KEY in R) {
+    # Append to or replace existing record according to MODE.
+    R[KEY] = (MODE == "w+" ?R[KEY] :KEY) "\n" DATA
+  } else {
+    # Create new record.
+    K[++nK] = KEY; R[KEY] = KEY "\n" DATA
+  }
+  if(UNIQUE) { R[KEY] = deduplicate(R[KEY]) }
+  # Write all records back to the input file.
+  for(i = 1; i <= nK; i++) {
+    if(COMPACT) { gsub(/\n\n?/, "\n", R[K[i]]) }
+    printf "%s\n\n", R[K[i]] > FILENAME
+  }
+}
+function deduplicate(rec,   result, i, nData, Data) { # {{{
+  nData = split(rec, Data)
+  result = Data[1] # the record id
+  for(i = 2; i <= nData; i++) {
+    if(!Seen[Data[i]]) {
+      result = result "\n" Data[i]
+      Seen[Data[i]] = 1
+    }
+  }
+  return(result)
+} # }}}
+#awk}}}
+' "$_DNDMATE_DATA_BY_ID"
+  flock -u 8 # release lock
+  exec 8>&-
+}; export _dndmate_write_data_by_id_with_lock
+
+_dndmate_read_data_by_id_with_lock() # $1-id {{{1
+# Print data of a shared record with flock. Id is the record key.
+{
+  ! [ -s "$_DNDMATE_DATA_BY_ID" ] && return
+  local id="${1:-ERROR-NO-KEY}"
+  exec 8<"$_DNDMATE_DATA_BY_ID" # database and lock file
+  flock -s 8 # acquire read lock
+  awk -v KEY="$id" 'BEGIN {RS=""; FS="\n"} ($1==KEY)' "$_DNDMATE_DATA_BY_ID"
+  flock -u 8 # release lock
+  exec 8<&-
+}; export _dndmate_read_data_by_id_with_lock
+
+_dndmate_vacuum_pid_data_with_lock() # $1-key {{{1
+# Delete pids of non-existent processes.
+# Return 0 if $1-key was found in the database.
+{
+  local key="$1" i pid rip found IFS=" "
+  ! [ -e "$_DNDMATE_DATA_BY_ID" ] && : >> "$_DNDMATE_DATA_BY_ID"
+  exec 8<"$_DNDMATE_DATA_BY_ID" # database and lock file
+  flock -s 8 # acquire read lock
+  # Collect pids of no longer existing processes.
+  readarray -t < "$_DNDMATE_DATA_BY_ID"
+  for (( i = 0; i < ${#MAPFILE[@]}; i++ )); do
+    if [[ ${MAPFILE[$i]} == *$'\t'* ]]; then # format: <pid>\t<title>
+      pid=${MAPFILE[$i]%%$'\t'*}
+      [ "$pid" = "$key" ] && unset key # found
+      # excempt non-existent or non-owned or zombie pids
+      ! kill -0 $pid 2>/dev/null && rip+=" $i"
+    fi
+  done
+  # Rewrite database without RIP records.
+  if [ "$rip" ]; then
+    for i in $rip; do unset MAPFILE[$i]; done
+    printf "%s\n" "${MAPFILE[@]}" > "$_DNDMATE_DATA_BY_ID"
+  fi
+  unset MAPFILE
+  flock -u 8 # release lock
+  exec 8<&-
+  # return 0 if $key was found
+  ! [ "$key" ]
+}; export _dndmate_vacuum_pid_data_with_lock
+
+set_B_L_I_T() # $1-msg {{{1
+# Assign button labels, icons and tooltips.
+{
+  local msg="${1:+$'\n'}$1"
+  declare -gA B L I T
+  if ! [[ $opt_style =~ L ]]; then # label
+    L=( \
+      [quit]="$(gettext _Q)" \
+      [run1]="$(gettext _R)" \
+      [copy]="$(gettext _C)" \
+      [help]="$(gettext _H)" \
+    )
+  fi
+  if ! [[ $opt_style =~ I ]]; then # icon
+    I=( \
+      [quit]="gtk-quit" \
+      [run1]="gtk-execute" \
+      [copy]="gtk-copy" \
+      [help]="gtk-help" \
+    )
+  fi
+  if ! [[ $opt_style =~ T ]]; then # tooltips
+    T=( \
+      [quit]="$(gettext "Quit (save changes)")" \
+      [run1]="$(gettext "Run command for checked items...")" \
+      [copy]="$(gettext "Copy items... / Edit \"Raw\" file...")" \
+      [help]="$(gettext "Help")$msg" \
+    )
+  fi
+  for k in "${!L[@]}" "${!I[@]}"; do B[$k]="--button="; done
+  [ 0 = ${#B[*]} ] && B[none]="--no-buttons"
+}
+
+set_OPTIONS_FROM_STYLEF() # $1-stylef ::= FILEPATH:POSITION {{{1 => $OPTIONS_FROM_STYLEF
+{
+  declare -g opt_id opt_style opt_width opt_height opt_glyph opt_glyph_scale opt_mult opt_fgcolor opt_bgcolor OPTIONS_FROM_STYLEF # {{{1
+  #{{{1 ^^^ The global options that we are going to change. ^^^
+  local f=${1%:*} pos=${1##*:} N line label nA
+  local -A A
+  if [ -z "$f" ]; then
+    _dndmate_find_data_file stylef f
+  elif ! [ -e "$f" ]; then
+      echo "${0##*/}: $f: $(gettext 'file not found')" >&2
+      return 1
+  fi
+  # POSITION to LINENUMBER.
+  # POSITION can be a LINENUMBER, a LINENUMBER_RANGE, null or a LABEL/ID.
+  # LINENUMBER is interpreted modulus the number of lines in FILEPATH.
+  # LINENUMBER_RANGE is LINENUMBER_a'-'LINENUMBER_b with a < b.
+  # If POSITION is LINENUMBER_RANGE or null, a random LINENUMBER is generated
+  # within the given line range or all file lines respectively.
+  # LABEL/ID identifies a line that starts with a text label followed by ';'.
+  # A LABEL starts with '-' otherwise it's an ID.
+  if [[ $pos =~ ^[[:digit:]]+$ ]]; then
+    N=$pos
+  elif [[ $pos =~ ^[[:digit:]]+-[[:digit:]]+$ ]]; then
+    local a=${pos%-*} b=${pos#*-}
+    N=$(($RANDOM % ($b-$a+1) +$a))
+  elif ! [ "$pos" ]; then
+    N=$RANDOM
+  elif [[ $pos == -* ]]; then
+    N=LABEL
+  else
+    N=ID
+  fi
+  # Seek to $N. '#' starts a comment line.
+  # Comments and blank lines don't count against seeking to line $N.
+  # Line format: [LABEL/ID';'] ...
+  nA=0; while read line; do
+    [[ $line =~ ^[[:space:]]*(#|$) ]] && continue # comment line / white line
+    [[ $line == ?*\;?* ]] && label="${line%%;*}" || unset label
+    A[$((++nA))]="$line"
+    [ "$label" ] && A["$label"]="$line"
+    [ $N = $nA ] && break # Note: iff $N is numeric
+  done < "$f"
+  if [ $N = LABEL -o $N = ID ]; then
+    line="${A["$pos"]}"
+  elif [ $nA -gt 0 ]; then # apply modulus for numeric $N
+    [ $N = $nA ] && line="${A[$N]}" || line="${A[$(( ($N-1) % nA +1 ))]}"
+  fi
+  # Line format: [ID;]style,width,height,glyph,glyph-scale,mult,fgcolor,bgcolor.
+  line="${line#-*;}" # chop LABEL
+  # Set command-line option values, and build their corresponding command line.
+  local t IFS=,
+  set -- $line
+  t=$1
+  if [[ $1 == ?*\;* ]]; then
+    [ -z "$opt_id" ] && # don't override any --id specified in command line
+      opt_id="${1%%;*}" OPTIONS_FROM_STYLEF+=$'\n'"--id=${1%%;*}"
+    t=${1#*;}
+  fi
+  [ "$t" ] && opt_style=$t       OPTIONS_FROM_STYLEF+=$'\n'"--style=$t"
+  [ "$2" ] && opt_width=$2       OPTIONS_FROM_STYLEF+=$'\n'"--width=$2"
+  [ "$3" ] && opt_height=$3      OPTIONS_FROM_STYLEF+=$'\n'"--height=$3"
+  [ "$4" ] && opt_glyph=$4       OPTIONS_FROM_STYLEF+=$'\n'"--glyph=$4"
+  [ "$5" ] && opt_glyph_scale=$5 OPTIONS_FROM_STYLEF+=$'\n'"--glyph-scale=$5"
+  [ "$6" ] && opt_mult=$6        OPTIONS_FROM_STYLEF+=$'\n'"--mult=$6"
+  [ "$7" ] && opt_fgcolor=$7     OPTIONS_FROM_STYLEF+=$'\n'"--fgcolor=$7"
+  [ "$8" ] && opt_bgcolor=$8     OPTIONS_FROM_STYLEF+=$'\n'"--bgcolor=$8"
+  OPTIONS_FROM_STYLEF=${OPTIONS_FROM_STYLEF:1}
+}
+
+_dndmate_show_run_input_dialog() # $1-main-button {{{1
+# A text entry combo box widget, which reads command input.
+{
+  local main_button=$1 # Run-without-questions(12)
+  local selected entry escaped h nHistory
+  local edit_cmd edit_tt=$(gettext "Edit history list...")
+  local -a History
+
+  # Get last typed command from the state file.
+  _dndmate_get_state_with_lock
+  # Combo box default selection.
+  if [ -z "$state_command_entry" ] && ! [ -s "$_DNDMATE_HISTORY" ]; then
+    # First run. Load the command sample file.
+    # i18n: copy, rename and translate the command sample file.
+    _dndmate_find_data_file --system "$(gettext 'command-samples.en.txt')" f
+    cp "$f" "$_DNDMATE_HISTORY" && read -r escaped < "$_DNDMATE_HISTORY" || : carry on
+  else
+    # Yad needs an "escaped" version of $state_command_entry.
+    escaped=$state_command_entry_escaped
+  fi
+  selected=$escaped
+
+  # Combo box items are loaded from the history file.
+  ! [ -s "$_DNDMATE_HISTORY" ] && echo "$escaped" > "$_DNDMATE_HISTORY"
+  nHistory=0; while IFS= read -r h; do
+    [ "$selected" != "$h" ] && History[((nHistory++))]=$h
+  done < "$_DNDMATE_HISTORY"
+
+  # Command for the history edit button. I added stdout redirection to work
+  # around the following issue: open the editor, close dndmate's main window,
+  # then close the editor: the X11 session ends!
+  edit_cmd="exec >&2; $_DNDMATE_EDITOR \"$_DNDMATE_HISTORY\" &"
+  # Close the input dialog w/ $?=1 and no output before the editor starts.
+  edit_cmd+=" kill -USR2 \$YAD_PID"
+
+  yad_lib_set_YAD_GEOMETRY '' '' 100:1::::120 bottom # width=100% height=120px
+
+  # Below: Implode array History by separator S with $selected inserted.
+  entry=$(S=$'\n' IFS=; _dndmate__yad \
+    --text="   $(gettext "Select or type a command:")" \
+    --item-separator="${S}" --separator='' --window-icon=gtk-execute \
+    --form --field=:CBE "^$selected${History[*]/#/${S}}" \
+    --button=gtk-cancel:2 --button=gtk-ok:0 \
+    --button="$(gettext _Edit)${S}gtk-edit${S}$edit_tt:bash -c '$edit_cmd'" \
+    ; echo state_last_run_button=$? >> "$_DNDMATE_STATE")
+
+  # Save entry and history to the state file if user clicked OK.
+  _dndmate_get_state_with_lock
+  if [ 0 = $state_last_run_button ]; then
+    if ! [[ "$entry" =~ [[:graph:]] || "$entry" =~ ^[[:cntrl:]]*$ ]]; then
+      # Invalid entry. Simulate Cancel button.
+      state_last_run_button=2; _dndmate_save_state_with_lock state_last_run_button
+    else
+      # Yad expands backslash sequences from cmdline args and --rest file.
+      # Escape all backslashes enough times to protect them.
+      escaped=${entry//\\/\\\\}
+      state_command_entry=$entry state_command_entry_escaped=$escaped
+      _dndmate_save_state_with_lock state_command_entry state_command_entry_escaped
+      # Save history. Move/insert entry before line 1.
+      {
+      echo "$escaped"
+      [ "$escaped" != "$selected" ] && echo "$selected"
+      printf "%s\n" "${History[@]}"
+      } > "$_DNDMATE_HISTORY"
+    fi
+  fi
+}; export -f _dndmate_show_run_input_dialog
+
+_dndmate_show_copy_dialog() # {{{1
+# A text widget with some command buttons.
+{
+  # _dndmate_handle_main_button saved the main dialog geometry under my $prefix
+  local prefix=copy
+
+  local msg_edit msg_copy="$(gettext \
+    "To copy items select lines below. You can drag the selection to other applications.\r\r<i>Listing all items that are checked in the main window...</i>")"
+
+  local refsf conditional_button text
+  if [ -s "$_DNDMATE_LIST" ]; then
+    refsf=$_DNDMATE_REFS
+    conditional_button=--button
+    msg_edit="$(gettext "Click [Edit] to change the list in your text editor. When you are done editing, save the file, close the editor, and click [OK] to view your changes.")"
+    msg_edit+="\r\r$(gettext "To clear the main window and forget all items click [Clear].")"
+    text="$msg_edit\r\r$msg_copy\r"
+
+  else
+    refsf=/dev/null
+    conditional_button=--image-on-top # yad trick: discards its argument
+    msg_edit="$(gettext "...the list is empty. Click [OK], then drop some items on the target, and return here.")"
+    text="$msg_copy\r\r$msg_edit\r"
+  fi
+
+  _dndmate__yad --prefix=$prefix --stdin="$refsf" \
+    --text-info --text "$msg_edit\r\r$msg_copy\r" \
+    --button=gtk-ok \
+    $conditional_button="gtk-edit:sh -c \"$_DNDMATE_EDITOR '$_DNDMATE_LIST'\" &" \
+    $conditional_button="gtk-clear!$(gettext "Clear list and forget all items"):bash -c \"_dndmate_save_set_YAD_GEOMETRY_and_kill_me $prefix USR2 90,1,,,,120 '' 'for confirm clear'\"" \
+    ;
+  local ret=$?
+  case $ret in
+    0 ) # Force re-building REFS from LIST when MAIN-AFTER will restart dndmate.
+      : rebuild REFS > "$refsf" ;;
+    1 ) # USR2 - confirm clear?
+      _dndmate__yad --prefix=$prefix \
+        --text="\r$(gettext "<span bgcolor=\"yellow\"><b> This can't be undone! </b></span>\r\rClear the main window?")\r" \
+        --text-align=center \
+        --button=gtk-clear:0 --button=gtk-no:1 \
+        ;
+      if [ 0 = $? ]; then
+        rm -f "$_DNDMATE_PIPE"
+        : clear REFS > "$_DNDMATE_REFS"
+        : clear LIST > "$_DNDMATE_LIST"
+      fi ;;
+    252|143 )
+      : "window close, ESC, kill -TERM" ;;
+  esac
+  return 0
+}; export -f _dndmate_show_copy_dialog
+
+confirm_then_run_command() # $1-main-button {{{1 $_DNDMATE_SAVED_UMASK <=
+{
+  _dndmate_get_state_with_lock
+  # Test if OK button clicked in _dndmate_show_run_input_dialog.
+  [ 0 != "$state_last_run_button" ] && return
+
+  local main_button=$1 # same as $state_yad_exit
+  local ok_to_run=yes
+  if [ yes = $ok_to_run ]; then
+    # Don't export _DNDMATE_* variables except _DNDMATE_(LIST|REFS|EDITOR|HISTORY).
+    # Don't export _dndmate and yad_lib_ functions. Test with command entry = 'env'.
+    local unexported="-u YAD_OPTIONS -u YAD_WINTITLE -u YAD_GEOMETRY -u YAD_GEOMETRY_POPUP -u TEXTDOMAIN -u OUTPUT_CHARSET"
+    unexported+=" $(_dndmate_list_existing --grepv='_LIST\b|_REFS\b|_EDITOR\b|_HISTORY\b' export _DNDMATE_ '-u ')"
+    unexported+=" $(_dndmate_list_existing --grep='\b_dndmate|\byad_lib_' function '' '-u BASH_FUNC_' '%%')"
+    umask $_DNDMATE_SAVED_UMASK
+    # Run command for checked refs.
+    select_refs '\0' |
+    env $unexported xargs -0 $SHELL -c "$state_command_entry" "$SHELL" &
+  fi
+}
+
+select_refs() # [$1-output-file-escaped-separator] [$2-list-file] [$3-TRUE|FALSE] {{{1
+# Format output for $_DNDMATE_REFS
+{
+  # _DNDMATE_LIST contains List widget columns checkbox,ref,reserved,@font@.
+  local ofs=${1:-\\n} fin=${2:-$_DNDMATE_LIST} selector=${3:-TRUE} fmt='%s'
+  ! [ -s "$fin" ] && return
+  local checkbox ref rest
+  local icase; shopt -q nocasematch; icase=$?; shopt -s nocasematch
+  while IFS="$_DNDMATE_SEPARATOR" read -r checkbox ref rest; do
+    if [[ "$selector" == "$checkbox" ]]; then
+      printf "$fmt" "$ref"
+      fmt="$ofs%s"
+    fi
+  done < "$fin"
+  local ret=$?
+  [ 1 == $icase ] && shopt -u nocasematch
+  # If we're outputting "lines" then properly terminate the last one.
+  [ "$ofs" = '\n' ] && printf $ofs
+  return $ret
+}
+
+load_refs() # {{{1
+# Output four columns to List widget: "-"checkbox,ref,@font@,reserved
+# _DNDMATE_LIST (non-empty) is preferred over _DNDMATE_REFS.
+{
+  local checkbox ref reserved font ask_CONSUMER="0" # means "no copy LIST and REFS"
+  if [ -s "$_DNDMATE_LIST" ]; then
+    ! [ -s "$_DNDMATE_REFS" ] && ask_CONSUMER="1" # means "copy to REFS"
+    while IFS="$_DNDMATE_SEPARATOR" read -r checkbox ref reserved font; do
+      case $checkbox in true|TRUE|false|FALSE ) # defensive
+        printf "%s\0%s\0%s\0%s\n" "$ask_CONSUMER$checkbox" "$ref" "$reserved" light || return 1 ;;
+      esac
+    done < "$_DNDMATE_LIST" || return 1
+  elif [ -s "$_DNDMATE_REFS" ]; then
+    ! [ -s "$_DNDMATE_LIST" ] && ask_CONSUMER="2" # means "copy to LIST"
+    while read -r ref; do
+      printf "%s\0%s\0%s\0%s\n" "${ask_CONSUMER}true" "$ref" "$reserved" light || return 1
+    done < "$_DNDMATE_REFS" || return 1
+  fi
+}
+
+_dndmate_restart() # [--origin=N[.M]] [$*-dndmate-extra-options] {{{1
+# Insert (and modify) script cmdline arguments before "$*" then exec.
+# CAVEAT: This function must not be called in a subshell due to the the design
+# requirement that "the restarted script must keep the same PID of the
+# restarter script", that is, MAIN-AFTER's PID.
+{
+  local state_script_pid state_last_main_button
+
+  case $1 in --origin=* )
+    state_last_main_button="${1#*=}"; shift
+    _dndmate_save_state_with_lock state_last_main_button # proxy origin
+  esac
+
+  _dndmate_get_state_with_lock
+
+  local extra_options="$*"
+  local a script_name_seen=no # no->now->before
+  # Clear "$@".
+  while [ $# -gt 0 ]; do shift; done
+
+  # Read arguments/options from $_DNDMATE_CMDLINE.
+  while IFS= read -r -d '' a; do
+    : "a($a)"
+    # Filter out one-time-only options.
+    case $a in -Z|--zap ) continue ;; esac
+    case $a in --style=*c* )
+      local current_size=${state_YAD_GEOMETRY#*--width}; current_size=${x/\ --height=/x} # WxH
+      local cold_start_size=${state_cold_start_YAD_GEOMETRY#*--width}; cold_start_size=${x/\ --height=/x} # WxH
+      if [ "$current_size" != "$cold_start_size" ]; then
+        a=${a/c/} # delete compact style option because the user resized the window
+        # if only "--style=" is left drop the option altogether
+        [ $a = --style= ] && continue
+      fi
+      ;;
+    esac
+    case $script_name_seen in
+      no ) [ "${a##*/}" = "${0##*/}" ] && script_name_seen=now ;;
+      now ) script_name_seen=before ;;
+    esac
+    # Break at the first non-option (filepath or '')
+    [ "$script_name_seen" = before -a "${a:1:1}" != - ] && break
+    set -- "$@" "$a"
+  done < "$_DNDMATE_CMDLINE"
+  exec "$@" $extra_options # exec it so it keeps the same pid
+  # NOT-REACHED
+}
+
+print_topics() # $1-comma-list-of-topics {{{1
+{
+  local IFS topic sep
+  IFS=,
+  for topic in $1; do
+    : "topic $topic"
+    [ -n "$sep" ] && echo
+    sep=1
+    case $topic in
+      ref|refs ) cat "$_DNDMATE_REFS"
+        ;;
+      check|checks ) cat "$_DNDMATE_LIST"
+        ;;
+    esac
+  done
+}
+
+_dndmate_save_YAD_GEOMETRY_by_prefix() # $1-name-prefix {{{1
+# Save YAD_GEOMETRY{,_POPUP} to state file as $state_$1_YAD_GEOMETRY{,_POPUP}
+# => $state_*
+{
+  local prefix="$1" signal="$2"
+  local name1=state_$prefix${prefix:+_}YAD_GEOMETRY name2=state_$prefix${prefix:+_}YAD_GEOMETRY_POPUP
+  local -n varname1=$name1 varname2=$name2
+  varname1=$YAD_GEOMETRY varname2=$YAD_GEOMETRY_POPUP
+  _dndmate_save_state_with_lock $name1 $name2
+  # side effect:_dndmate_save_state_with_lock will set all state_* variables
+}; export -f _dndmate_save_YAD_GEOMETRY_by_prefix
+
+_dndmate_save_set_YAD_GEOMETRY_and_kill_me() # $1-name-prefix $2-signal [$3@-yad_lib_set_YAD_GEOMETRY-args[3@] ] {{{1
+# This function should be called from a yad --button, and the yad process be waited for to get its exit status.
+# Set YAD_GEOMETRY{,POPUP} for $YAD_XID then save geometry to state file as $state_$1_YAD_GEOMETRY{,_POPUP}.
+# Afterwards, if $2-signal isn't null, send $YAD_PID the signal, which makes **that yad** exit with status
+# 0(USR1), 1(USR2), 143(TERM) and in general 128+signal_number for other signals (trap -l or kill -l to list).
+# Side effects: => $state_* $YAD_GEOMETRY{,_POPUP}
+# Example:
+#      _dndmate_show_copy_dialog calls _dndmate__yad button, which waits for yad; and
+#      _dndmate_show_copy_dialog button Clear calls this function, which kills yad; then
+#      _dndmate__yad returns yad's exit status, which becomes available in _dndmate_show_copy_dialog as $?
+{
+  local prefix="$1" signal="$2"; shift 2
+  if yad_lib_set_YAD_GEOMETRY "" "" "$@"; then
+    _dndmate_save_YAD_GEOMETRY_by_prefix "$prefix"
+    if [ "$signal" ]; then
+      kill -$signal $YAD_PID
+      # can't be waited for because $YAD_PID isn't a child of this shell.
+    fi
+  fi
+}; export -f _dndmate_save_set_YAD_GEOMETRY_and_kill_me
+
+kill_plugged() # $1-process-group-id [$2-signal] {{{1
+# kill the possibly unplugged yad --key --plug --plug trio
+# Killing --key kills the --plugs. --key's exit status will reflect the signal
+# it gets. The --plugs will exit 252 regardless.
+{
+  local pgrp="$1" signal="${2:-USR1}" pid
+  for pid in $(pgrep -f "yad.*--(plug|key)=$pgrp "); do
+    kill -$signal $pid 2>/dev/null
+    wait $pid 2>/dev/null
+  done
+
+  # --key's dead now; release its shared memory
+  # since --key starts after the --plugs, pgrep printed key's pid last (if key was running)
+  if [ "$pid" ]; then
+    ipcs -mp | while read shmid owner cpid lpid; do
+      [ "$pid" = "$cpid" ] && ipcrm shm $shmid 2>/dev/null; done
+  fi
+}
+
+show_main_dialog() # $@-command-line-REFs {{{1
+# The main dialog consists of a yad --paned --key widget (WINDOW), which houses
+# two indirectly pipelined yad processes
+#   --dnd --plug (backround CONSUMER) => --list --plug (background PRODUCER)
+# The main dialog can
+# . spawn sub-dialogs (_dndmate_show_run_input_dialog),
+# . be temporarily replaced by other dialogs (_dndmate_show_copy_dialog), and
+# and will chain to itself until the user hits Quit or another exit/error
+# condition occurs -- see MAIN-AFTER.
+#
+# Return yad --key's exit value or 180 bitwise OR with
+#   1(--list didn't start) 2(--dnd didn't start) 4(--key didn't start)
+{
+  local p s line_count msg
+  local state_script_pid state_yad_exit state_yad_wintitle
+  local consumer_pid producer_pid start_checker_pid pos_saver1_pid pos_saver2_pid
+
+  ### update pid/title database {{{2
+
+  state_script_pid=$$ state_yad_wintitle=$YAD_WINTITLE
+  _dndmate_save_state_with_lock state_script_pid state_yad_wintitle
+
+  ## All dndmate instances save their $$ and title to a shared database.
+
+  # check if $$ is already in the database while deleting stale pids
+  _dndmate_vacuum_pid_data_with_lock $$
+  export _DNDMATE_COLD_START=$? # 0(no) 1(yes)
+  # write $$ and title, and compact the database
+  _dndmate_write_data_by_id_with_lock --unique --compact "w+" "${opt_id:-NULL}" "$$"$'\t'"$YAD_WINTITLE"
+
+  ### initialize GUI labels, style, messages, YAD_OPTIONS, etc. {{{2
+
+  if [ -n "$opt_append" -a -s "$_DNDMATE_LIST" ]; then
+    line_count=$(wc -l "$_DNDMATE_LIST")
+    line_count=${line_count%% *}
+  else
+    line_count=0
+  fi
+  set_APP_ICON_and_SPLITTER_SIZE
+  s="--title='$YAD_WINTITLE' --buttons-layout=center"
+  s+=" --window-icon=${APP_ICON:-gtk-dnd-multiple}"
+  if [[ "$opt_style" =~ c ]]; then
+    yad_lib_set_gtk2_STYLEFILE compact && s+=" --gtkrc=$STYLEFILE"
+  else
+    s+=" --borders=4"
+  fi
+  s+=" ${opt_width:+--width=}$opt_width ${opt_height:+--height=}$opt_height"
+  export YAD_OPTIONS="$s"
+
+  msg=$(printf "<i>$(gettext \
+    "Drop target adds to '%s' @%d")</i>\n" "$_DNDMATE_REFS" $((1+$line_count))
+    printf "<i>$(gettext \
+      $'Reserved character: <span bgcolor="yellow"><b><tt><big>%s</big></tt></b></span>')</i>\n" "$_DNDMATE_SEPARATOR")
+
+  local previous_error="$(gettext "exit due to previous error")\n"
+  if ! [ -p "$_DNDMATE_PIPE" ]; then
+    rm -f "$_DNDMATE_PIPE" && mkfifo -m 0600 "$_DNDMATE_PIPE" ||
+      die_printf $? "$previous_error"
+  fi
+
+  ### close existing windows that share my --id, if any {{{2
+
+  # q_close looks for existing windows and kills their yad process.  At this
+  # point of the start sequence this dndmate instance has no existing windows,
+  # therefore q_close will leave it alone.  But after show_main_dialog, calling
+  # q_close will close this instance. Then, indeed, calling q_close becomes the
+  # recommended way to prepare dndmate for any kind of termination.
+  if [ -n "$opt_append" ]; then
+    q_close
+  fi
+
+  ### background CONSUMER - gawk | yad --list {{{2
+
+  (
+  # The list widget shows and outputs checkboxed refs.
+  [ -n "$opt_no_edit" ] && editable= || editable=--editable
+  # U+00A0 Dec:160 NO-BREAK SPACE (NS) &nbsp; &NonBreakingSpace; /\%ua0 $'\xc2\xa0'
+  [[ $opt_style =~ x ]] && expander="--expander="$'\ua0'
+
+  no_headers="--no-headers" hide_column="--hide-column=3"
+  [ "$_DNDMATE_UNHIDE_COLUMNS" ] && unset no_headers hide_column # undocumented
+
+  simple_tips="--simple-tips"
+  case $YAD_LIB_YAD_VERSION in 0.* )
+    case ${YAD_LIB_YAD_VERSION#0.} in
+      4[2-9].* | [5-9].* ) : "$simple_tips" ;;
+      * ) unset simple_tips ;; # for versions < 0.42.*
+    esac ;;
+  esac
+
+  # Awk serves three purposes:
+  # 1. line-buffer I/O
+  # 2. copy input records to $_DNDMATE_REFS and $_DNDMATE_LIST
+  # 3. implement $opt_uniq
+  gawk -v REFS="$_DNDMATE_REFS" -v LIST="$_DNDMATE_LIST" -v UNIQUE="$opt_uniq" -v KEY=$$ \
+    -v SEP="$_DNDMATE_SEPARATOR" \
+'#{{{gawk not busybox awk
+BEGIN {
+  if(UNIQUE) {
+    while(0 < (getline < REFS)) {
+      SEEN[$0] = 1
+    }
+    close(REFS)
+  }
+  FS = "\x00"
+  OFS = "\n"
+}
+# $1=checkbox $2=REF $3=reserved $4=@font@
+{
+  # yad --dnd adds a protocol prefix (http://, etc.); strip file://
+  sub(/^file:\/\//, "", $2)
+  # If $1 starts with flag [012] then $2 comes from load_refs. Flag 0(don`t
+  # copy to either REFS or LIST) 1(copy to REFS) 2(copy to LIST) otherwise copy
+  # to both because $2 comes from --dnd. Regardless copy to stdout for --list.
+  if(flag = index("012", substr($1, 1, 1))) {
+    # now flag is 0(dnd=both) 1(none) 2(REFS) 3(LIST)
+    $1 = substr($1, 2) # chop flag
+  }
+}
+# Skip duplicate REF coming from --dnd.
+UNIQUE && !flag {
+  if(SEEN[$2]) { next }
+  SEEN[$2] = 1
+}
+# Copy to REFS/LIST and yad --list.
+{
+  if((0 == flag || 2 == flag) ) {
+    if("true" == tolower($1)) {
+      print $2 >> REFS
+    }
+  }
+  if(0 == flag || 3 == flag) {
+    printf "%s%s%s%s%s%s%s%s\n", $1,SEP, $2,SEP, $3,SEP, $4,SEP >> LIST
+  }
+  # to yad --list
+  print $1, $2, $3, $4
+  fflush()
+}
+#gawk}}}
+' |
+
+  yad ${YAD_WINTITLE:+--title="$YAD_WINTITLE"} --list --plug=$$ --tabnum=2 \
+    $opt_tail \
+    --separator="$_DNDMATE_SEPARATOR" \
+    $expander \
+    $editable --regex-search $no_headers --no-markup \
+    --column=:CHK \
+    --column="$(gettext Reference)" --search-column=2 --tooltip-column=2  $simple_tips \
+    --column=reserved $hide_column \
+    --column=@font@ \
+    --print-all --ellipsize=START > "$_DNDMATE_LIST".$$ # always exits 252
+
+  # File isn't empty when --paned exits 0.
+  if [ -s "$_DNDMATE_LIST".$$ ]; then
+    mv "$_DNDMATE_LIST"{.$$,} &&
+    select_refs '' "$_DNDMATE_LIST" > "$_DNDMATE_REFS"
+  fi
+  rm -f "$_DNDMATE_LIST".$$
+  ) < "$_DNDMATE_PIPE" & consumer_pid=$!
+
+  ### foreground PRODUCER command-line REFs, $opt_append and $opt_append_exit {{{2
+
+  if [ -n "$opt_append" ]; then
+    load_refs >> "$_DNDMATE_PIPE" || die_printf $? "$previous_error"
+  fi
+  if [ 0 != $# ]; then
+    for p; do
+      printf ${opt_check_append:-true}'\0%s\0\0bold\n' "$p" || die_printf $? "$previous_error"
+    done >> "$_DNDMATE_PIPE"
+  fi
+  if [ "$opt_append_exit" ]; then
+    # This dndmate instance is done: shutdown the CONSUMER.
+    for p in $(pgrep -f "yad.*--list --plug=$$ ") $(pgrep -f "g?awk.* KEY=$$ ") $consumer_pid; do
+      kill -USR1 $p 2>/dev/null; wait $p 2>/dev/null
+    done
+    exit 0
+  fi
+
+  ### background PRODUCER - yad --dnd {{{2
+
+  (
+    # The drag-and-drop widget outputs dropped item refs.
+    yad ${YAD_WINTITLE:+--title="$YAD_WINTITLE"} --dnd --plug=$$ --tabnum=1 \
+      --command='/usr/bin/printf '${opt_check_drop:-true}'\\0%1s\\0\\0\\n' \
+      --image="$APP_ICON"
+  ) > "$_DNDMATE_PIPE" & producer_pid=$!
+
+  ### Assign button labels, icons and tooltips. {{{2
+  set_B_L_I_T "$msg"
+  set_SPLITTER_WORKAROUND
+
+  ### background START CHECKER begins in 0.1 seconds and can take up to 3 s {{{2
+
+  # 3 seconds is also  the maximum wait time in _dndmate_handle_main_button.
+
+  # START CHECKER can call kill_plugged directly instead of q_close.
+  (
+    rm -f "$_DNDMATE_LIST".ack
+
+    # Did the CONSUMER start? try for 0 to 0.5 seconds
+    declare -i error=1
+    for i in {1..5}; do
+      pgrep -f "yad.*--list --plug=$$ " >/dev/null && error=0 && break
+      sleep 0.1
+    done
+
+    # Did the PRODUCER start? try for 0 to 0.5 seconds
+    error+=2
+    for i in {1..5}; do
+      pgrep -f "yad.*--dnd --plug=$$ " >/dev/null && error=$((error-2)) && break
+      sleep 0.1
+    done
+
+    # Did the MAIN WINDOW start?
+    if (( 0 == error )); then
+      error+=4
+      # did yad --paned start? try for 0 to 1 seconds
+      for i in {1..10}; do
+        [ -e "$_DNDMATE_LIST".xid ] && break
+        sleep 0.1
+      done
+
+      # is the window ready? try for 0.1 to 1 seconds
+      for i in {1..10}; do
+        sleep 0.1
+        # don't care about POPUP scale 2:2
+        if yad_lib_set_YAD_GEOMETRY "" "$YAD_WINTITLE" 2:2 bottom "start check" 2>/dev/null; then
+          # yes, ready; save its cold-start position
+          # (state_cold_start_YAD_GEOMETRY is tested here and by _dndmate_restart)
+          if [ 1 = $_DNDMATE_COLD_START ]; then
+            _dndmate_save_YAD_GEOMETRY_by_prefix cold_start
+          fi
+
+          # acknowledge seeing the main window
+          # (file _DNDMATE_LIST.ack is tested by _dndmate_handle_main_button)
+          touch "$_DNDMATE_LIST".ack
+
+          error=$((error-4)); break # all is well
+        fi
+      done
+    fi
+
+    if (( error > 0 )); then
+      for p in $consumer_pid $producer_pid $pos_saver1_pid $pos_saver2_pid; do
+        kill $p 2>/dev/null; wait $p 2>/dev/null
+      done
+      kill_plugged $$ TERM
+    fi
+    exit $error
+  ) & start_checker_pid=$!
+
+  ### Show the MAIN WINDOW {{{2
+
+  # Buttons that need to close the main dialog MUST NOT end with a numeric ID.
+  # Instead pass the ID to _dndmate_handle_main_button along with the signal that
+  # _dndmate_handle_main_button will use to close the main dialog.
+
+  local S=$'\b' # yad value item separator
+  local orient=hor splitter=$SPLITTER_SIZE # in px
+  [[ $opt_style =~ v ]] && orient=vert splitter=0 # yad appears to auto-fit in vert case
+  rm -f "$_DNDMATE_LIST".xid # used to check for yad start
+  yad $_DNDMATE_YAD_OPTIONS ${YAD_WINTITLE:+--title="$YAD_WINTITLE"} \
+      --print-xid="$_DNDMATE_LIST".xid \
+      --paned     --key=$$  --orient=$orient --splitter=$splitter \
+      ${YAD_GEOMETRY:-$_DNDMATE_YAD_INITIAL_POSITION} \
+      --tooltip --item-separator=${S} \
+      "${B[run1]}${L[run1]}${S}${I[run1]}${S}${T[run1]}:bash -c '_dndmate_handle_main_button  12 USR1'" \
+      "${B[copy]}${L[copy]}${S}${I[copy]}${S}${T[copy]}:bash -c '_dndmate_handle_main_button   4 USR1'" \
+      "${B[quit]}${L[quit]}${S}${I[quit]}${S}${T[quit]}:bash -c '_dndmate_handle_main_button 101 USR1'" \
+      "${B[help]}${L[help]}${S}${I[help]}${S}${T[help]}:'$0' --help=gui" \
+      ${B[none]} $SPLITTER_WORKAROUND
+  state_yad_exit=$?; _dndmate_save_state_with_lock state_yad_exit
+
+  ### foreground MAIN WINDOW START CHECK {{{2
+
+  # Did the MAIN WINDOW --key start correctly?  Not if there still are running --plugs.
+  wait $start_checker_pid; p=$?
+  if pgrep -f "yad.*--plug=$$ " >/dev/null; then
+    kill_plugged $$ TERM
+    p=4
+  fi
+  if ((p > 0)); then return $((180 + $p)); fi
+  ### return when ALL IS WELL {{{2
+  return $state_yad_exit
+}
+
+_dndmate_get_yad_pid_group_by_title() # $1-title $2-varname {{{1
+# Assign by varname reference the yad pids that share my same --id, where varname's
+# first three words correspond to --paned, --dnd, and --list respectively, and
+# the remaining words to other sub-dialogs.  Word == 0 => invalid/not found.
+{
+
+  # Id/Title Inheritance:
+  # The --id value is reflected in the window title, so effectively we can
+  # match the title.  Notice that separate dndmate instances can share the same
+  # id/title, and that sub-dialogs and successors of an instance share that
+  # instance's title. Titles by pid are logged to file $_DNDMATE_DATA_BY_ID but
+  # only for the --paned --key dialog, which is the Main dialog. For a yad
+  # window to be tracked its --title must be set explicitly (not YAD_OPTIONS).
+
+  local title="$1" rec next
+  local -n varname=$2; varname=""
+
+  # escape common ERE metacharacters for pgrep https://unix.stackexchange.com/a/209744
+  set -- "$(sed 's/[.[\*^$()+?{|]/\\&/g' <<< "$title")"
+
+  # get pids
+  local IFS=$'\n'
+  set -- $(pgrep -a -f "yad.*--title=$1")
+  unset IFS
+  [ $# = 0 ] && return
+
+  local -a A; A=(0 0 0); next=${#A[*]}
+  shopt -s extglob # for left trimming rec
+  for rec; do
+    rec="${rec/#+([[:blank:]])/}" # left trim
+    case $rec in
+      *"--paned "* ) A[0]=${rec%% *} ;;
+      *"--dnd "*   ) A[1]=${rec%% *} ;;
+      *"--list "*  ) A[2]=${rec%% *} ;;
+      *            ) A[((next++))]=${rec%% *} ;;
+    esac
+  done
+  varname=${A[*]}
+}; export -f _dndmate_get_yad_pid_group_by_title
+
+_dndmate__yad() # [--prefix[=name-prefix] --stdin=path] $@-yad-options {{{1
+# Sub-dialogs call _dndmate__yad instead of yad.
+# $YAD_WINTITLE $[state_${prefix}_]YAD_GEOMETRY_POPUP <=
+# with --prefix fetch the popup position previously saved under that prefix
+{
+  local prefix stdin=/dev/stdin ret IFS=' '
+  local -n varname
+  # options must follow this order:
+  if [[ $1 == --prefix* ]]; then
+    _dndmate_get_state_with_lock
+    [[ $1 == *=* ]] && prefix=${1#*=}
+    shift
+    varname=state_$prefix${prefix:+_}YAD_GEOMETRY_POPUP
+  else
+    varname=YAD_GEOMETRY_POPUP
+  fi
+  if [[ $1 == --stdin=* ]]; then
+    stdin=${1#*=}
+    shift
+  fi
+
+  yad ${YAD_WINTITLE:+--title="$YAD_WINTITLE"} ${varname:---height=1} "$@" < "$stdin" &
+  wait $! # per _dndmate_save_set_YAD_GEOMETRY_and_kill_me
+  ret=$?
+  return $ret
+}; export -f _dndmate__yad
+
+_dndmate_handle_main_button() # $1-main-button $2-signal {{{1
+# DO NOT call _dndmate_restart from this function. MAIN-AFTER only is allowed to call _dndmate_restart.
+# For $2-signal use:
+# USR1: flush list contents to stdout then close main dialog
+# USR2: no flush then close
+{
+  [[ $1 =~ ^[[:digit:]]+$ && $2 == USR[12] ]] || return 1
+  local main_button=$1 signal="$2"
+  # Save main_button for MAIN-AFTER.
+  local state_last_main_button=$main_button; _dndmate_save_state_with_lock state_last_main_button
+
+  # Wait (max 3 s) until START CHECKER has acknowledged seeing the main window.  Without this wait,
+  # if, below, we switched another window for the main window too soon, we would lead the START
+  # CHECKER to wrongly conclude that the main window didn't start, and therefore kill dndmate.
+  local i; for i in {1..30}; do
+    [ -e "$_DNDMATE_LIST".ack ] && break
+    sleep 0.1
+  done
+
+  # Handle button $1. At this point the main dialog is open. There are three common courses of action:
+  # A) Show a popup dialog over the main dialog then close the main dialog then return to MAIN-After to Restart.
+  #    Ex. _dndmate_show_run_input_dialog in case 2|12 below.
+  # B) Close the main dialog then show a popup dialog over the desktop then return to MAIN-AFTER to Restart.
+  #    Similarly, close the main dialog then return to MAIN-AFTER to show a popup then Restart.
+  #    Ex. _dndmate_show_copy_dialog in case 4 below.
+  # C) Show a popup dialog then return to caller where main dialog is still open).
+  #    Ex. none but --help=gui could be implemented this way.
+  local kill_after=1 # default is for case A above; case B must unset kill_after
+
+  case $main_button in
+    2|12 ) : "Main buttons Run|Run1"
+      _dndmate_show_run_input_dialog $main_button
+      # kill then go to MAIN-AFTER to restart
+      ;;
+    4 ) : "Main button Copy"
+      # save main dialog's geometry for the upcoming copy popup
+      yad_lib_set_YAD_GEOMETRY "" "" 100:100:::480:400 # width=100% >= 480px, height=100% >= 400 px
+      _dndmate_save_YAD_GEOMETRY_by_prefix ""
+      _dndmate_save_YAD_GEOMETRY_by_prefix copy
+      # close main dialog
+      kill -$signal $YAD_PID; unset kill_after
+      # then go to MAIN-AFTER to show copy popup then restart
+      ;;
+    101 ) : "Main button Quit"
+      # kill then go to MAIN-AFTER to exit
+      ;;
+    * ) : unhandled
+      die_printf $main_button "$(gettext "unexpected button event %d, line %d")\n" $main_button $LINENO
+      ;;
+  esac
+
+  # Save geometry as late as possible before restarting the main dialog.
+  if [ "$kill_after" ]; then
+    # don't care about POPUP scale 2:2
+    yad_lib_set_YAD_GEOMETRY "" "" 2:2 bottom $FUNCNAME
+    _dndmate_save_YAD_GEOMETRY_by_prefix ""
+    kill -$signal $YAD_PID
+    # Main dialog will restart in MAIN-AFTER.
+  fi
+}; export -f _dndmate_handle_main_button
+
+die_printf() # [--usage] $1-exit-code|10 $2-format [$3%-arguments] {{{1
+# $2% may be gettexted, i.e. "$(gettext "file %s is...%s\n")" "$file" "$(gettext "open")"
+{
+  [ "$1" = --usage ] && { usage; shift; }
+  local status fmt cmd
+  status="$1" fmt="$2"; shift 2
+  if [ "$fmt" ]; then
+    if [ -t 0 ]; then
+      printf "%s: $fmt" "$(basename "$0")" "$@" >&2
+    else
+      yad --title="$(basename "$0")" --window-icon=gtk-stop \
+        --timeout=8 --buttons-layout=center --borders=4 \
+        --center --on-top --text "$(printf "$fmt" "$@")"
+    fi
+  fi
+  exit $status
+}
+
+# q_*: handlers for queued options. #{{{1}}}
+process_queued_options() #{{{1
+{
+  local x IFS
+  for x in $optQueue; do
+    IFS=:
+    set -- $x
+    unset IFS
+    x=$1; shift
+    q_$x "$@" || die_printf 1 "$(gettext "error in --%s %s")\n" "${x//_/­}" "$*"
+  done
+}
+
+q_clean() # {{{1
+# Remove work files except APP_ICON, STYLEFILE, TRANSPARENT_GIF, _DNDMATE__HISTORY unless empty, _DNDMATE_DATA_BY_ID.
+{
+  ! [ -s "_DNDMATE_CMDLINE" ] && rm -f "$_DNDMATE_CMDLINE"
+  rm -f "$_DNDMATE_LIST" "$_DNDMATE_PIPE" "$_DNDMATE_REFS" "$_DNDMATE_STATE"
+  : true
+}
+
+q_close() # {{{1
+# Close existing windows that share this instance's title.
+{
+  local p key pids title id=${opt_id:-NULL} killed_idx
+  local -a Instance
+  local state_last_main_button=102; _dndmate_save_state_with_lock state_last_main_button
+  # Get all other instances (existing and possibly exited) that share my id.
+  local i=0 IFS=$'\n'
+  Instance=( $(_dndmate_read_data_by_id_with_lock "$id") )
+  while ((++i < ${#Instance[@]})); do
+    IFS=$'\t'
+    set -- ${Instance[$i]}
+    unset IFS
+    key=$1 title="$2" # of this instance
+    # Get its yad process pids.
+    _dndmate_get_yad_pid_group_by_title "$title" pids # by reference
+
+    ! [[ $pids =~ [1-9] ]] && continue # no pids > 0
+    # The current instance will only be killed if it has existing windows.
+
+    kill_plugged $key # same as $pids first three words
+    set $pids; shift 3
+    for p; do # kill sub-dialogs
+      if (( $p > 1 )); then kill $p 2>/dev/null; wait $p 2>/dev/null; fi
+    done
+    killed_idx+=$'\n'"$i"
+  done
+
+  # Purge killed instances from id's Instance set.
+  if [ "$killed_idx" ]; then
+    for i in 0 $killed_idx; do unset Instance[$i]; done
+    _dndmate_write_data_by_id_with_lock --unique --compact "w" "$id" "${Instance[@]}"
+  fi
+}
+
+q_exit() # [$1-status] {{{1
+{
+  exit $1
+}
+
+q_icon_get() # {{{1
+{
+  set_APP_ICON_and_SPLITTER_SIZE
+  if [ "$opt_icon_get" ]; then
+    echo "$APP_ICON" >> "$opt_icon_get"
+  else
+    echo "$APP_ICON"
+  fi
+  : true
+}
+
+q_info() # {{{1
+{
+  local p
+  [ "$APP_ICON" ] && echo "APP_ICON=\"$APP_ICON\""
+  for p in $(_dndmate_list_existing --grepv='' variable _DNDMATE_); do
+    echo "$p=\"${!p}\""
+  done
+  for p in $(_dndmate_list_existing --grepv='' variable opt_); do
+    echo "$p=\"${!p}\""
+  done
+  : true
+}
+
+q_zap() # {{{1
+{
+  [ -z "$opt_zap" ] && return
+  : REFS > "$_DNDMATE_REFS" &&
+  : LIST > "$_DNDMATE_LIST"
+}
+
+# INIT 1 {{{1
+export TEXTDOMAIN=dndmate OUTPUT_CHARSET=UTF-8
+# SN affects window title, icon name, ROX app and debug log, STYLEFILE.
+SN=dndmate # vs. ${0##*/} - also in _dndmate_find_data_file
+alias awk=gawk
+
+# INIT UMASK {{{1
+# Set the permission mask for all the temporary files that dndmate will create.
+# _DNDMATE_SAVED_UMASK is used to restore the initial umask when dndmate runs a user command.
+! [ "$_DNDMATE_SAVED_UMASK" ] && export _DNDMATE_SAVED_UMASK=$(umask)
+umask 0077
+
+# INIT FROM USER ENV VARS {{{1
+# Set internal globals _DNDMATE_* from the corresponding user-defined environment variables,
+# which don't start with "_". The supported names are listed in --help=all and README.md.
+
+_DNDMATE_REFS=${DNDMATE_REFS:-"${TMPDIR:-/tmp}/$USER-$SN-refs%s"}
+_DNDMATE_REFS="${_DNDMATE_REFS%.txt}".txt # MUST end with .txt
+_DNDMATE_HISTORY=${DNDMATE_HISTORY:-"${TMPDIR:-/tmp}/$USER-$SN-history%s.sh"}
+if [ -x "$DNDMATE_EDITOR" ]; then
+  _DNDMATE_EDITOR=$DNDMATE_EDITOR
+else
+  _DNDMATE_EDITOR=$(type -p defaulttexteditor geany leafpad)
+  _DNDMATE_EDITOR=${_DNDMATE_EDITOR%%$'\n'*}
+fi
+_DNDMATE_SEPARATOR=${DNDMATE_SEPARATOR:-|}
+_DNDMATE_STYLEF=$DNDMATE_STYLEF
+_DNDMATE_YAD_OPTIONS=$DNDMATE_YAD_OPTIONS
+_DNDMATE_YAD_INITIAL_POSITION=$DNDMATE_YAD_INITIAL_POSITION
+
+# INIT ROX-APP {{{1
+# If running as an app without options then inherit app menu default options as
+# a convenience to users who left-click or drag-and-drop onto the app icon.
+[ "${0##*/}" = AppRun ] && [ $# = 0 -o "${*#--}" = "$*" ] && set -- --optf=res/default.opt "$@"
+
+# PARSE COMMAND LINE {{{1
+# Option format: -x[=parm] | --opt-x[=parm]
+# Short options can't be combined together. Space can't substitute '=' before
+# option value.  $optIndex points to the current option ($opt) while parsing,
+# and to the first non-option argument, if any, after parsing. $# is the number
+# of arguments.
+unset opt_append opt_bgcolor opt_append_exit opt_check_append opt_check_drop opt_fgcolor opt_font_family opt_glyph opt_height opt_help opt_icon_get opt_id opt_mult opt_no_edit opt_optf opt_print opt_style opt_stylef opt_tail opt_uniq opt_width opt_zap
+optIndex=1 optQueue=
+while [[ "${!optIndex}" == -* ]]; do
+  opt=${!optIndex}; ((++optIndex))
+  if [[ $opt =~ --([bf]gcolor|font-family|glyph(-scale)?|height|mult|optf|print|stylef?|width)=?$ ]]; then
+    usage "$opt"; die_printf 1 "%s: $(gettext 'option needs a value')\n" "$opt" >&2
+  fi
+  case $opt in
+    -a|--append) opt_append=true ;;
+    --append-exit) opt_append_exit=true ;;
+    --bgcolor=*) opt_bgcolor="${opt#*=}" ;;
+    --clean) optQueue+=" clean" ;;
+    --close) optQueue+=" close" ;;
+    --font-family=*) opt_font_family="${opt#*=}" ;;
+    --fgcolor=*) opt_fgcolor="${opt#*=}" ;;
+    --style=*) opt_style="${opt#*=}" ;;
+    --stylef=*:*) opt_stylef=${opt#*=} ;;
+    --debug|--debug=*)
+      _dndmate_find_data_file debug.sh p
+      . "$p" || # debug.sh uses $opt
+        die_printf 1 "%s\n" "debug module error or not installed"
+      ;;
+    --exit) optQueue+=" exit" ;;
+    --exit=*) optQueue+=" exit:${opt#*=}" ;;
+    --glyph=?) opt_glyph="${opt#*=}" ;;
+    --glyph-scale=*) [[ $opt =~ =(100|[1-9][0-9]|[1-9])%?$ ]] ||
+        die_printf 1 "$(gettext "%s : value must be integer in range 1..100")\n" "$opt"
+        opt_glyph_scale=${BASH_REMATCH[1]} ;;
+    -h|--help|-h=*|--help=*) opt_help=$opt ;;
+    --icon-get) optQueue+=" icon_get" ;;
+    --icon-get=*) optQueue+=" icon_get"; opt_icon_get=${opt#*=} ;;
+    --id) opt_id=$$ ;;
+    --id=?*) opt_id="${opt#*=}" ;;
+    --info) optQueue+=" info" ;;
+    --height=[1-9]*) opt_height="${opt#*=}" ;;
+    --mult=[1-9]*) opt_mult="${opt#*=}" ;;
+    --no-edit) opt_no_edit=true ;;
+    --optf=?*) opt_optf="${opt#*=}" # read options from file
+      ! [ -e "$opt_optf" ] && opt_optf="${0%/*}/$opt_optf"
+      ! [ -e "$opt_optf" ] && opt_optf="${0%/*}/../local/apps/$SN/res/${opt_optf##*/}"
+      ! [ -e "$opt_optf" ] && die_printf 1 "$(gettext "\"%s\" : file not found for %s")\n" "${opt#*=}" --optf
+      readarray -t < "$opt_optf"
+      shopt -s extglob # for left trimming MAPFILE
+      set -- "${@:1:$((optIndex-2))}" "${MAPFILE[@]/#+([[:blank:]])}" "${@:$((optIndex))}"
+      ((--optIndex))
+      unset MAPFILE
+      ;;
+    --print=?*) opt_print="${opt#*=}" ;;
+    --tail) opt_tail=--tail ;;
+    --uncheck-append) opt_check_append=false ;;
+    --uncheck-drop) opt_check_drop=false ;;
+    --uniq) opt_uniq=true ;;
+    --version) echo $Version; exit ;;
+    --width=[1-9]*) opt_width="${opt#*=}" ;;
+    -Z|--zap) optQueue+=" zap"; opt_zap=true ;;
+    --) break ;;
+    -*) usage; die_printf 1 "$(gettext "%s : unknown option")\n" "$opt"
+      ;;
+  esac
+done # $@ gets shifted further down.
+[ -n "$opt_append" ] && unset opt_zap
+[ -z "$opt_zap" -a -z "$opt_append_exit" ] && opt_append=true
+[ -n "$opt_stylef" ] && set_OPTIONS_FROM_STYLEF "$opt_stylef"
+opt_style=${opt_style:-}
+opt_mult=${opt_mult:-5} # integer - dnd image side = 16 * opt_mult px
+opt_glyph=${opt_glyph:-$'\u25ce'} # U+25CE Dec:9678 BULLSEYE (0o)
+opt_glyph_scale=${opt_glyph_scale:-90} # percent
+opt_font_family=${opt_font_family:-} # for system default font leave empty
+opt_fgcolor=${opt_fgcolor:-#c4c4c4}
+opt_bgcolor=${opt_bgcolor:-none} # for transparent color use "none"
+
+# INIT 2 {{{1
+export _DNDMATE_EDITOR # for _dndmate_show_run_input_dialog
+# Permanent store of clear-text refs (dropped items).
+export _DNDMATE_REFS # for spawned COMMANDs
+printf -v _DNDMATE_REFS "$_DNDMATE_REFS" "$opt_id"
+# Permanent store of check-boxed refs (yad list widget).
+x=${_DNDMATE_REFS##*/}; x=${x%.*}
+export _DNDMATE_LIST="${_DNDMATE_REFS%/*}/.$x.${_DNDMATE_REFS##*.}" # for spawned COMMANDs
+# CONSUMER's input pipe
+_DNDMATE_PIPE="${_DNDMATE_REFS%/*}/.${x%-refs}.pipe"
+# Script state store: user input, yad exit status, button ids, and more.
+export _DNDMATE_STATE="$_DNDMATE_LIST.state"
+# Shared db - all scripts can access with lock
+export _DNDMATE_DATA_BY_ID="${TMP:-/tmp}/.$USER-$SN-data-by-id"
+# Command history is saved here.
+printf -v _DNDMATE_HISTORY "$_DNDMATE_HISTORY" "$opt_id"
+export _DNDMATE_HISTORY
+
+# Used to identify the Main window and its id/title group windows.
+export YAD_WINTITLE="${opt_id:-[$$]} - $SN"
+
+# SAVE COMMAND LINE {{{1
+
+# If dndmate isn't going to exit immediately due to --*exit* options,
+# save the null-separated command-line as in /proc/$$/cmdline.
+# Rewrite some positional arguments.
+export _DNDMATE_CMDLINE="$_DNDMATE_LIST.cmdline"
+if ! [[ $optQueue =~ *exit* ]] && ! [ "$opt_append_exit" ]; then
+  for p in "$BASH" "$0" "$@"; do
+    case $p in
+      --stylef=* ) # replace option with its expansion to freeze a randomly-generated style
+          tr '\n' '\0' <<< "$OPTIONS_FROM_STYLEF" ;;
+      * )
+        printf "%s\0" "$p" ;;
+    esac
+  done > "$_DNDMATE_CMDLINE"
+fi
+shift $((optIndex - 1))
+
+# SHOW HELP {{{1
+
+if [ "$opt_help" ]; then
+  usage "$opt_help"
+  exit
+fi
+
+# MAIN {{{1
+process_queued_options
+
+# If not appending and no existing refs/list data
+if [ -z "$opt_append" -a -z "$opt_append_exit" -a ! -s "$_DNDMATE_REFS" -a ! -s "$_DNDMATE_LIST" ]; then
+  : REFS > "$_DNDMATE_REFS"
+  : LIST > "$_DNDMATE_LIST"
+fi
+if [ -n "$opt_print" ]; then
+  print_topics "$opt_print"
+  exit
+fi
+# Note: Command-line REFs, $opt_append and $opt_append_exit are processed
+# immediately before starting the PRODUCER process.
+
+if ! [ "$YAD_LIB_YAD_VERSION" ];  then   # dndmate cold start
+  x=$(yad --version)
+  ! [ "$x" ] && die_printf 1 "%s\n" "$(gettext "command 'yad' not found")\n"
+  x=${x%% *}
+fi
+
+trap 'q_close; exit 127' INT TERM
+exit_code=1 # presume error
+
+# Source functions yad_lib_set_YAD_GEOMETRY, yad_lib_set_gtk2_STYLEFILE
+YAD_LIB_INIT="-1" source yad-lib.sh >/dev/null
+if yad_lib_init "${YAD_LIB_YAD_VERSION:-$x}"; then # exports YAD_LIB_YAD_VERSION
+  export -f yad_lib_set_YAD_GEOMETRY
+  show_main_dialog "$@"
+  exit_code=$?
+fi
+
+# MAIN-AFTER the main dialog has closed... {{{1
+_dndmate_get_state_with_lock; main_button_error=$?
+if [ 0 = $main_button_error ]; then
+  export YAD_GEOMETRY=$state_YAD_GEOMETRY YAD_GEOMETRY_POPUP=$state_YAD_GEOMETRY_POPUP
+  last_main_button=$state_last_main_button
+fi
+case $exit_code in
+  # On these events yad doesn't output, therefore pending right-click item changes are lost.
+  252|143|176 ) : "events: window close, ESC; kill -TERM"
+      state_last_main_button=$exit_code; _dndmate_save_state_with_lock state_last_main_button
+      q_close
+      exit $exit_code
+    ;;
+  # On these events right-click item changes are saved.
+  0 ) : "events: Main buttons Run|Run1; Quit; kill -USR1"
+    case $last_main_button in
+      2|12 ) : "Run|Run1"
+          confirm_then_run_command $last_main_button
+          _dndmate_restart --origin=$last_main_button
+        # NOT-REACHED
+        ;;
+      2.*|12.* ) : Run dialog button
+        # The ".*" part can be set via _dndmate_restart --origin=N[.*]
+        exit ${last_main_button%%.*}
+        ;;
+      4) : "event: Copy button"
+        _dndmate_show_copy_dialog
+        _dndmate_restart --origin=$last_main_button
+        # NOT-REACHED
+        ;;
+      101 ) : Quit button
+        state_last_main_button=101; _dndmate_save_state_with_lock state_last_main_button
+        q_close
+        exit 101
+        ;;
+      102 ) : q_close ;;
+      252 ) : exit from debugger ;;
+      * ) main_button_error=1 ;;
+    esac
+    ;;
+  # On these events right-click item changes are dropped.
+  1 ) : "events: kill -USR2"
+    case $last_main_button in
+      * ) main_button_error=1 ;;
+    esac
+    ;;
+  # Catch all including internal errors, such as 180-187
+  * )
+    die_printf 99 "$(gettext "unexpected exit event %d, line %d")\n" $exit_code $LINENO
+    ;;
+esac
+[ 1 = $main_button_error ] && die_printf 97 \
+  "$(gettext "unexpected button event %d (was exit_code=%d), line %d")\n" \
+  $last_main_button $exit_code $LINENO
+
