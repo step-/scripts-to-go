@@ -1,0 +1,40 @@
+install/bin/common.sh
+755	install/bin/install.sh
+install/bin/libterm.sh
+install/bin/package-functions.sh
+755	install/bin/uninstall.sh
+install/bin/view.awk
+install/changelog
+install/filelist
+install/version
+README.md
+755	usr/bin/dndmate
+usr/local/apps/dndmate/AppInfo.xml
+usr/local/apps/dndmate/AppRun
+usr/local/apps/dndmate/.DirIcon
+usr/local/apps/dndmate/res/default.opt
+usr/local/apps/dndmate/res/dndmate_black.png
+usr/local/apps/dndmate/res/dndmate_black.svg
+usr/local/apps/dndmate/res/dndmate_blue.png
+usr/local/apps/dndmate/res/dndmate_blue.svg
+usr/local/apps/dndmate/res/dndmate_dark.png
+usr/local/apps/dndmate/res/dndmate_dark.svg
+usr/local/apps/dndmate/res/dndmate_green.png
+usr/local/apps/dndmate/res/dndmate_green.svg
+usr/local/apps/dndmate/res/dndmate_light.png
+usr/local/apps/dndmate/res/dndmate_light.svg
+usr/local/apps/dndmate/res/dndmate_red.png
+usr/local/apps/dndmate/res/dndmate_red.svg
+usr/local/apps/dndmate/res/dndmate_white.png
+usr/local/apps/dndmate/res/dndmate_white.svg
+usr/local/apps/dndmate/res/media.opt
+usr/local/apps/dndmate/res/random.opt
+usr/local/apps/dndmate/res/random-no-id.opt
+usr/local/apps/dndmate/res/random-lowercase-id.opt
+usr/local/apps/dndmate/res/random-uppercase-id.opt
+usr/share/applications/dndmate.desktop
+usr/share/dndmate/stylef
+usr/share/dndmate/command-samples.en.txt
+usr/share/icons/hicolor/96x96/apps/dndmate.png
+usr/share/icons/hicolor/scalable/apps/dndmate.svg
+usr/share/man/man1/dndmate.1
