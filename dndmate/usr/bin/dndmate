@@ -1467,7 +1467,7 @@ export YAD_WINTITLE="${opt_id:-[$$]} - $SN"
 # save the null-separated command-line as in /proc/$$/cmdline.
 # Rewrite some positional arguments.
 export _DNDMATE_CMDLINE="$_DNDMATE_LIST.cmdline"
-if [[ $optQueue =~ *exit* ]] && ! [ "$opt_append_exit" ]; then
+if ! [[ $optQueue =~ *exit* ]] && ! [ "$opt_append_exit" ]; then
   for p in "$BASH" "$0" "$@"; do
     case $p in
       --stylef=* ) # replace option with its expansion to freeze a randomly-generated style
