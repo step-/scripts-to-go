@@ -1,0 +1,191 @@
+.TH "S-WRITE-COMMENT" 1 2019-11-08
+.SH s-write-comment
+.LP
+File comment file writer
+.SS Target User
+.LP
+You want to keep comments alongside your files.
+.LP
+You don\(cqt have to but if you use ROX-Filer you will get better integration and
+enhanced usability.
+.SS Benefits
+.LP
+In essence, this utility does a simple thing: given a target file name, say
+«\f[CR]TheFile\f[R]», it creates a comment file alongside named «\f[CR]TheFile.txt\f[R]», and opens
+it in your text editor so you can write your free-form comments.
+.LP
+The advantages in using this utility rather than doing it yourself include:
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Point-and-click interaction and sensible defaults take you to edit your
+comments in just one click.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  A GTK save file dialog allows saving to another folder or with another name.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  The comment file displays as a tooltip in ROX-Filer(*) when the mouse pointer
+hovers over the target file icon.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  ROX-Filer SendTo integration included.
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  File system extended attribute (xattr) support.
+.RE
+.LP
+\f[I](*) Requires a ROX-Filer build patched to enable tooltip comments. The patch is
+included in Fatdog64 
+Linux\f[I]:4\f[I]
+and modern Puppy 
+Linux\f[I]:8\f[I]
+builds.\f[R]
+.SS Installing
+.LP
+This script can be installed from a command line shell prompt.
+You must install to «\f[CR]/\f[R]» to enable ROX-Filer integration.
+.LP
+It can be started from a shell prompt.  The installer also adds an \f[I]invisible\f[R] \(lqWrite Comment\(rq
+entry in section \(lqUtility\(rq of the system application menu,
+and the ROX-Filer SendTo entry \(lqAdd Comment File\(rq.
+.LP
+First, install all dependencies \(em see section \f[I]Dependencies\f[R].
+.LP
+Then download the latest archive \f[B]attachment\f[R] from the release 
+page\f[I]:1\f[R].
+Unpack the archive into a folder of your choice.
+.LP
+From that folder run the following command: «\f[CR]install/bin/install.sh\f[R]».
+This will start an interactive installer, which includes a Help screen.
+.LP
+Assuming a successful installation with default settings, you should be able to
+run «\f[CR]/usr/local/bin/s-write-comment.sh /path/to/file\f[R]» to start this utility.
+.LP
+\f[B]Important\f[R] \(em After having completed the installation you \f[B]must\f[R] save file
+«\f[CR]install.log\f[R]», which is located in folder «\f[CR]install/\f[R]», if you want to be able to
+uninstall this program in the future.  Indeed, it is recommended to save the
+whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the log file.
+.SS Dependencies
+.LP
+Install «\f[CR]yad\f[R]»
+\f[I]:5\f[R].
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  This utility, and its dependencies, are already included in Fatdog64 since
+version 720.
+.RE
+.LP
+For ROX-Filer tooltip support, ROX-Filer must be compiled with the \(lqtooltip comments\(rq
+patch. There are at least two kinds of the patch floating around the net:
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Fatdog64 720 and Puppy Linux \(en looks for comment file «\f[CR].TheFile.comment\f[R]» for
+target file «\f[CR]TheFile\f[R]».
+.RE
+.RS
+.ti -\w'\(bu  'u
+\(bu  Fatdog64 800 \(en looks for comment file «\f[CR]TheFile.txt\f[R]» for target file «\f[CR]TheFile\f[R]».
+.RE
+.LP
+By default this utility supports both kinds.
+.SS Uninstalling
+.LP
+From the folder where you unpacked the downloaded archive run the following
+command: «\f[CR]install/bin/uninstall.sh\f[R]».
+This will start an interactive uninstaller, which includes a Help screen.
+.SS Configuration through environment variables
+.LP
+\f[B]TL;DR\f[R] \(en
+For Fatdog64 800+ not to create also a version 720 compatible link file:
+add the following line to your user profile file
+«\f[CR]\(ti/.fatdog/profile\f[R]», log out and log in again:
+.sp 1
+.nf
+.ft CR
+export COMMENT_OPTIONS=--no-symlink
+.ft
+.fi
+.LP
+.LP
+S-write-comment does not provide a user configuration file to set preferences. Instead
+it expects preferences to be set in the form of environment variables, which a
+user can either set when invoking a single dndmate instance, or set in the user
+profile file to affect all future invocations.
+(Changes to the user profile file are effective at the next login).
+.RS
+.LP
+«\f[CR]COMMENT_EDITOR\f[R]» \(en text editor program path,
+default «\f[CR]defaulttexteditor\f[R]».
+.LP
+«\f[CR]COMMENT_OPTIONS\f[R]» \(en additional command options
+Run «\f[CR]s-write-comment.sh --help\f[R]» to see available options.
+.RE
+.SS Help
+.LP
+At a shell prompt run the following line:
+.sp 1
+.nf
+.ft CR
+s-write-comment.sh --help
+.ft
+.fi
+.LP
+Also this file is \(lqthe\(rq help file, so keep it around for future reference
+because it isn\(cqt installed by default.  However, if the «\f[CR]man\f[R]» command is
+installed, you will be able to view these contents by running command:
+.sp 1
+.nf
+.ft CR
+man s-write-comment
+.ft
+.fi
+.SS AUTHOR
+.LP
+step
+.SS LINKS
+.LP
+\f[B]Homepage\f[R]
+\f[I]github.com/step-/scripts-to-go\f[R]
+.LP
+\f[B]:1\f[R] release page
+\f[I]github.com/step-/scripts-to-go/releases\f[R]
+.LP
+\f[B]:4\f[R] Fatdog64 Linux
+\f[I]distro.ibiblio.org/fatdog/web/\f[R]
+.LP
+\f[B]:5\f[R] yad - a GTK dialog program
+\f[I]github.com/v1cont/yad\f[R]
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Fatdog64 800 binary package
+\f[I]distro.ibiblio.org/fatdog/packages/800/yad\f[I]gtk2-0.42.0\f[R]5\f[R]
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Fatdog64 800 source (the build recipe can be found under «\f[CR]/usr/src\f[R]» in the binary package)
+\f[I]distro.ibiblio.org/fatdog/source/800/yad_gtk2-62d54eb5bf5ae2457c6986c33c6de89a6284f969.tar.gz\f[R]
+.RE
+.LP
+\f[B]:8\f[R] Puppy Linux
+\f[I]puppylinux.com\f[R]
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  wiki
+\f[I]puppylinux.org\f[R]
+.RE
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  forum
+\f[I]murga-linux.com/puppy\f[R]
+.RE
