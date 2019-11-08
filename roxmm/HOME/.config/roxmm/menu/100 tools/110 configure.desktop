@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=Roxmm _Configure Menu
+Comment=Open Personal Menu Configuration Folder
+Exec=sh -c "rox \"${SHOM:-$HOME}/.config/roxmm\" &"
+Icon=gtk-open
+Terminal=false
+Categories=SendTo;ROXMM;
+StartupNotify=false

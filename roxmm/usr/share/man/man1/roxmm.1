@@ -1,0 +1,69 @@
+.TH "ROXMM" 1 2019-10-05
+.SH roxmm
+.LP
+ROX-Filer SendTo menu emulator
+.SS Target User
+.LP
+Script developers who need to emulate the rox SendTo menu in their
+applications.
+.LP
+ROX-Filer power users and tweakers.
+.SS Installing
+.LP
+This script can be installed and started from a command line shell prompt.
+No desktop shortcut or application menu entry is available.
+You must install to «\f[CR]/\f[R]» to enable ROX-Filer integration.
+The installer will also add several files to your home folder.
+.LP
+First, install all dependencies \(em see section \f[I]Dependencies\f[R].
+.LP
+Then download the latest archive \f[B]attachment\f[R] from the release 
+page\f[I]:1\f[R].
+Unpack the archive into a folder of your choice.
+.LP
+From that folder run the following command: «\f[CR]install/bin/install.sh\f[R]».
+This will start an interactive installer, which includes a Help screen.
+.LP
+Assuming a successful installation with default settings, you should be able to
+run «\f[CR]/usr/bin/roxmm /path/to/file\f[R]» to start a right-click menu for «\f[CR]file\f[R]»
+(replace «\f[CR]/path/to/menu\f[R]» with the real path of an existing file).
+.LP
+Also, a new entry, \(lqRoxmm Item Menu\(rq, should now appear in the rox right-click
+SendTo menu of files and folders. This entry is installed to make comparison of
+the emulated menu with the actual rox SentTo menu easier.
+.LP
+\f[B]Important\f[R] \(em After having completed the installation you \f[B]must\f[R] save file
+«\f[CR]install.log\f[R]», which is located in folder «\f[CR]install/\f[R]», if you want to be able to
+uninstall this program in the future.  Indeed, it is recommended to save the
+whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the log file.
+.SS Dependencies
+.LP
+Install «\f[CR]gtkmenuplus\f[R]»
+\f[I]:2\f[R].
+.SS Uninstalling
+.LP
+From the folder where you unpacked the downloaded archive run the following
+command: «\f[CR]install/bin/uninstall.sh\f[R]».
+This will start an interactive uninstaller, which includes a Help screen.
+.SS Help
+.LP
+Run the following line:
+.sp 1
+.nf
+.ft CR
+roxmm --help
+.ft
+.fi
+.SS AUTHOR
+.LP
+step
+.SS LINKS
+.LP
+\f[B]Homepage\f[R]
+\f[I]github.com/step-/scripts-to-go\f[R]
+.LP
+\f[B]:1\f[R] release page
+\f[I]github.com/step-/scripts-to-go/releases\f[R]
+.LP
+\f[B]:2\f[R] gtkmenuplus
+\f[I]github.com/step-/gtkmenuplus\f[R]

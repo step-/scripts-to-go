@@ -1,0 +1,12 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=Roxmm _Item Menu
+GenericName=roxmm
+Comment=ROX-Filer SendTo menu emulator
+Exec=roxmm %F
+Icon=roxmm
+Terminal=false
+Categories=GNOME;GTK;Utility;System;SendTo;
+StartupNotify=true

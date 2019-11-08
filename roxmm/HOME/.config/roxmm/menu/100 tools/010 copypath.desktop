@@ -1,0 +1,11 @@
+[Desktop Entry]
+Encoding=UTF-8
+Type=Application
+Version=1.0
+Name=_Copy Path
+Comment=Copy full path to clipboard (xsel)
+Exec=sh -c "echo \"$0\" | xsel -ibn & sleep 1; kill $!; wait $! 2>/dev/null"
+Icon=gtk-copy
+Terminal=false
+Categories=SendTo;ROXMM;
+StartupNotify=false

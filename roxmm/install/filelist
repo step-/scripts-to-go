@@ -1,0 +1,22 @@
+etc/xdg/rox.sourceforge.net/SendTo/.all/Roxmm _Item Menu
+HOME/.config/roxmm/menu/010 roxmm.desktop
+HOME/.config/roxmm/menu/100 tools/010 copypath.desktop
+HOME/.config/roxmm/menu/100 tools/020 properties.desktop
+HOME/.config/roxmm/menu/100 tools/110 configure.desktop
+HOME/.config/roxmm/menu/100 tools/.desktop.directory
+755	HOME/.config/roxmm/menu/bin/bookmarks.awk
+install/bin/common.sh
+755	install/bin/install.sh
+install/bin/libterm.sh
+install/bin/package-functions.sh
+755	install/bin/uninstall.sh
+install/bin/view.awk
+install/changelog
+install/filelist
+install/version
+README.md
+755	usr/bin/roxmm
+usr/share/applications/roxmm.desktop
+usr/share/icons/hicolor/scalable/apps/gtkmenuplus.svg
+usr/share/icons/hicolor/scalable/apps/roxmm.svg
+usr/share/man/man1/roxmm.1
