@@ -1,0 +1,19 @@
+1.1.0
+=====
+
+2019-09-21
+
+* New packaging.
+* Add README and manual page.
+* Enable running simultaneous multiple instances.
+* i18n change TEXTDOMAIN.
+* Allow .m3u8 file extension.
+
+1.0.0
+=====
+
+2017-03-18
+
+* First release
+
+

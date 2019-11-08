@@ -5,7 +5,8 @@
 ;
 [subrepo]
 	remote = ../subrepo/tray-radio
-	branch = master
-	commit = 
+	branch = release
+	commit = 6fbb6fc7a98301d4ef4ef9132defb5a3c896333b
 	method = merge
 	cmdver = 0.4.0
+	parent = 77df992bad247d3db334d2f1c6a9ff370d56dea0
