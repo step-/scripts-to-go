@@ -1,4 +1,4 @@
-.TH "QUICKLAUNCH" 1 2019-10-09
+.TH "QUICKLAUNCH" 1 2020-01-10
 .SH quicklaunch
 .LP
 Quick-launch user menu
@@ -17,7 +17,8 @@ able to invoke the menu from the LXQt desktop panel, and from a global hotkey.
 The installer will add several files to your home folder, as well as some GTK2
 themes. The latter should be installed to «\f[CR]/\f[R]» for system-wide availability.
 .LP
-First, install all dependencies \(em see section \f[I]Dependencies\f[R].
+First, install all dependencies, see 
+\f[I]Dependencies\f[R].
 .LP
 Then download the latest archive \f[B]attachment\f[R] from the release 
 page\f[I]:1\f[R].
@@ -27,7 +28,7 @@ From that folder run the following command: «\f[CR]install/bin/install.sh\f[R]�
 This will start an interactive installer, which includes a Help screen.
 .LP
 Assuming a successful installation with default settings, you should be able to
-enter command \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R] in a shell prompt to display the
+enter command «\f[CR]\(ti/quicklaunch.gtkmenuplus\f[R]» in a shell prompt to display the
 default quick-launch menu.  If it is displayed then you can proceed  to read
 section 
 \f[I]Configuration\f[R]
@@ -42,6 +43,11 @@ whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the 
 .LP
 Install «\f[CR]gtkmenuplus\f[R]»
 \f[I]:2\f[R].
+.sp 1.0v
+.RS
+.ti -\w'\(bu  'u
+\(bu  Since version 800, Fatdog64 includes gtkmenuplus; no need to install it again.
+.RE
 .SS Uninstalling
 .LP
 From the folder where you unpacked the downloaded archive run the following
@@ -99,9 +105,9 @@ Let\(cqs start by adding your quicklaunch menu as a quick-launch panel icon.
 .sp 1.0v
 .RS
 .ti -\w'\(bu  'u
-\(bu  Edit file \f[CR]\(ti/.config/lxqt/panel.conf\f[R].  If this file does not exist,
+\(bu  Edit file «\f[CR]\(ti/.config/lxqt/panel.conf\f[R]».  If this file does not exist,
 copy the system default file «\f[CR]/etc/xdg/lxqt/panel.conf\f[R]» to
-\f[CR]\(ti/.config/lxqt/panel.conf\f[R] then edit the copy.  Find section
+«\f[CR]\(ti/.config/lxqt/panel.conf\f[R]» then edit the copy.  Find section
 «\f[CR][quicklaunch]\f[R]».  It should look something like the following text block:
 .RE
 .sp 1
@@ -161,7 +167,7 @@ effect.  Now only the quicklaunch icon takes up valuable panel space.
 If you did add the quicklaunch icon to the Desktop Panel, you may also want
 for the menu colors to match the Desktop Panel theme. By default, your
 quicklaunch menu uses the Onyx theme.  To apply a different theme
-edit file \f[CR]\(ti/.local/share/applications/quicklaunch.desktop\f[R],
+edit file «\f[CR]\(ti/.local/share/applications/quicklaunch.desktop\f[R]»,
 and read further instructions there.
 .SS Customizing the menu
 .LP
@@ -184,11 +190,11 @@ Icon = gtk-dialog-info
 .ft
 .fi
 .LP
-Add the above text block to file \f[CR]\(ti/quicklaunch-user.gtkmenuplus\f[R].
+Add the above text block to file «\f[CR]\(ti/quicklaunch-user.gtkmenuplus\f[R]».
 Then invoke the menu by clicking its icon in the desktop panel, or typing the
-quicklaunch menu global hotkey, or running \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R] in a
+quicklaunch menu global hotkey, or running «\f[CR]\(ti/quicklaunch.gtkmenuplus\f[R]» in a
 shell prompt.  Either way, the menu will show the two new items. If it does
-not, you did something wrong. Then try running \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R] in a
+not, you did something wrong. Then try running «\f[CR]\(ti/quicklaunch.gtkmenuplus\f[R]» in a
 shell prompt and see what error messages it prints \(em if they help you
 understand what you possibly did wrong.
 .LP
@@ -197,8 +203,8 @@ scope of this document. Read the \(lqformatting
 directives\(dq\f[I]:2\f[R]
 manual to
 learn all that.  You can also imitate one of several items that are supplied
-in the sample user file, \f[CR]\(ti/quicklaunch-user.sample\f[R], and in the main menu
-file, \f[CR]\(ti/quicklaunch.gtkmenuplus\f[R].
+in the sample user file, «\f[CR]\(ti/quicklaunch-user.sample\f[R]», and in the main menu
+file, «\f[CR]\(ti/quicklaunch.gtkmenuplus\f[R]».
 .LP
 Recommendation: abstain from modifying the main menu file, directly because if
 you make a mistake your menu could not be displayed at all.  Instead, put all
@@ -207,9 +213,9 @@ directly is that your changes would be overwritten upon updating this package.
 On the other hand, the user file never gets overwritten.
 .SH Preferred programs and the user-var file
 .LP
-Some quicklaunch items invoke the default browser and the default text editor. 
+Some quicklaunch items invoke the default browser and the default text editor.
 You can change the default programs just for quicklaunch by editing the
-\f[I]user-var\f[R] file, «\f[CR]quicklaunch-user-var.gtkmenuplus\f[R]»: uncomment the settings,
+\f[I]user-var\f[R]» file, «\f[CR]quicklaunch-user-var.gtkmenuplus\f[R]»: uncomment the settings,
 and replacing the sample values:
 .sp 1
 .nf
@@ -228,7 +234,7 @@ them to the Recent sub-menu, and to a \(dqrecent list\(rq displayed at the botto
 the menu.
 .LP
 Tracked items are saved in a file named by gtkmenuplus variable
-«\f[CR]RECENTFILE\f[R]», which expands to file path \f[CR]\(ti/.gmenu2.log\f[R].  This path is
+«\f[CR]RECENTFILE\f[R]», which expands to file path «\f[CR]\(ti/.gmenu2.log\f[R]».  This path is
 shared with 
 gmenu2\f[I]:5\f[R]
 \(em a System and Application menu in the
@@ -282,20 +288,25 @@ PRUNEREX="@prune_this@|Item=(Reboot|Restart X|Shutdown|Suspend)"
 Occasionally you may wish you could edit the Recent submenu directly. That is
 possible but its menu entry is hidden by default. To enable this feature type
 to the shell:
-\f[CR]
+«\f[CR]
 \(ti/quicklaunch-user.gtkmenuplus 0 1
 \f[R]
 then select menu entry \(lqTools > Edit Recent Menu\(rq.  The file format is a bit
 obscure but essentially each menu entry ends on a line like this «\f[CR]#{}\f[R]».
 .SS ROX Bookmarks submenu
 .LP
-This is what the title says: your ROX-Filer bookmarks can be invoked from the
-quicklaunch menu.
+This is what the title says: your ROX-Filer bookmarks are integrated as a
+submenu of the quicklaunch menu.
+To edit your bookmarks go to ROX-Filer.
+.LP
+For easy integration of ROX-Filer bookmarks a stand-alone version of the ROX
+bookmarks submenu is installed in your home folder with the name
+«\f[CR]rox-bookmarks.gtkmenuplus\f[R]».
 .SS Tools submenu
 .LP
 This submenu provides entries to
-- edit the main menu configuration file (be careful!)
-- edit the user menu configuration file
+- edit the main menu configuration file (for expert users)
+- edit the user menu configuration file (your entries)
 - edit the Recent submenu (hidden by default)
 - prune the Recent submenu and recent list
 - sort the Recent submenu by different criteria.
