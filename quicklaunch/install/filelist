@@ -1,6 +1,5 @@
 HOME/.local/share/applications/quicklaunch.desktop
 755	HOME/quicklaunch.gtkmenuplus
-755	HOME/rox-bookmarks.gtkmenuplus
 HOME/quicklaunch-user.sample
 install/bin/common.sh
 755	install/bin/install.sh

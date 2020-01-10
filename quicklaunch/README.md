@@ -1,5 +1,5 @@
 title: QUICKLAUNCH  
-date: 2020-01-10  
+date: 2019-10-09  
 homepage: <https://github.com/step-/scripts-to-go>  
 
 # quicklaunch
@@ -254,19 +254,14 @@ obscure but essentially each menu entry ends on a line like this `#{}`.
 
 ### ROX Bookmarks submenu
 
-This is what the title says: your ROX-Filer bookmarks are integrated as a
-submenu of the quicklaunch menu.
-To edit your bookmarks go to ROX-Filer.
-
-For easy integration of ROX-Filer bookmarks a stand-alone version of the ROX
-bookmarks submenu is installed in your home folder with the name
-`rox-bookmarks.gtkmenuplus`.
+This is what the title says: your ROX-Filer bookmarks can be invoked from the
+quicklaunch menu.
 
 ### Tools submenu
 
 This submenu provides entries to
-- edit the main menu configuration file (for expert users)
-- edit the user menu configuration file (your entries)
+- edit the main menu configuration file (be careful!)
+- edit the user menu configuration file
 - edit the Recent submenu (hidden by default)
 - prune the Recent submenu and recent list
 - sort the Recent submenu by different criteria.
