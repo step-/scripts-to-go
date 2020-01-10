@@ -4,9 +4,9 @@
 ; git-subrepo command. See https://github.com/git-commands/git-subrepo#readme
 ;
 [subrepo]
-	remote = ../subrepo/quicklaunch
+	remote = ../script-installer
 	branch = release
-	commit = c9eb60dacc7ba3c968b1e515a178ecf7d35bfa7f
+	commit = c53e30c2c867d0b476f4383c493a4a3a13552b5c
+	parent = 7bcd4c870b73b93c713c6cf0d296ed58671dcb71
 	method = merge
 	cmdver = 0.4.0
-	parent = 288084b41ba43026f769ccb88ed82008d19ceec0
