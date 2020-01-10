@@ -1,0 +1,1 @@
+../../release-tools/update-changelog.sh

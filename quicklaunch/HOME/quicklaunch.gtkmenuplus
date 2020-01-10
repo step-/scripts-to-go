@@ -1,10 +1,10 @@
 #!/usr/bin/gtkmenuplus
 
 # Quick-launch user menu
-# Copyright (C) step, 2017-2019
+# Copyright (C) step, 2017,2019,2020
 # License: GNU GPL Version 2
 # Homepage: https://github.com/step-/scripts-to-go
-# Version=1.1.0
+# Version=1.2.0
 
 # Enable label mnemonics throughout
 format = mnemonic="1"
@@ -185,12 +185,14 @@ endsubmenu
 if=! [ -s "$ROX_BOOKMARKS_FILE" ]; echo $?
 # Syntax notes:
 # - Shell-escape characters '!', '\', '"' and '$(' with a single backslash.
-_UNLISTED_ROX=cmd=sh -c \\\": @prune_this@;rox \\\\\\\"%s\\\\\\\"\\\"
+_UNLISTED_ROX=cmd=sh -c \\\": @prune_this@;rox -d \\\\\\\"%s\\\\\\\"\\\"
 # With _UNLISTED_ROX, logged bookmark invocations are marked with @prune_this@,
 # so you can select "Tools>Prune Recent Menu" to prune them from menu "Recent".
 # With _LISTED_ROX, logged invocations aren't marked and therefore can't be pruned.
-#_LISTED_ROX=cmd=rox \\\"%s\\\"
-_CONVERT_BOOKMARKS=BEGIN{ print>OUT;FS=\"[<>\\\"]\"; }\$(2)~/^bookmark /{ printf \"item=%s\ntooltip=%s\n$_UNLISTED_ROX\nicon=gtk-directory\n\",\$(3),\$(5),\$(5)>OUT;++n; }
+#_LISTED_ROX=cmd=rox -d \\\"%s\\\"
+
+GET_DIRICON=function get_diricon(p,x){p=p\"/.DirIcon\";if(0<(getline x<p)){close(p);return p}return \"gtk-directory\"}
+_CONVERT_BOOKMARKS=BEGIN{ print>OUT;FS=\"[<>\\\"]\"; }\$(2)~/^bookmark /{ printf \"item=%s\ntooltip=%s\n$_UNLISTED_ROX\nicon=%s\n\",\$(3),\$(5),\$(5),get_diricon(\$(5))>OUT;++n; }$GET_DIRICON
 _OUT=$TMPF-2
 _GET_BOOKMARKS=sh -c "gawk -v OUT='$_OUT' '$_PROT$_CONVERT_BOOKMARKS' '$ROX_BOOKMARKS_FILE'"
 _INCLUDE_TMPF==$_GET_BOOKMARKS

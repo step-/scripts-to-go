@@ -1,0 +1,1 @@
+../../release-tools/make-man-page.sh
