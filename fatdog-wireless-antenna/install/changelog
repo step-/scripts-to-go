@@ -1,6 +1,14 @@
 1.3.1
 =====
 
+2020-03-31
+
+* Version and functionality did not change.
+* Move NLS tools to usr/share/doc/nls/<project-name>/.
+
+1.3.1
+=====
+
 2019-11-04
 
 * Fix error "invalid window id".
