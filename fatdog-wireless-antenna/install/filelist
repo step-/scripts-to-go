@@ -10,10 +10,10 @@ install/version
 README.md
 755	usr/sbin/fatdog-wireless-antenna.sh
 usr/share/applications/fatdog-wireless-antenna-s2g.desktop
-usr/share/doc/fatdog-wireless-antenna/fatdog-wireless-antenna.pot
 usr/share/doc/fatdog-wireless-antenna/PORTING.md
 usr/share/doc/fatdog-wireless-antenna/wpa_gui-icon-README.txt
-usr/share/doc/fatdog-wireless-antenna/xgettext.sh
+usr/share/doc/nls/fatdog-wireless-antenna/fatdog-wireless-antenna.pot
+usr/share/doc/nls/fatdog-wireless-antenna/xgettext.sh
 usr/share/icons/hicolor/16x16/apps/networktool.png
 usr/share/icons/hicolor/16x16/apps/wpagui.png
 usr/share/icons/hicolor/24x24/apps/networktool.png
