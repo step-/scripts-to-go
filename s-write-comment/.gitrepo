@@ -6,7 +6,7 @@
 [subrepo]
 	remote = ../subrepo/s-write-comment
 	branch = release
-	commit = 6e110744f38bc80e92c9a164122702e16b473e66
+	commit = a4022304926e6b975db1c486962af78520a39fed
 	method = merge
-	cmdver = 0.4.0
-	parent = ad7d64ca541fcfda4b5df21940057e875b5ab9b7
+	cmdver = 0.4.1
+	parent = ee66460d61877d73f81df46316e902f3913eb7cd

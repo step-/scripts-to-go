@@ -1,3 +1,11 @@
+1.1.1
+=====
+
+2022-03-16
+
+* Fix clicking the window close icon did not abort.
+* Replace duplicated .desktop file with link.
+
 1.1.0
 =====
 
@@ -15,4 +23,5 @@
 
 * 2019-02-28 Updated for Fatdog64 800 base
 * 2017-12-20 Included in Fatdog64 720 base
+
 
