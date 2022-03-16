@@ -2,9 +2,9 @@
 
 # File comment file writer
 # Author: step
-# Copyright (c)2016-2019 step
+# Copyright (c)2016-2019,2022 step
 # License: GNU GPLv3
-Version=1.1.0
+Version=1.1.1
 
 usage() # {{{1
 {
@@ -88,6 +88,7 @@ dialog_file_open() # $1-comment-filepathname {{{1 In: $opt_no_symlink $FILE
     "<i>Will also create link <tt>%s => .../%s</tt>.\nRead Help to disable.</i>")" \
       ".${FILE##*/}.comment" "${p##*/}")\n"
   yad --file --save --filename="$p" --text="$caption" \
+    --escape-ok \
     --button=gtk-ok:0 --button=gtk-cancel:1 --button="gtk-help:$0 --help=all-gui"
   local exit_val=$? # 0|1|252
   [ 0 != $exit_val ] && echo "$p"
@@ -149,7 +150,7 @@ EOF
       1 ) # 1=Cancel
         exit
         ;;
-      0|252) # 0=OK 252=Esc
+      0) # 0=OK && 252=ESC->0 (--escape-ok)
         # Queue FILE and comment file full pathnames.
         printf "%s\n%s\n" "$f" "$cf" >> "$DATF"
         ;;
