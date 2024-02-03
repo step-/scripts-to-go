@@ -1,22 +1,20 @@
 title: GMENU2  
-date: 2019-10-11  
+date: 2024-02-02  
 homepage: <https://github.com/step-/scripts-to-go>  
 
 # gmenu2
 
-Stand-alone extended application menu
+Alternative desktop menu implementation using gtkmenuplus
 
 ## Compatibility
 
-Gmenu2 loosely follows the specification for XDG menu applications.  However,
-it was developed primarily for Fatdog64 Linux, so it may be lacking for other
+Gmenu2 loosely follows the specification for XDG menu applications.
+It is developed for Fatdog64 Linux, and it could be lacking for other
 distributions.
 
 ## Target User
 
-You look for an alternative application menu with pizzazz.
-
-You remaster Fatdog64 and need a stand-alone application menu that works
+You remaster Fatdog64 and want a stand-alone application menu that works
 without a window manager or a desktop panel.
 
 ## Installing
@@ -65,9 +63,7 @@ gmenu2.
   See also section [Configuration](#configuration).
 
 If `gmenu2-fdcp` is installed, gmenu2 will display menu entries for the
-Fatdog64 Control Panel.
-
-* This extension isn't needed for Fatdog64 > 802.
+Fatdog64 Control Panel. This extension is only needed for Fatdog64 <= 802.
 
 * Optional: install `gmenu2-fdcp`[:6](#LINKS).
 
@@ -82,7 +78,7 @@ The uninstaller will not remove the user's configuration files:
 
 ## Submenus
 
-In addition to simulating the system application menu, gmenu2 provides some
+In addition to providing the system application menu, gmenu2 provides some
 submenus of its own:
 
 > Control panel
@@ -108,10 +104,10 @@ applications to the system menu, this submenu will show such applications.
 
 ### Preferences file
 
-Gmenu2 self-configures on the first run; you do not need to do anything.  Just
-know that you will be able to change preferences at any time directly from
+Gmenu2 self-configures on the first run; you do not need to do anything.
+You can change some menu preferences directly from
 the gmenu2 menu, and also by editing file `~/.gmenu2rc`, which gmenu2 creates
-if it does not already exist.  Default preferences:
+if the file does not exist.  Default preferences:
 
 > `IGNORENODISPLAY="0"`
 
@@ -143,10 +139,10 @@ Forced updates will keep going until disabled with
 
 > `SUBMENU_UNCATEGORIZED_APPS="0"`
 
-By developer's choice or by mistake, there can be applications that do not fall
-into any known application category and are therefore invisible in the default
-system application menu. If this setting is enabled ("1") such uncategorized
-applications will be shown in the "Uncategorized" submenu.
+Application packagers may choose not to assign an application to any known
+application category. In this case the application is not listed in the default
+system application menu. By enabling this setting ("1") such uncategorized
+applications will be listed in the "Uncategorized" submenu.
 
 > `SUBMENU_ACTIVATIONS="1"`
 
@@ -171,6 +167,10 @@ if one exists, can be pressed to jump to that label, which is therefore said
 "accelerated".  If `MNEMONIC` is `"1"` gmenu2 will set the first character of
 each "unaccelerated" label as its accelerator.
 
+> `ICONSIZE="24"`
+
+The size of menu item icons in pixels.
+
 ### Assigning a global hotkey (optional)
 
 The following instructions apply to sven[:3](#LINKS) --- the multimedia
@@ -185,7 +185,7 @@ before re-assigning it.
 * Click inside input field Key Code with your mouse, then press keys "Windows"
   and "s" together, don't press other keys
 * Click inside input field Text Display with your mouse, then type "System and
-* Applications"
+  Applications"
 * Click the Program radio button, and type: `gmenu2`
 * Click OK and close sven.
 
@@ -217,30 +217,30 @@ step
 ## LINKS
 
 **Homepage**
-[github.com/step-/scripts-to-go](https://github.com/step-/scripts-to-go)
+<https://github.com/step-/scripts-to-go#gmenu2>
 
 **:1** release page
-[github.com/step-/scripts-to-go/releases](https://github.com/step-/scripts-to-go/releases)
+<https://github.com/step-/scripts-to-go/releases>
 
 **:2** gtkmenuplus
-[github.com/step-/gtkmenuplus](https://github.com/step-/gtkmenuplus)
+<https://github.com/step-/gtkmenuplus>
 
 * formatting directives ( `man 5 gtkmenuplus` )
-  [blob/master/docs/menu\_configuration\_file\_format.md](https://github.com/step-/gtkmenuplus/blob/master/docs/menu_configuration_file_format.md)
+  <https://github.com/step-/gtkmenuplus/blob/master/docs/menu_configuration_file_format.md>
 
 **:3** sven multimedia keyboard manager
 
 * source
-[distro.ibiblio.org/fatdog/source/800/sven-20190207.tar.bz2](http://distro.ibiblio.org/fatdog/source/800/sven-20190207.tar.bz2)
+<http://distro.ibiblio.org/fatdog/source/900/sven-2023.07.02.tar.bz2>
 
 * 64-bit binary
-[distro.ibiblio.org/fatdog/packages/800/sven-2019.02-x86_64-1.txz](http://distro.ibiblio.org/fatdog/packages/800/sven-2019.02-x86_64-1.txz)
+<http://distro.ibiblio.org/fatdog/packages/900/sven-2023.07-x86_64-1.txz>
 
 **:4** Fatdog64 Linux
-[distro.ibiblio.org/fatdog/web/](http://distro.ibiblio.org/fatdog/web/)
+<http://distro.ibiblio.org/fatdog/web/>
 
 **:5** Quicklaunch user menu
-[github.com/step-/gtkmenuplus](https://github.com/step-/scripts-to-go/#quicklaunch)
+<https://github.com/step-/scripts-to-go/#quicklaunch>
 
 **:6** Gmenu2 extension: Fatdog64 Control Panel
-[github.com/step-/gtkmenuplus](https://github.com/step-/scripts-to-go/#gmenu2-fdcp)
+<https://github.com/step-/scripts-to-go/#gmenu2-fdcp>

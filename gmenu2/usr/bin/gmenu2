@@ -1,59 +1,29 @@
-#!/bin/ash
+#!/bin/sh
 
 # gmenu2 - stand-alone extended application menu
-Version=1.3.0
-# License: GNU GPLv2 - (C)2016-2019, step
+Version=1.4.0
+# License: GNU GPLv2 - (C)2016-2019,2024 step
 # Dependencies: gtkmenuplus >= 1.1.5 https://github.com/step-/gtkmenuplus
-# Homepage: https://github.com/step-/scripts-to-go
-# Extensions: gmenu2-fdcp in $PATH directory
+# Homepage: https://github.com/step-/scripts-to-go/tree/master/gmenu2
 # Ideas borrowed from Gmenu script, GNU GPLv2 - (C)2016, SFR
 
-# i18n [[[1
-# CAVEAT: Apparently xgettext isn't able to handle command 'gettext -es' below.
-export TEXTDOMAIN=fatdog
-export OUTPUT_CHARSET=UTF-8
-{
-  read IT_concealed_1; read TT_concealed_1
-  read IT_concealed_0; read TT_concealed_0
-  read IT_chache_1;   read TT_chache_1
-  read IT_chache_0;   read TT_chache_0
-  read IT_uncat_app_1; read TT_uncat_app_1
-  read IT_uncat_app_0; read TT_uncat_app_0
-  read IT_activ_1; read TT_activ_1
-  read IT_activ_0; read TT_activ_0
-  read IT_uncategorized_apps; read TT_uncategorized_apps
-  read IT_activations; read TT_activations
-  read IT_fdcp
-} << EOF
-$(gettext -es \
-"Show _concealed applications\n" \
-  "Mostly consisting of system scripts.\n" \
-"Hide _concealed applications\n" \
-  "Hiding is recommended for normal use.\n" \
-"_Refresh cache\n" \
-  "This rebuilds the cache on each Gmenu2 invocation. It might help finding newly-installed applications.\n" \
-"Stop _refreshing cache\n" \
-  "Stopping reduces start-up/disk overhead. It is generally unnecessary to keep refreshing the cache.\n" \
-"Enable '_Uncategorized' sub-menu\n" \
-  "Try enabling this sub-menu if you can't find some applications.\n" \
-"Disable '_Uncategorized' sub-menu\n" \
-  "Stop showing category-less applications, and hide the sub-menu.\n" \
-"Enable '_Recent' sub-menu\n" \
-  "Log menu activations and display them in a sub-menu for quick re-use.\n" \
-"Disable '_Recent' sub-menu\n" \
-  "Stop logging menu activations, and hide the sub-menu.\n" \
-"_Uncategorized\n" \
-  "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'GMenu2>Refresh cache'.\n" \
-"_Recent\n" \
-  "Menu entry activation log. Quickly repeat a previous invocation.\n" \
-"_Control Panel\n" \
-)
-EOF
+DEBUG=''   # set non-empty to build debugging version
+GTKMENUPLUS=gtkmenuplus
+AWK=awk
 
-# Initialize/read configuration [[[1
+#######################################################################
+#                    INIITALIZE/READ CONFIGURATION                    #
+#######################################################################
+
+# ----------------------------------------------------------------------
+# To reinitialize the menu `rm -fr "$TMPMENUDIR"` before running gmenu2.
+TMPMENUDIR="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/gmenu2_$USER"
+# ----------------------------------------------------------------------
+
+# Create/read configuration file. [[[1
 CONFIG="$HOME/.gmenu2rc"
 [ -e "$CONFIG" ] || : > "$CONFIG"; . "$CONFIG"
-awk '
+$AWK -v HOME="$HOME" '###awk
   /^IGNORENODISPLAY=/{f1=1}
   /^INLINE=/{f2=1}
   /^REFRESH_CACHE=/{f3=1}
@@ -61,33 +31,44 @@ awk '
   /^SUBMENU_ACTIVATIONS=/{f5=1}
   /^LOGFILE_ACTIVATIONS=/{f6=1}
   /^MNEMONIC=/{f7=1}
+  /^ICONSIZE=/{f8=1}
   END{
     # Note: Settings in the $CONFIG file win over the first-run settings below:
     #
-    # 1=show concealed apps
+    if(!f1) print "# 1=show concealed applications">>ARGV[1]
     if(!f1) print "IGNORENODISPLAY=\"0\"">>ARGV[1]
-    # 0=build sub-categorized menus (mostly educational)
+    if(!f2) print "# 0=build flat menu (slower)">>ARGV[1]
     if(!f2) print "INLINE=\"1\"">>ARGV[1]
-    # 1=rebuild data dirs on each run
+    if(!f3) print "# 1=rebuild data cache on each run (slower).">>ARGV[1]
     if(!f3) print "REFRESH_CACHE=\"0\"">>ARGV[1]
-    # 1=show sub-menu Uncategorized
+    if(!f4) print "# 1=show the Uncategorized sub-menu.">>ARGV[1]
     if(!f4) print "SUBMENU_UNCATEGORIZED_APPS=\"0\"">>ARGV[1]
-    # 1=show sub-menu Recent
+    if(!f5) print "# 1=show the Recent sub-menu.">>ARGV[1]
     if(!f5) print "SUBMENU_ACTIVATIONS=\"1\"">>ARGV[1]
-    # Log invoked items in this file.
-    if(!f6) print "LOGFILE_ACTIVATIONS=\"'"$HOME"'/.gmenu2.log\"">>ARGV[1]
-    # 1=add mnemonic to item labels
+    if(!f6) print "# Item activation history file.">>ARGV[1]
+    if(!f6) print "LOGFILE_ACTIVATIONS=\"" HOME "/.gmenu2.log\"">>ARGV[1]
+    if(!f7) print "# 1=add activation letter to menu items">>ARGV[1]
     if(!f7) print "MNEMONIC=\"1\"">>ARGV[1]
+    if(!f8) print "# item icon size (16, 24, 32,... pixel)">>ARGV[1]
+    if(!f8) print "ICONSIZE=\"24\"">>ARGV[1]
   }
-  ' "${CONFIG}" && . "$CONFIG" || {
+###awk' "$CONFIG" && . "$CONFIG"
+if [ $? -ne 0 ]; then
   echo >&2 "$0: fatal: can't initialize"
   exit 1
-}
+fi
 
-filter_activation_submenu() # [[[1
-{
+
+#[[[1]]]
+
+#######################################################################
+#                  NOT FIRT RUN: DISPLAY CACHED MENU                  #
+#######################################################################
+
+
+filter_activation_submenu() { # [[[1
   if [ 0 != "$SUBMENU_ACTIVATIONS" -a -s "$LOGFILE_ACTIVATIONS" ]; then
-    LANG=C awk -v NOW=`date +%s` '
+    LANG=C $AWK -v NOW=`date +%s` '###awk
 /^#{[0-9:]+}/ {
   start = NR
   exclude = 0
@@ -125,25 +106,31 @@ END {
       print a[i, j] > ARGV[1]
   }
 }
-  ' "$LOGFILE_ACTIVATIONS"
+###awk' "$LOGFILE_ACTIVATIONS"
   fi
 }
 
-# REFRESH_CACHE data dirs [[[1
-# To start a fresh menu rm -r "$TMPMENUDIR" and restart gmenu2.
-# Be wary that multiple runs without 'rm -r' will duplicate files,
-# therefore run longer, due to 'cp' backup control - see {N1} below.
-TMPMENUDIR="/tmp/gmenu2_$USER"
-TMPMENU="$TMPMENUDIR/gmenu2"
-TMPMENUMNT="$TMPMENUDIR/merged_mnt"
+# Refresh cache and run menu. [[[1
+TMPMENU="${TMPMENUDIR:?}/gmenu2"
+TMPMENUMNT="${TMPMENUDIR:?}/merged_mnt"
+[ -d "$TMPMENUDIR" ] || mkdir "$TMPMENUDIR"
 if [ -f "$TMPMENU" -a 1 != "$REFRESH_CACHE" ]; then
-  filter_activation_submenu #&&
-  gtkmenuplus "$TMPMENU"
+  filter_activation_submenu &&
+    $GTKMENUPLUS "$TMPMENU" "$ICONSIZE"
   exit $?
 elif [ -d "$TMPMENUDIR" -a 1 = "$REFRESH_CACHE" ]; then
   mountpoint -q "$TMPMENUMNT" && umount "$TMPMENUMNT"
   rm -r "$TMPMENUDIR"
 fi
+
+
+
+
+
+#######################################################################
+#                     FIRST RUN: BUILD AND CACHE MENU                 #
+#######################################################################
+
 
 # Initialize variables. [[[1
 MENU_ROOT="/etc/xdg/menus"
@@ -175,62 +162,203 @@ MAIN_LAUNCHER="$TMPMENUDIR/M"
 mkdir -p "$MAIN_LAUNCHER" || exit 1
 filter_activation_submenu
 
-# Make lots of file links iff no optimization option, cf. {N2} [[[1
-if [ 1 != $INLINE ]; then
+# Make lots of file links unless optimization is enabled, cf. {N2} [[[1
+if [ $INLINE -ne 1 ]; then
   # List combined .desktop files in directory tree. [[[2
   tree_file="$TMPMENUDIR/desktop-tree"
-  ifs=$IFS; IFS=:; set -- $DESKTOP_FILE_DIRS
+  ifs="$IFS"; IFS=:
+  set -- $DESKTOP_FILE_DIRS_EXIST
+  IFS="$ifs"
   # -L validates symlinks.
   # Recursive search will find wine applications, too, which we exclude
   # here because they will be found and grouped elsewhere.
   2>/dev/null > "$tree_file" find -L "$@" \
     \( -type d -name wine -prune \) \
     -o \( -type f -name '*.desktop' -print0 \)
-  IFS=$ifs
 
   # Flatten tree to symlinks. [[[2
   mkdir -p "$MAIN_LAUNCHER/I" &&
-  # Same-named file control:
-  # {N1} Adding --backup=numbered allows 'cp' to copy all same-named
-  # files.  Otherwise 'cp' doesn't overwrite same-named target files; it
-  # creates the first destination named, say, xyz then if another source
-  # named xyz is found, it warns that it will not copy it.
+  # Flattening when different files share the same name:
+  # {N1} We flatten with GNU `cp --backup=numbered` which allows copying files
+  # with the same named to the same folder without overwriting each other.
+  # Without numbered backup GNU cp will refuse to overwrite an existing copy
+  # target so flattening would be incomplete.
   xargs -0 cp --backup=numbered -fst "$MAIN_LAUNCHER/I" < "$tree_file"
 fi
 
-# Build unoptimized menu [[[1
-# {N2} This script builds a functioning but unoptimized menu
-# configuration file. While so doing, the script collects enough
-# (category) data to enable post-processing the configuration file to
-# optimize it iff INLINE=1.
-LANG=C awk \
-  -v INLINE=$INLINE \
-  -v IGNORENODISPLAY=$IGNORENODISPLAY \
-  -v REFRESH_CACHE=$REFRESH_CACHE \
-  -v SUBMENU_ACTIVATIONS=$SUBMENU_ACTIVATIONS \
-  -v SUBMENU_UNCATEGORIZED_APPS=$SUBMENU_UNCATEGORIZED_APPS \
-  -v MNEMONIC=$MNEMONIC \
-  -v CONFIG="$CONFIG" \
-  '#{{{awk
+# Build menu without optimizations [[[1
+# {N2} The make_menu.awk script builds a functioning but unoptimized menu
+# configuration file. However the script collects enough category data to make
+# possible optimizing the configuration file when INLINE=1.
+
+awk_read_vars="function read_vars(  f,r){ #[[[2
+f=MENUDIR\"/vars\"
+r=1
+r=r&&(getline INLINE <f)>0
+r=r&&(getline IGNORENODISPLAY <f)>0
+r=r&&(getline REFRESH_CACHE <f)>0
+r=r&&(getline SUBMENU_ACTIVATIONS <f)>0
+r=r&&(getline SUBMENU_UNCATEGORIZED_APPS <f)>0
+r=r&&(getline MNEMONIC <f)>0
+r=r&&(getline CONFIG <f)>0
+r=r&&(getline GTKMENUPLUS <f)>0
+r=r&&(getline DESKTOP_FILE_DIRS <f)>0
+r=r&&(getline DESKTOP_FILE_DIRS_EXIST <f)>0
+r=r&&(getline DIRFILE_DIR <f)>0
+r=r&&(getline MENU_ROOT <f)>0
+r=r&&(getline MAIN_LAUNCHER <f)>0
+r=r&&(getline LOGFILE_ACTIVATIONS <f)>0
+r=r&&(getline MENUMNT <f)>0
+r=r&&(getline ICONSIZE <f)>0
+return r
+}
+"
+
+echo > "$TMPMENUDIR/vars" "\
+${INLINE:?}
+${IGNORENODISPLAY:?}
+${REFRESH_CACHE:?}
+${SUBMENU_ACTIVATIONS:?}
+${SUBMENU_UNCATEGORIZED_APPS:?}
+${MNEMONIC:?}
+${CONFIG:?}
+${GTKMENUPLUS:?}
+${DESKTOP_FILE_DIRS:?}
+${DESKTOP_FILE_DIRS_EXIST:?}
+${XDG_DIRFILE_DIR:?}
+${MENU_ROOT:?}
+${MAIN_LAUNCHER:?}
+${LOGFILE_ACTIVATIONS:?}
+${TMPMENUMNT:?}
+${ICONSIZE:?}"
+
+# i18n [[[2
+# Note: xgettext can't extract translation data from 'gettext -es' below.
+# For that you need xgettext.sh - see https://github.com/step-/i18n-table.
+export TEXTDOMAIN=fatdog
+export OUTPUT_CHARSET=UTF-8
+
+awk_read_translations="function read_translations(  f,r){ #[[[2
+f=MENUDIR\"/i18n\"
+r=1
+r=r&&(getline IT_concealed_1 <f)>0
+r=r&&(getline TT_concealed_1 <f)>0
+r=r&&(getline IT_concealed_0 <f)>0
+r=r&&(getline TT_concealed_0 <f)>0
+r=r&&(getline IT_chache_1 <f)>0
+r=r&&(getline TT_chache_1 <f)>0
+r=r&&(getline IT_chache_0 <f)>0
+r=r&&(getline TT_chache_0 <f)>0
+r=r&&(getline IT_uncat_app_1 <f)>0
+r=r&&(getline TT_uncat_app_1 <f)>0
+r=r&&(getline IT_uncat_app_0 <f)>0
+r=r&&(getline TT_uncat_app_0 <f)>0
+r=r&&(getline IT_activ_1 <f)>0
+r=r&&(getline TT_activ_1 <f)>0
+r=r&&(getline IT_activ_0 <f)>0
+r=r&&(getline TT_activ_0 <f)>0
+r=r&&(getline IT_uncategorized_apps <f)>0
+r=r&&(getline TT_uncategorized_apps <f)>0
+r=r&&(getline IT_activations <f)>0
+r=r&&(getline TT_activations <f)>0
+r=r&&(getline IT_fdcp <f)>0
+r=r&&(getline TT_fdcp <f)>0
+r=r&&(getline IT_this_menu <f)>0
+r=r&&(getline TT_this_menu <f)>0
+return r
+}
+"
+
+if ! [ -s "${TMPMENUDIR:?}/i18n" ]; then #[[[2
+  gettext -es > "$TMPMENUDIR/i18n" \
+"Show _concealed applications\n" \
+  "Mostly consisting of system scripts.\n" \
+"Hide _concealed applications\n" \
+  "Hiding is recommended for normal use.\n" \
+"_Refresh cache\n" \
+  "Rebuild the cache each time Gmenu2 runs. It might be needed to find newly-installed applications.\n" \
+"Stop _refreshing cache\n" \
+  "Generally, continued cache refreshing isn't necessary. Refreshing will increase menu start time.\n" \
+"Enable '_Uncategorized' sub-menu\n" \
+  "Try enabling this sub-menu if you can't find some applications.\n" \
+"Disable '_Uncategorized' sub-menu\n" \
+  "Stop showing category-less applications, and hide the sub-menu.\n" \
+"Enable '_Recent' sub-menu\n" \
+  "Save menu item activations in 'Recent' sub-menu for quick re-use.\n" \
+"Disable '_Recent' sub-menu\n" \
+  "Stop saving menu item activations, and hide the 'Recent' sub-menu.\n" \
+"_Uncategorized\n" \
+  "All and only the .desktop files without Category= value, regardless of NoDisplay=true. See also 'This menu > Refresh cache'.\n" \
+"_Recent\n" \
+  "Saved menu item activations. Quickly repeat an item.\n" \
+"_Control Panel\n" \
+"Fatdog64 Control Panel menu.\n" \
+"_This menu\n" \
+"Configure some Gmenu2 options. Full options file: ~/.gmenu2rc. Activations file: ~/.gmenu2.log.\n" \
+;
+fi
+
+
+
+
+
+if [ -z "$DEBUG" ]; then #[[[2
+  enable_debug=
+else
+  enable_debug="-f ${TMPMENUDIR:?}/debug.awk"
+  cat << \EOF > "$TMPMENUDIR/debug.awk"
+BEGIN { DEBUG=1 }
+function dbg_step(msg, # [[[2
+    s, appname) {
+  appname = ARGV[0]
+  if(""==msg) msg="ENTER: run until next line | Ctrl+D: run to end | Ctrl+C: kill"
+  if("init" == _step__state) {
+    printf "\033[7m Press ENTER to start \033[0m " >DBG
+    fflush()
+    getline s < "/dev/stdin"
+    _step_state = "open"
+  }
+  printf "[% 4d](%s)\n", NR, $0 >DBG
+  if("closed" != _step__state) {
+    _step__state = "closed"
+    printf "\033[7m[% 4d] %s \033[0m ", NR, msg >DBG
+  }
+  fflush()
+  getline s < "/dev/stdin"
+  step__state = "open"
+}
+EOF
+fi
+
+#[[[2]]]
+echo > "$TMPMENUDIR/make_menu.awk" "
+$awk_read_vars
+$awk_read_translations
+"'###awk
 BEGIN { #[[[2
   DBG = "/dev/stderr"; _step__state = "init"
-  DESKTOP_FILE_DIRS = "'"$DESKTOP_FILE_DIRS"'"
-  DESKTOP_FILE_DIRS_EXIST = "'"$DESKTOP_FILE_DIRS_EXIST"'"
-  DIRFILE_DIR = "'"$XDG_DIRFILE_DIR"'"
   ERRM = "#(error) "
-  MENU_ROOT = "'"$MENU_ROOT"'"
-  MENUDIR = "'"$TMPMENUDIR"'"
-  MAIN_LAUNCHER = "'"$MAIN_LAUNCHER"'"
   STATE = "Undefined"
+  read_vars()
+  read_translations()
 
-  print "#!/usr/bin/gtkmenuplus"
+  print "#!" (GTKMENUPLUS !~ "^/" ? "/usr/bin/env " : "") GTKMENUPLUS
+  print ""
+  print "# License GNU GPL2"
+  print "# (C) 2016-2019,2024 step"
+  print "# https://github.com/step-/scripts-to-go/tree/master/gmenu2"
   print ""
   if(INLINE)
     print "# Flat menu groups (INLINE=1)."
   else
     print "# Sub-categorized menu groups (INLINE=0)."
   print "THISFILE=$0"
-  print "WINEDIR='"$XDG_DATA_HOME"'/applications/wine"
+  print "if= $1"
+  print "  ICONSIZE=$1"
+  print "else"
+  print "  ICONSIZE="ICONSIZE
+  print "endif"
+  print "WINEDIR=" ENVIRON["XDG_DATA_HOME"] "/applications/wine"
   print "IGNORENODISPLAY="(0<match(IGNORENODISPLAY, /(true|yes|1)/))
   print "REFRESH_CACHE="(0<match(REFRESH_CACHE, /(true|yes|1)/))
   print "SUBMENU_ACTIVATIONS="SUBMENU_ACTIVATIONS
@@ -238,7 +366,7 @@ BEGIN { #[[[2
   print ""
   print "# Activate the log file to build loggable entries."
   print "if= $SUBMENU_ACTIVATIONS"
-  print "  LOGFILE='"$LOGFILE_ACTIVATIONS"'"
+  print "  LOGFILE="LOGFILE_ACTIVATIONS
   print "  activationlogfile = $LOGFILE"
   print "endif"
   print ""
@@ -251,7 +379,8 @@ BEGIN { #[[[2
   print "if= $IGNORENODISPLAY"
   print "  configure=nolaunchernodisplay"
   print "endif"
-  print "icondirectory = /usr/share/pixmaps\niconsize=16"
+  print "icondirectory = /usr/share/pixmaps"
+  print "iconsize = $ICONSIZE"
   if(MNEMONIC)
     print "format = mnemonic=\"1\""
   print ""
@@ -266,7 +395,7 @@ BEGIN { #[[[2
 {
   delete a
 }
-#: { step() }
+{ if (DEBUG) dbg_step() }
 "Hierarchy" == STATE && parse_tag("Name", $0, a) {
   curName = a[2]
 }
@@ -282,12 +411,12 @@ BEGIN { #[[[2
 }
 
 END { # Lay out each menu group. [[[2
-  not_INLINE_separator = sep = "" # just a visual convenience
+  not_INLINE_separator = sep = "" # for visual convenience
     if(!INLINE) sep = "separator"
   for(i = 1; i <= n; i++) {
     print not_INLINE_separator
     if("_layout_separator" == order[i]) {
-      print "separator" # this one instead mandated by menu layout
+      print "separator" # for valid menu layout
       continue
     }
     filename = mergeFile[order[i]]
@@ -300,17 +429,17 @@ END { # Lay out each menu group. [[[2
         add_wine_submenu()
         add_uncategorized_apps_submenu()
         if (add_fdcp803_submenu() < 0) { # fatdog64 > 802
-          add_fdcp_submenu()             # fatdog64 <= 802 with gmenu2-fdcp extension
+          add_fdcp_802submenu()          # fatdog64 <= 802 with gmenu2-fdcp extension
         }
         add_activation_submenu()
-        add_gmenu2_submenu()
+        add_this_menu_submenu()
         print "\nseparator\n"
         # Fix broken filepaths.
         func_convert_path = "convert_logout_submenu"
       }
       group_file = MENU_ROOT"/"filename
       layout(group_file, i, func_convert_path)
-    } else {
+    } else if (0) {
       printf "warning: No <MergeFile> for <Menu> <Name> \"%s\" in \"%s\"\n",
         order[i], FILENAME >"/dev/stderr"
     }
@@ -347,15 +476,16 @@ function layout(group_file, id, func_convert_path, #[[[2
   #    Sample file for pattern 3: fatdog-system-logout.menu
   #]]]
   ops["mkdir"] = 1
-  ops["mksubmenu"] = INLINE ? "REQUEST" : ""
+  ops["mksubmenu"] = INLINE ? "TRUE" : ""
   rs = RS; RS = "</?Menu>" # RS regex works in gawk, mawk and busybox awk
   while(0 < (getline s < group_file)) {
     open = 1
    if(is_pattern(1, s)) { #[[[
-      if(parse_tag("Directory", s, a)) { # TODO parse <inline> tag but for now INLINE is good enough
+      if(parse_tag("Directory", s, a)) {
+        # TODO (future, maybe) parse <inline> tag
         dirfile = DIRFILE_DIR"/"a[2]
         x = create_dirfile(dirfile, id, 1, group_file, "", ops)
-        if("REQUEST" == ops["mksubmenu"]) {
+        if("TRUE" == ops["mksubmenu"]) {
           printf "%slaunchersubmenu=%s\n",
             x ? "" : ERRM, x ? x : dirfile
           ops["mksubmenu"] = "SUCCESS"
@@ -414,7 +544,7 @@ function layout(group_file, id, func_convert_path, #[[[2
     }
   }
   else {
-    printf "cat\x27t open \x27%s\x27\n", menufile >"/dev/stderr"
+    printf "layout(): can\x27t open \x27%s\x27\n", menufile >"/dev/stderr"
   }
 }
 
@@ -422,8 +552,10 @@ function create_dirfile(dirfile, id, pat_tag, menufile, categories, byValue, #[[
     na, a, newdir, newfile, rs, s) {
   # Return: created-dirfile-fullpath or "" on error.
 
-  #: print "#: create_dirfile("dirfile"," id"," pat_tag"," menufile"," categories")"
-  #: printf "#:"; for(s in byValue) printf " %s=%s", s, byValue[s]; print ""
+  if (DEBUG) {
+    print "#: create_dirfile("dirfile"," id"," pat_tag"," menufile"," categories")"
+    printf "#:"; for(s in byValue) printf " %s=%s", s, byValue[s]; print ""
+  }
   rs = RS; RS = "\x1\x2\x3"
   if(0 < (getline s < dirfile)) {
     close(dirfile)
@@ -438,23 +570,23 @@ function create_dirfile(dirfile, id, pat_tag, menufile, categories, byValue, #[[
   }
   RS = rs
   if(newfile) {
-    if("REQUEST" == byValue["mksubmenu"]) {
+    if("TRUE" == byValue["mksubmenu"]) {
       printf "launchersubmenu=%s\n",
         byValue["launchersubmenu"] = newfile
       byValue["mksubmenu"] = "SUCCESS"
     }
     if(categories) {
-      # Save cats to pattern 2`s dirfile
+      # Save categories to pattern 2`s dirfile
       print "Categories=" categories > newfile
 
-      # And also accumulate cats in launchersubmenu= file, a.k.a
+      # Also accumulate categories in launchersubmenu= file, a.k.a
       # (pattern 1`s dirfile) to enable optimization {N2}
       if(INLINE && newfile != byValue["launchersubmenu"]) {
         printf ";" categories >> byValue["launchersubmenu"]
         close(byValue["launchersubmenu"])
       }
     } else {
-      # Init accumulating cats in launchersubmenu= file {N2}
+      # Init accumulating categories in launchersubmenu= file {N2}
       if(INLINE) {
         printf "Categories=" >> byValue["launchersubmenu"]
         close(byValue["launchersubmenu"])
@@ -478,9 +610,11 @@ function parse_tag(tag, buf, byRef, #[[[2 TODO tag cannot span multiple lines
     byRef[1] = attr = a[1]
     byRef[2] = val = a[2]
   }
-  #: print "  "ret" <- tag("tag")\n" >DBG
-  #: if(ret) for(i in a) print "    a["i"]("a[i]")" >DBG
-  #: if(ret) for(i in byRef) print "    byRef["i"]("byRef[i]")" >DBG
+  if (DEBUG) {
+    print "  "ret" <- tag("tag")\n" >DBG
+    if(ret) for(i in a) print "    a["i"]("a[i]")" >DBG
+    if(ret) for(i in byRef) print "    byRef["i"]("byRef[i]")" >DBG
+  }
   return ret
 }
 
@@ -501,26 +635,6 @@ function implode_tag(tag, sep, xml, #[[[2
   gsub(rx, sep, xml)
   gsub(sep"+", sep, xml)
   return xml
-}
-
-function step(msg, # [[[2
-    s, appname) {
-  appname = ARGV[0]
-  if(""==msg) msg="Press ENTER to run to next, Ctrl+D to run to end, Ctrl+C to kill"
-  if("init" == _step__state) {
-    printf "Press ENTER to start " >DBG
-    fflush()
-    getline s < "/dev/stdin"
-    _step_state = "open"
-  }
-  printf "%s[% 4d](%s)\n", appname, NR, $0 >DBG
-  if("closed" != _step__state) {
-    _step__state = "closed"
-    printf "%s[% 4d] %s", appname, NR, msg >DBG
-  }
-  fflush()
-  getline s < "/dev/stdin"
-  step__state = "open"
 }
 
 function add_wine_submenu() # [[[2
@@ -547,10 +661,10 @@ function add_activation_submenu(   dirfile) # [[[2
 {
   # Create suitable dirfile
   dirfile = MENUDIR "/activation.directory"
-  print "[Desktop Entry]\nIcon=gtk-media-previous"\
-    "\nName='"$IT_activations"'"\
-    "\nComment='"$TT_activations"'"\
-    "\nCategories=NULL" > dirfile
+  print "[Desktop Entry]\nIcon=gtk-media-previous" > dirfile
+  print "Name=" IT_activations > dirfile
+  print "Comment=" TT_activations > dirfile
+  print "Categories=NULL" > dirfile
   close(dirfile)
 
   print "\n#Recent sub-menu\nlauncherdirfile="
@@ -580,7 +694,8 @@ function add_fdcp803_submenu(   s, rs, x) # [[[2
     sub(/^.*\niconsize=[[:digit:]]+\n/, "", s) # discard initialization header
     print "\n# Fatdog64 control-panel menu\nlauncherdirfile=$dirfile"
     print "  configure = nolaunchernodisplay launchernullcategory"
-    print "  submenu = '"$IT_fdcp"'"
+    print "  submenu = " IT_fdcp
+    print "  tooltip = " TT_fdcp
     print "  icon = /usr/share/pixmaps/midi-icons/controlpanel48.png"
     if (MNEMONIC) {
       print "  format = mnemonic=\"1\""
@@ -591,7 +706,7 @@ function add_fdcp803_submenu(   s, rs, x) # [[[2
   }
 }
 
-function add_fdcp_submenu(   s, rs, x) # [[[2
+function add_fdcp802_submenu(   s, rs, x) # [[[2
 {
   rs = RS; RS = ""
   x = "gmenu2-fdcp --embed"
@@ -601,7 +716,8 @@ function add_fdcp_submenu(   s, rs, x) # [[[2
   if(s) {
     print "\n# Fatdog64 control-panel menu\nlauncherdirfile=$dirfile"
     print "  configure = nolaunchernodisplay launchernullcategory"
-    print "  submenu = '"$IT_fdcp"'"
+    print "  submenu = " IT_fdcp
+    print "  tooltip = " TT_fdcp
     print "  icon = /usr/share/pixmaps/midi-icons/controlpanel48.png"
     if (MNEMONIC) {
       print "  format = mnemonic=\"1\""
@@ -616,10 +732,10 @@ function add_uncategorized_apps_submenu(   dirfile) # [[[2
 {
   # Create suitable dirfile
   dirfile = MENUDIR "/uncategorized.directory"
-  print "[Desktop Entry]\nIcon=folder"\
-    "\nName='"$IT_uncategorized_apps"'"\
-    "\nComment='"$TT_uncategorized_apps"'"\
-    "\nCategories=NULL" > dirfile
+  print "[Desktop Entry]\nIcon=folder" >dirfile
+  print "Name=" IT_uncategorized_apps >dirfile
+  print "Comment=" TT_uncategorized_apps >dirfile
+  print "Categories=NULL" > dirfile
   close(dirfile)
 
   print "\n# Uncategorized apps sub-menu\nlauncherdirfile="
@@ -634,15 +750,17 @@ function add_uncategorized_apps_submenu(   dirfile) # [[[2
   print "endif"
 }
 
-function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
+function add_this_menu_submenu(   it1, it0, tt1, tt0) # [[[2
 {
-  print "\n# GMenu2 sub-menu\nlauncherdirfile="
-  print "submenu = _Gmenu2\nicon = gtk-preferences" #[[[3]]]
+  print "\n# Gmenu2 Menu Options\nlauncherdirfile=" #[[[3]]]
+  print "submenu = " IT_this_menu
+  print "tooltip = " TT_this_menu
+  print "icon = gtk-preferences"
   # Toggle IGNORENODISPLAY [[[3
-  it1 = "'"$IT_concealed_1"'"
-  tt1 = "'"$TT_concealed_1"'"
-  it0 = "'"$IT_concealed_0"'"
-  tt0 = "'"$TT_concealed_0"'"
+  it1 = IT_concealed_1
+  tt1 = TT_concealed_1
+  it0 = IT_concealed_0
+  tt0 = TT_concealed_0
   print "if= $IGNORENODISPLAY\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
   toggle("IGNORENODISPLAY", 1)
@@ -653,10 +771,10 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   toggle("IGNORENODISPLAY", 0)
   print "endif"
   # Toggle REFRESH_CACHE [[[3
-  it1 = "'"$IT_chache_1"'"
-  tt1 = "'"$TT_chache_1"'"
-  it0 = "'"$IT_chache_0"'"
-  tt0 = "'"$TT_chache_0"'"
+  it1 = IT_chache_1
+  tt1 = TT_chache_1
+  it0 = IT_chache_0
+  tt0 = TT_chache_0
   print "if= $REFRESH_CACHE\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
   toggle("REFRESH_CACHE", 1)
@@ -667,10 +785,10 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   toggle("REFRESH_CACHE", 0)
   print "endif"
   # Toggle SUBMENU_ACTIVATIONS [[[3
-  it1 = "'"$IT_activ_1"'"
-  tt1 = "'"$TT_activ_1"'"
-  it0 = "'"$IT_activ_0"'"
-  tt0 = "'"$TT_activ_0"'"
+  it1 = IT_activ_1
+  tt1 = TT_activ_1
+  it0 = IT_activ_0
+  tt0 = TT_activ_0
   print "if= $SUBMENU_ACTIVATIONS\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
   toggle("SUBMENU_ACTIVATIONS", 1)
@@ -681,10 +799,10 @@ function add_gmenu2_submenu(   it1, it0, tt1, tt0) # [[[2
   toggle("SUBMENU_ACTIVATIONS", 0)
   print "endif"
   # Toggle SUBMENU_UNCATEGORIZED_APPS [[[3
-  it1 = "'"$IT_uncat_app_1"'"
-  tt1 = "'"$TT_uncat_app_1"'"
-  it0 = "'"$IT_uncat_app_0"'"
-  tt0 = "'"$TT_uncat_app_0"'"
+  it1 = IT_uncat_app_1
+  tt1 = TT_uncat_app_1
+  it0 = IT_uncat_app_0
+  tt0 = TT_uncat_app_0
   print "if= $SUBMENU_UNCATEGORIZED_APPS\nelse"
   print "  item = "it1"\n  icon = gtk-yes\n  tooltip = "tt1
   toggle("SUBMENU_UNCATEGORIZED_APPS", 1)
@@ -727,16 +845,15 @@ function convert_filename_logout_submenu(filename) { # [[[2
   sub(/-/, "/", filename)
   return find_first_filename(filename)
 }
-
-#awk}}} [[[2]]] ' "$MAIN_LAYOUT" > "$TMPMENU" &&
+#awk}}}'
 
 # Optimize menu {N2} [[[1
-LANG=C awk \
-'
+#[[[2]]]
+echo > "$TMPMENUDIR/optimize_menu.awk" "
+$awk_read_vars
+"'###awk
 BEGIN {
-  MENUDIR = "'"$TMPMENUDIR"'"
-  MENUMNT = "'"$TMPMENUMNT"'"
-  INLINE = "'"$INLINE"'"
+  read_vars()
 }
 {gsub(MENUDIR"/", "")} # gtkmenuplus supports relative paths
 !INLINE {print; next} # the rest is specific to the in-lined menu
@@ -783,11 +900,36 @@ BEGIN {
   next
 }
 {print}
-#[[[2]]] ' "$TMPMENU" > "$TMPMENU.opt" &&
-mv "$TMPMENU.opt" "$TMPMENU" &&
+NR == 1 { print "# OPTIMIZED MENU" }
+###awk'
 
-# Display menu [[[1
-gtkmenuplus "$TMPMENU"
-chmod +x "$TMPMENU"
+
+
+
+
+
+#[[[1]]]
+
+#######################################################################
+#           FIRST RUN: CREATE AND DISPLAY (OPTIMIZED) MENU            #
+#######################################################################
+
+if LANG=C $AWK -v MENUDIR="${TMPMENUDIR:?}" $enable_debug \
+  -f "$TMPMENUDIR/make_menu.awk" "$MAIN_LAYOUT" > "${TMPMENU:?}"
+then
+  if [ ${INLINE:?} -eq 1 ]; then
+    LANG=C $AWK -v MENUDIR="$TMPMENUDIR" \
+      -f "$TMPMENUDIR/optimize_menu.awk" "$TMPMENU" > "$TMPMENU.opt" &&
+      mv "$TMPMENU.opt" "$TMPMENU"
+  fi
+fi
+if [ -s "$TMPMENU" ]; then
+  $GTKMENUPLUS "$TMPMENU" "$ICONSIZE"
+
+  chmod +x "$TMPMENU"
+  if [ -z "$DEBUG" ]; then
+    rm -f "$TMPMENUDIR/make_menu.awk" "$TMPMENUDIR/optimize_menu.awk"
+  fi
+fi
 
 # vim: foldmarker=[[[,]]]:

@@ -1,301 +1,292 @@
-.TH "GMENU2" 1 2019-10-11
-.SH gmenu2
+.\" -*- mode: troff; coding: utf-8 -*-
+.TH "GMENU2 " "1" "2024-02-02 "
+.SH
+gmenu2
 .LP
-Stand-alone extended application menu
-.SS Compatibility
+Alternative desktop menu implementation using gtkmenuplus
+.SS
+Compatibility
 .LP
-Gmenu2 loosely follows the specification for XDG menu applications.  However,
-it was developed primarily for Fatdog64 Linux, so it may be lacking for other
+Gmenu2 loosely follows the specification for XDG menu applications.
+It is developed for Fatdog64 Linux, and it could be lacking for other
 distributions.
-.SS Target User
+.SS
+Target User
 .LP
-You look for an alternative application menu with pizzazz.
-.LP
-You remaster Fatdog64 and need a stand-alone application menu that works
+You remaster Fatdog64 and want a stand-alone application menu that works
 without a window manager or a desktop panel.
-.SS Installing
+.SS
+Installing
 .LP
 This script can be installed from a command line shell prompt.
-It should be installed to «\f[CR]/\f[R]» for system-wide availability.
-.LP
-It can be started from a shell prompt.  The installer also adds a \(lqGmenu2\(rq
-entry in section \(lqDesktop\(rq of the system application menu.
-.LP
-First, install all dependencies, see 
-\f[I]Dependencies\f[R].
-Then, optionally install extensions, see 
-\f[I]Extensions\f[R].
-.LP
-Then download the latest archive \f[B]attachment\f[R] from the release 
-page\f[I]:1\f[R].
+It should be installed to «\fC/\fR» for system-wide availability.
+.PP
+It can be started from a shell prompt.  The installer also adds a \(dqGmenu2\(dq
+entry in section \(dqDesktop\(dq of the system application menu.
+.PP
+First, install all dependencies, see \fBDependencies\fR.
+Then, optionally install extensions, see \fBExtensions\fR.
+.PP
+Then download the latest archive \fBattachment\fR from the release page\fB:1\fR.
 Unpack the archive into a folder of your choice.
-.LP
-From that folder run the following command: «\f[CR]install/bin/install.sh\f[R]».
+.PP
+From that folder run the following command: «\fCinstall/bin/install.sh\fR».
 This will start an interactive installer, which includes a Help screen.
-.LP
+.PP
 Assuming a successful installation with default settings, enter command
-«\f[CR]gmenu2\f[R]» in a shell prompt to display the gmenu2 menu.
+«\fCgmenu2\fR» in a shell prompt to display the gmenu2 menu.
 Probably several non-fatal error messages will be printed to the terminal
 but as long as the menu is displayed all is good.
-.LP
-\f[B]Important\f[R] \(em After having completed the installation you \f[B]must\f[R] save file
-«\f[CR]install.log\f[R]», which is located in folder «\f[CR]install/\f[R]», if you want to be able to
+.PP
+\fBImportant\fR --- After having completed the installation you \fBmust\fR save file
+«\fCinstall.log\fR», which is located in folder «\fCinstall/\fR», if you want to be able to
 uninstall gmenu2 in the future.  Indeed, it is recommended to save the
-whole folder «\f[CR]install/\f[R]», which holds the uninstall program and the log file.
-.SS Dependencies
+whole folder «\fCinstall/\fR», which holds the uninstall program and the log file.
+.PP
+.SS
+Dependencies
 .LP
-Install «\f[CR]gtkmenuplus\f[R]»
-\f[I]:2\f[R].
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  Since version 800, Fatdog64 includes gtkmenuplus; no need to install it again.
-.RE
-.SS Extensions
+Install «\fCgtkmenuplus\fR»\fB:2\fR».
+.IP "\(bu" 3
+Since version 800, Fatdog64 includes gtkmenuplus; no need to install it again.
 .LP
-If «\f[CR]quicklaunch\f[R]» is installed, it can share recently selected menu entries with
+.SS
+Extensions
+.LP
+If «\fCquicklaunch\fR» is installed, it can share recently selected menu entries with
 gmenu2.
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  Optional: install «\f[CR]quicklaunch\f[R]»
-\f[I]:5\f[R].
-See also section 
-\f[I]Configuration\f[R].
-.RE
+.IP "\(bu" 3
+Optional: install «\fCquicklaunch\fR»\fB:5\fR».
+See also section \fBConfiguration\fR.
 .LP
-If «\f[CR]gmenu2-fdcp\f[R]» is installed, gmenu2 will display menu entries for the
-Fatdog64 Control Panel.
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  This extension isn\(cqt needed for Fatdog64 > 802.
-.RE
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  Optional: install «\f[CR]gmenu2-fdcp\f[R]»
-\f[I]:6\f[R].
-.RE
-.SS Uninstalling
+If «\fCgmenu2-fdcp\fR» is installed, gmenu2 will display menu entries for the
+Fatdog64 Control Panel. This extension is only needed for Fatdog64 <= 802.
+.IP "\(bu" 3
+Optional: install «\fCgmenu2-fdcp\fR»\fB:6\fR».
+.SS
+Uninstalling
 .LP
 From the folder where you unpacked the downloaded archive run the following
-command: «\f[CR]install/bin/uninstall.sh\f[R]».
+command: «\fCinstall/bin/uninstall.sh\fR».
 This will start an interactive uninstaller, which includes a Help screen.
+.PP
+The uninstaller will not remove the user's configuration files:
+«\fC\(ti/.gmenu2rc\fR» and «\fC\(ti/.gmenu2.log\fR».
+.SS
+Submenus
 .LP
-The uninstaller will not remove the user\(cqs configuration files:
-\f[CR]\(ti/.gmenu2rc\f[R] and \f[CR]\(ti/.gmenu2.log\f[R].
-.SS Submenus
-.LP
-In addition to simulating the system application menu, gmenu2 provides some
+In addition to providing the system application menu, gmenu2 provides some
 submenus of its own:
 .RS
-.LP
+.PP
 Control panel
 .RE
-.LP
-See 
-\f[I]Extensions\f[R].
+.PP
+See \fBExtensions\fR.
 .RS
-.LP
+.PP
 Recent
-.LP
+.PP
 Tools
-.LP
+.PP
 Uncategorized
 .RE
-.LP
-See 
-\f[I]Configuration\f[R].
+.PP
+See \fBConfiguration\fR.
 .RS
-.LP
+.PP
 Wine
 .RE
-.LP
+.PP
 If the Wine emulator is installed, and it is configured to add Wine
 applications to the system menu, this submenu will show such applications.
-.SS Configuration
-.SS Preferences file
+.PP
+.SS
+Configuration
+.SS
+Preferences file
 .LP
-Gmenu2 self-configures on the first run; you do not need to do anything.  Just
-know that you will be able to change preferences at any time directly from
-the gmenu2 menu, and also by editing file \f[CR]\(ti/.gmenu2rc\f[R], which gmenu2 creates
-if it does not already exist.  Default preferences:
+Gmenu2 self-configures on the first run; you do not need to do anything.
+You can change some menu preferences directly from
+the gmenu2 menu, and also by editing file «\fC\(ti/.gmenu2rc\fR», which gmenu2 creates
+if the file does not exist.  Default preferences:
 .RS
-.LP
-«\f[CR]IGNORENODISPLAY="0"\f[R]»
+.PP
+«\fCIGNORENODISPLAY=\(dq0\(dq\fR»
 .RE
-.LP
-If this setting is enabled (\(lq1\(rq) gmenu2 will not hide the application menu
+.PP
+If this setting is enabled (\(dq1\(dq) gmenu2 will not hide the application menu
 entries that the default system application menu always hides.
-You can toggle this setting by selecting \(lqGmenu2 > Show concealed applications\(rq
+You can toggle this setting by selecting \(dqGmenu2 > Show concealed applications\(dq
 in gmenu2.
 .RS
-.LP
-«\f[CR]INLINE="1"\f[R]»
+.PP
+«\fCINLINE=\(dq1\(dq\fR»
 .RE
-.LP
-If this setting is disabled (\(lq0\(rq) gmenu2 will not group applications by
+.PP
+If this setting is disabled (\(dq0\(dq) gmenu2 will not group applications by
 categories but instead the menu will be a very long, flat list of entries. This
 is probably not what you want.  This setting is not exposed in the menu. If you
 experiment and change it, and then set it back, you will also need to remove
-the menu cache directory, «\f[CR]/tmp/gmenu_$USER\f[R]», where «\f[CR]$USER\f[R]» is your login name.
+the menu cache directory, «\fC/tmp/gmenu_$USER\fR», where «\fC$USER\fR» is your login name.
 .RS
-.LP
-«\f[CR]REFRESH_CACHE="0"\f[R]»
+.PP
+«\fCREFRESH_CACHE=\(dq0\(dq\fR»
 .RE
-.LP
-If this setting is enabled (\(lq1\(rq) gmenu2 will rebuild the menu cache each time
+.PP
+If this setting is enabled (\(dq1\(dq) gmenu2 will rebuild the menu cache each time
 it is invoked. Building the cache delays showing the menu.
-It this setting is disabled (\(lq0\(rq) gmenu2 will build the cache automatically
+It this setting is disabled (\(dq0\(dq) gmenu2 will build the cache automatically
 only if it does not already exist.  This displays the menu faster (after the
 first menu invocation) but gmenu2 will not display entries for newly installed
 applications unless you tell it to update the cache.
-.LP
-You can force cache updates by selecting \(lqGmenu2 > Refresh cache\(rq in gmenu2.
+.PP
+You can force cache updates by selecting \(dqGmenu2 > Refresh cache\(dq in gmenu2.
 Forced updates will keep going until disabled with
-\(lqGmenu2 > Stop refreshing the cache\(rq.
+\(dqGmenu2 > Stop refreshing the cache\(dq.
 .RS
-.LP
-«\f[CR]SUBMENU_UNCATEGORIZED_APPS="0"\f[R]»
+.PP
+«\fCSUBMENU_UNCATEGORIZED_APPS=\(dq0\(dq\fR»
 .RE
-.LP
-By developer\(cqs choice or by mistake, there can be applications that do not fall
-into any known application category and are therefore invisible in the default
-system application menu. If this setting is enabled (\(lq1\(rq) such uncategorized
-applications will be shown in the \(lqUncategorized\(rq submenu.
+.PP
+Application packagers may choose not to assign an application to any known
+application category. In this case the application is not listed in the default
+system application menu. By enabling this setting (\(dq1\(dq) such uncategorized
+applications will be listed in the \(dqUncategorized\(dq submenu.
 .RS
-.LP
-«\f[CR]SUBMENU_ACTIVATIONS="1"\f[R]»
+.PP
+«\fCSUBMENU_ACTIVATIONS=\(dq1\(dq\fR»
 .RE
-.LP
-If this setting is enabled (\(lq1\(rq), all menu entry activations will be logged
-to the file specified by user preference «\f[CR]LOGFILE_ACTIVATIONS\f[R]», and shown
-in the \(lqRecent\(rq submenu.
-.LP
-If «\f[CR]quicklaunch\f[R]»[:5] is installed it will share its own Recent submenu items
+.PP
+If this setting is enabled (\(dq1\(dq), all menu entry activations will be logged
+to the file specified by user preference «\fCLOGFILE_ACTIVATIONS\fR», and shown
+in the \(dqRecent\(dq submenu.
+.PP
+If «\fCquicklaunch\fR»[:5] is installed it will share its own Recent submenu items
 with gmenu2 via the log file. This way whatever entry is activated in one menu
-will also be seen in the other menu\(cqs Recent submenu.
+will also be seen in the other menu's Recent submenu.
 .RS
-.LP
-«\f[CR]LOGFILE_ACTIVATIONS="/root/.gmenu2.log"\f[R]»
+.PP
+«\fCLOGFILE_ACTIVATIONS=\(dq/root/.gmenu2.log\(dq\fR»
 .RE
-.LP
+.PP
 This file logs all activations (if enabled) in a format suitable for sharing
-with «\f[CR]quicklaunch\f[R]»[:5].
+with «\fCquicklaunch\fR»[:5].
 .RS
-.LP
-«\f[CR]MNEMONIC="1"\f[R]»
+.PP
+«\fCMNEMONIC=\(dq1\(dq\fR»
 .RE
-.LP
-If this setting is disabled (\(lq0\(rq) gmenu2 will not add keyboard accelerators of
-its own.  The keyboard key that corresponds to a label\(cqs underlined character,
+.PP
+If this setting is disabled (\(dq0\(dq) gmenu2 will not add keyboard accelerators of
+its own.  The keyboard key that corresponds to a label's underlined character,
 if one exists, can be pressed to jump to that label, which is therefore said
-\(lqaccelerated\(rq.  If «\f[CR]MNEMONIC\f[R]» is «\f[CR]"1"\f[R]» gmenu2 will set the first character of
-each \(lqunaccelerated\(rq label as its accelerator.
-.SS Assigning a global hotkey (optional)
+\(dqaccelerated\(dq.  If «\fCMNEMONIC\fR» is «\fC\(dq1\(dq\fR» gmenu2 will set the first character of
+each \(dqunaccelerated\(dq label as its accelerator.
+.RS
+.PP
+«\fCICONSIZE=\(dq24\(dq\fR»
+.RE
+.PP
+The size of menu item icons in pixels.
+.SS
+Assigning a global hotkey (optional)
 .LP
-The following instructions apply to 
-sven\f[I]:3\f[R]
-\(em the multimedia
-keyboard manager in Fatdog64 
-Linux\f[I]:4\f[R].
-They assume that key Windows+s isn\(cqt already assigned as a hotkey.
-If it is assigned, you need to disable the assignment in sven\(cqs configuration
+The following instructions apply to sven\fB:3\fR --- the multimedia
+keyboard manager in Fatdog64 Linux\fB:4\fR.
+They assume that key Windows+s isn't already assigned as a hotkey.
+If it is assigned, you need to disable the assignment in sven's configuration
 before re-assigning it.
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  Right-click the keyboard icon \(en located in the desktop panel icon tray \(ento
-open sven\(cqs menu, and select Preferences
-.RE
-.RS
-.ti -\w'\(bu  'u
-\(bu  Click Keyboard > New > Description and type \f[I]Stand-alone System Menu Win+s\f[R]
-.RE
-.RS
-.ti -\w'\(bu  'u
-\(bu  Click inside input field Key Code with your mouse, then press keys \(lqWindows\(rq
-and \(lqs\(rq together, don\(cqt press other keys
-.RE
-.RS
-.ti -\w'\(bu  'u
-\(bu  Click inside input field Text Display with your mouse, then type \(lqSystem and
-.RE
-.RS
-.ti -\w'\(bu  'u
-\(bu  Applications\(rq
-.RE
-.RS
-.ti -\w'\(bu  'u
-\(bu  Click the Program radio button, and type: «\f[CR]gmenu2\f[R]»
-.RE
-.RS
-.ti -\w'\(bu  'u
-\(bu  Click OK and close sven.
-.RE
+.IP "\(bu" 3
+Right-click the keyboard icon -- located in the desktop panel icon tray --to
+open sven's menu, and select Preferences
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+Click Keyboard > New > Description and type \fIStand-alone System Menu Win+s\fR
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+Click inside input field Key Code with your mouse, then press keys \(dqWindows\(dq
+and \(dqs\(dq together, don't press other keys
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+Click inside input field Text Display with your mouse, then type \(dqSystem and
+Applications\(dq
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+Click the Program radio button, and type: «\fCgmenu2\fR»
+.if n \
+.sp -1
+.if t \
+.sp -0.25v
+.IP "\(bu" 3
+Click OK and close sven.
 .LP
 Press Win+s to test the global hotkey.
-.SS Setting a theme (optional)
+.SS
+Setting a theme (optional)
 .LP
-If «\f[CR]quicklaunch\f[R]»
-\f[I]:5\f[R]
-is installed, you can theme the gmenu2 menu using
+If «\fCquicklaunch\fR»\fB:5\fR» is installed, you can theme the gmenu2 menu using
 the themes and instructions provided with the quicklaunch package.
-.SS Help
+.SS
+Help
 .LP
-This file is \(lqthe\(rq help file, so keep it around for future reference
-because it isn\(cqt installed by default.  However, if the «\f[CR]man\f[R]» command is
+This file is \(dqthe\(dq help file, so keep it around for future reference
+because it isn't installed by default.  However, if the «\fCman\fR» command is
 installed, you will be able to view these contents by running command:
-.sp 1
+.LP
 .nf
 .ft CR
 man gmenu2
 .ft
 .fi
-.LP
+.PP
 Tip: by default the menu contents are cached. To troubleshoot any issues start
-by removing the menu cache directory, «\f[CR]/tmp/gmenu_$USER\f[R]», where «\f[CR]$USER\f[R]» is your
+by removing the menu cache directory, «\fC/tmp/gmenu_$USER\fR», where «\fC$USER\fR» is your
 login name.
-.SS AUTHOR
+.SS
+AUTHOR
 .LP
 step
-.SS LINKS
+.PP
+.SS
+LINKS
 .LP
-\f[B]Homepage\f[R]
-\f[I]github.com/step-/scripts-to-go\f[R]
+\fBHomepage\fR
+\fIhttps://github.com/step-/scripts-to-go#gmenu2\fR
+.PP
+\fB:1\fR release page
+\fIhttps://github.com/step-/scripts-to-go/releases\fR
+.PP
+\fB:2\fR gtkmenuplus
+\fIhttps://github.com/step-/gtkmenuplus\fR
+.IP "\(bu" 3
+formatting directives ( «\fCman 5 gtkmenuplus\fR» )
+\fIhttps://github.com/step-/gtkmenuplus/blob/master/docs/menu_configuration_file_format.md\fR
 .LP
-\f[B]:1\f[R] release page
-\f[I]github.com/step-/scripts-to-go/releases\f[R]
+\fB:3\fR sven multimedia keyboard manager
+.IP "\(bu" 3
+source
+\fIhttp://distro.ibiblio.org/fatdog/source/900/sven-2023.07.02.tar.bz2\fR
+.IP "\(bu" 3
+64-bit binary
+\fIhttp://distro.ibiblio.org/fatdog/packages/900/sven-2023.07-x86_64-1.txz\fR
 .LP
-\f[B]:2\f[R] gtkmenuplus
-\f[I]github.com/step-/gtkmenuplus\f[R]
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  formatting directives ( «\f[CR]man 5 gtkmenuplus\f[R]» )
-\f[I]blob/master/docs/menu_configuration_file_format.md\f[R]
-.RE
-.LP
-\f[B]:3\f[R] sven multimedia keyboard manager
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  source
-\f[I]distro.ibiblio.org/fatdog/source/800/sven-20190207.tar.bz2\f[R]
-.RE
-.sp 1.0v
-.RS
-.ti -\w'\(bu  'u
-\(bu  64-bit binary
-\f[I]distro.ibiblio.org/fatdog/packages/800/sven-2019.02-x86_64-1.txz\f[R]
-.RE
-.LP
-\f[B]:4\f[R] Fatdog64 Linux
-\f[I]distro.ibiblio.org/fatdog/web/\f[R]
-.LP
-\f[B]:5\f[R] Quicklaunch user menu
-\f[I]github.com/step-/gtkmenuplus\f[R]
-.LP
-\f[B]:6\f[R] Gmenu2 extension: Fatdog64 Control Panel
-\f[I]github.com/step-/gtkmenuplus\f[R]
+\fB:4\fR Fatdog64 Linux
+\fIhttp://distro.ibiblio.org/fatdog/web/\fR
+.PP
+\fB:5\fR Quicklaunch user menu
+\fIhttps://github.com/step-/scripts-to-go/#quicklaunch\fR
+.PP
+\fB:6\fR Gmenu2 extension: Fatdog64 Control Panel
+\fIhttps://github.com/step-/scripts-to-go/#gmenu2-fdcp\fR
