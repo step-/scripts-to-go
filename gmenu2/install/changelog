@@ -1,3 +1,19 @@
+1.4.0
+=====
+
+2024-02-03
+
+Modernize and improve:
+
+* Convert injected shell variables to regular awk variables.
+* Add DEBUG flag and improve debugging aids.
+* Move cached menu from /tmp to $XDG_RUNTIME_DIR.
+* Improve reading translations.
+* Update copyright notice.
+* Allow setting icon size in ~/.gmenu2rc.
+* Bump version to 1.4.0.
+* Update README.
+
 1.3.0
 =====
 
@@ -31,3 +47,4 @@
 2016-09-19
 
 * First release.
+
